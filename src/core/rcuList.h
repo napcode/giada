@@ -39,6 +39,10 @@
 namespace giada {
 namespace m
 {
+/* RCUList
+Single producer, multiple consumer (i.e. one writer, many readers) RCU-based 
+list. */
+ 
 template<typename T>
 class RCUList
 {
@@ -224,6 +228,8 @@ public:
 	template<typename C=T>
 	std::unique_ptr<C> clone(size_t i=0) const
     {
+		/* Make sure no one is writing (swapping, popping, pushing). */
+		assert(m_writing.load() == false);
 		return std::make_unique<C>(*static_cast<C*>(getNode(i)->data.get()));
     }
 
