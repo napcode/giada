@@ -43,6 +43,24 @@ namespace giada {
 namespace m {
 namespace model
 {
+struct ChannelAtomic
+{
+	ID id;
+	std::atomic<ChannelStatus> playStatus{ ChannelStatus::OFF };
+	std::atomic<ChannelStatus> recStatus { ChannelStatus::OFF };
+	std::atomic<Frame>         tracker   { 0 };
+	
+	/* buffer
+	Working buffer for internal processing. */
+/*
+	AudioBuffer buffer;
+	
+	bool quantizing;
+	bool rewinding;
+	float volume_d; 
+	float volume_i;*/
+};
+
 struct Clock
 {	
 	ClockStatus status       = ClockStatus::STOPPED;
