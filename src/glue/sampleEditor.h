@@ -29,13 +29,20 @@
 #define G_GLUE_SAMPLE_EDITOR_H
 
 
+#include <functional>
 #include "core/types.h"
 
 
 namespace giada {
+namespace v 
+{
+class gdSampleEditor;
+}
 namespace c {
 namespace sampleEditor 
 {
+void onRefresh(bool gui, std::function<void(v::gdSampleEditor&)> f);
+
 /* setBeginEnd
 Sets start/end points in the sample editor. */
 

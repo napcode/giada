@@ -95,6 +95,17 @@ void resetBeginEnd_(ID channelId)
 /* -------------------------------------------------------------------------- */
 
 
+void onRefresh(bool gui, std::function<void(v::gdSampleEditor&)> f)
+{
+	v::gdSampleEditor* se = static_cast<v::gdSampleEditor*>(u::gui::getSubwindow(G_MainWin, WID_SAMPLE_EDITOR));
+	if (se == nullptr) 
+		return;
+	if (!gui) Fl::lock();
+	f(*se);
+	if (!gui) Fl::unlock();
+}
+
+
 v::gdSampleEditor* getSampleEditorWindow()
 {
 	v::gdSampleEditor* se = static_cast<v::gdSampleEditor*>(u::gui::getSubwindow(G_MainWin, WID_SAMPLE_EDITOR));

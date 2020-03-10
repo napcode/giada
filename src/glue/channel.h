@@ -73,7 +73,7 @@ Unloads the sample from a sample channel. */
 void freeChannel(ID channelId);
 
 /* cloneChannel
-Makes an exact copy of Channel *ch. */
+Makes an exact copy of a channel. */
 
 void cloneChannel(ID channelId);
 

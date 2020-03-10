@@ -89,6 +89,8 @@ sourcesCore =                               \
 	src/core/model/storage.cpp              \
 	src/core/idManager.h                    \
 	src/core/idManager.cpp                  \
+	src/glue/events.h                       \
+	src/glue/events.cpp                     \
 	src/glue/main.h                         \
 	src/glue/main.cpp                       \
 	src/glue/io.h                           \

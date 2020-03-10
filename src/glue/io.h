@@ -43,12 +43,6 @@ class Channel;
 namespace c {
 namespace io 
 {
-/* keyPress / keyRelease
-Handle the key pressure, either via mouse/keyboard or MIDI. */
-
-void keyPress  (ID channelId, bool ctrl, bool shift, int velocity);
-void keyRelease(ID channelId, bool ctrl, bool shift);
-
 /* setSampleChannelKey
 Set key 'k' to Sample Channel 'channelId'. Used for keyboard bindings. */
 

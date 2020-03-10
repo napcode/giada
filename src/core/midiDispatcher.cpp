@@ -28,7 +28,7 @@
 #include <cassert>
 #include <vector>
 #include "glue/plugin.h"
-#include "glue/io.h"
+#include "glue/events.h"
 #include "glue/channel.h"
 #include "glue/main.h"
 #include "utils/log.h"
@@ -140,13 +140,13 @@ void processChannels_(const MidiEvent& midiEvent)
 		if      (pure == ch->midiInKeyPress) {
 			actions.push_back([=] {
 				u::log::print("  >>> keyPress, ch=%d (pure=0x%X)\n", ch->id, pure);
-				c::io::keyPress(ch->id, false, false, midiEvent.getVelocity());
+				c::events::keyPress(ch->id, false, false, midiEvent.getVelocity());
 			});
 		}
 		else if (pure == ch->midiInKeyRel) {
 			actions.push_back([=] {
 				u::log::print("  >>> keyRel ch=%d (pure=0x%X)\n", ch->id, pure);
-				c::io::keyRelease(ch->id, false, false);
+				c::events::keyRelease(ch->id, false, false);
 			});
 		}
 		else if (pure == ch->midiInMute) {

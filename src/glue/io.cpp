@@ -81,31 +81,6 @@ void refreshMidiWindows_()
 /* -------------------------------------------------------------------------- */
 
 
-void keyPress(ID channelId, bool ctrl, bool shift, int velocity)
-{
-	if (ctrl)
-		c::channel::toggleMute(channelId);
-	else
-	if (shift)
-		c::channel::kill(channelId, /*record=*/true);
-	else
-		c::channel::start(channelId, velocity, /*record=*/true);
-}
-
-
-/* -------------------------------------------------------------------------- */
-
-
-void keyRelease(ID channelId, bool ctrl, bool shift)
-{
-	if (!ctrl && !shift)
-		c::channel::stop(channelId);
-}
-
-
-/* -------------------------------------------------------------------------- */
-
-
 void setSampleChannelKey(ID channelId, int k)
 {
 	m::model::onSwap(m::model::channels, channelId, [&](m::Channel& c)

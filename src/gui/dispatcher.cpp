@@ -34,7 +34,7 @@
 #include "core/mixerHandler.h"
 #include "core/recManager.h"
 #include "core/conf.h"
-#include "glue/io.h"
+#include "glue/events.h"
 #include "glue/main.h"
 #include "gui/dialogs/mainWindow.h"
 #include "gui/elems/mainWindow/keyboard/channel.h"
@@ -68,10 +68,10 @@ std::function<void()> signalCb_ = nullptr;
 void perform_(const geChannel* gch, int event)
 {
 	if (event == FL_KEYDOWN)
-		c::io::keyPress(gch->channelId, Fl::event_ctrl(), Fl::event_shift(), G_MAX_VELOCITY);
+		c::events::keyPress(gch->channelId, Fl::event_ctrl(), Fl::event_shift(), G_MAX_VELOCITY);
 	else
 	if (event == FL_KEYUP)	
-		c::io::keyRelease(gch->channelId, Fl::event_ctrl(), Fl::event_shift());
+		c::events::keyRelease(gch->channelId, Fl::event_ctrl(), Fl::event_shift());
 }
 
 
