@@ -31,7 +31,7 @@
 #include "core/channels/sampleChannel.h"
 #include "core/const.h"
 #include "core/model/model.h"
-#include "glue/channel.h"
+#include "glue/events.h"
 #include "utils/gui.h"
 #include "utils/math.h"
 #include "utils/string.h"
@@ -95,7 +95,7 @@ void geVolumeTool::cb_setVolumeNum(Fl_Widget* w, void* p) { ((geVolumeTool*)p)->
 
 void geVolumeTool::cb_setVolume()
 {
-	c::channel::setVolume(m_channelId, dial->value(), false, true);
+	c::events::setChannelVolume(m_channelId, dial->value(), false, true);
 }
 
 
@@ -105,7 +105,7 @@ void geVolumeTool::cb_setVolume()
 void geVolumeTool::cb_setVolumeNum()
 {
 	float value = pow(10, (atof(input->value()) / 20)); // linear = 10^(dB/20)
-	c::channel::setVolume(m_channelId, value, false, true);
+	c::events::setChannelVolume(m_channelId, value, false, true);
 }
 
 }} // giada::v::

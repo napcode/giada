@@ -38,26 +38,26 @@ comes from the UI, MIDI thread or keyboard interaction and wants to change the
 internal engine state must call these functions. */
 
 namespace giada {
+namespace m
+{
+class MidiEvent;
+}
 namespace c {
 namespace events
 {
-/* keyPress, keyRelease
-Generic key-press and key-release events from the computer keyboard. */
-
-void keyPress  (ID channelId, bool ctrl, bool shift, int velocity);
-void keyRelease(ID channelId, bool ctrl, bool shift);
-
 /* Channel*
 Channel-related events. */
 
-void startChannel            (ID channelId, int velocity, bool record);
-void killChannel             (ID channelId, bool record);
-void stopChannel             (ID channelId);
-void setChannelVolume        (ID channelId, float v, bool gui=true, bool editor=false);
+void pressChannel            (ID channelId, int velocity);
+void releaseChannel          (ID channelId);
+void killChannel             (ID channelId);
+void setChannelVolume        (ID channelId, float v, bool gui, bool editor);
+void setChannelPitch         (ID channelId, float v, bool gui, bool editor);
 void toggleMuteChannel       (ID channelId);
 void toggleSoloChannel       (ID channelId);
 void toggleArmChannel        (ID channelId);
 void toggleReadActionsChannel(ID channelId);
+void sendMidiToChannel       (ID channelId, const m::MidiEvent& e); // TODO
 
 /* Main*
 Master I/O, transport and other engine-related events. */
@@ -71,6 +71,10 @@ void toggleSequencer      ();
 void rewindSequencer      ();
 void toggleActionRecording();
 void toggleInputRecording ();
+
+/* Plug-ins. */
+
+void setPluginParameter(ID pluginId, int paramIndex, float value, bool gui); 
 }}} // giada::c::events::
 
 

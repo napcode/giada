@@ -57,7 +57,14 @@ namespace plugin
 {
 namespace
 {
-void updatePluginEditor_(ID pluginId, bool gui)
+} // {anonymous}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void updateEditor(ID pluginId, bool gui)
 {
 	m::model::PluginsLock l(m::model::plugins);
 	const m::Plugin& p = m::model::get(m::model::plugins, pluginId);
@@ -79,11 +86,8 @@ void updatePluginEditor_(ID pluginId, bool gui)
 	child->updateParameters(!gui);
 	if (!gui) Fl::unlock();
 }
-} // {anonymous}
 
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 
@@ -121,17 +125,7 @@ void freePlugin(ID pluginId, ID channelId)
 void setProgram(ID pluginId, int programIndex)
 {
 	m::pluginHost::setPluginProgram(pluginId, programIndex); 
-	updatePluginEditor_(pluginId, /*gui=*/true); 
-}
-
-
-/* -------------------------------------------------------------------------- */
-
-
-void setParameter(ID pluginId, int paramIndex, float value, bool gui)
-{
-	m::pluginHost::setPluginParameter(pluginId, paramIndex, value); 
-	updatePluginEditor_(pluginId, gui); 
+	updateEditor(pluginId, /*gui=*/true); 
 }
 
 

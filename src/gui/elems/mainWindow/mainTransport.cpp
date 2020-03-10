@@ -34,6 +34,7 @@
 #include "core/conf.h"
 #include "core/const.h"
 #include "glue/main.h"
+#include "glue/events.h"
 #include "gui/elems/basics/button.h"
 #include "gui/elems/basics/box.h"
 #include "gui/elems/basics/statusButton.h"
@@ -59,19 +60,19 @@ geMainTransport::geMainTransport(int x, int y)
 	metronome      = new geStatusButton(0, 0, 15, 25, metronomeOff_xpm, metronomeOn_xpm);
 
 	rewind->callback([](Fl_Widget* w, void* v) { 
-		m::mh::rewindSequencer();
+		c::events::rewindSequencer();
 	});
 
 	play->callback([](Fl_Widget* w, void* v) { 
-		m::mh::toggleSequencer();
+		c::events::toggleSequencer();
 	});
 
 	recAction->callback([](Fl_Widget* w, void* v) { 
-		c::main::toggleActionRec();
+		c::events::toggleActionRecording();
 	});
 
 	recInput->callback([](Fl_Widget* w, void* v) { 
-		c::main::toggleInputRec();
+		c::events::toggleInputRecording();
 	});
 
 	recTriggerMode->value(static_cast<int>(m::conf::conf.recTriggerMode));
@@ -82,7 +83,7 @@ geMainTransport::geMainTransport(int x, int y)
 
 	metronome->type(FL_TOGGLE_BUTTON);
 	metronome->callback([](Fl_Widget* w, void* v) {
-		m::mixer::toggleMetronome();
+		c::events::toggleMetronome();
 	});
 }
 

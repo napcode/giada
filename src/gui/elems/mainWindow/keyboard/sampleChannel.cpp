@@ -37,6 +37,7 @@
 #include "core/recManager.h"
 #include "glue/io.h"
 #include "glue/channel.h"
+#include "glue/events.h"
 #include "glue/recorder.h"
 #include "glue/storage.h"
 #include "utils/gui.h"
@@ -360,7 +361,7 @@ void geSampleChannel::cb_openMenu()
 
 void geSampleChannel::cb_readActions()
 {
-	c::channel::toggleReadingActions(channelId);
+	c::events::toggleReadActionsChannel(channelId);
 }
 
 

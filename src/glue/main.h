@@ -70,21 +70,15 @@ void beatsDivide();
 
 
 
-void rewind();
-void play();
+
 
 /* toggleInputRec
 Handles the input recording.*/
 
-void toggleInputRec();
 
-void toggleActionRec();
+
 void startActionRec();
 void stopActionRec();
-
-
-void toggleMetronome();
-
 }}} // giada::c::main::
 
 #endif

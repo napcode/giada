@@ -80,31 +80,10 @@ void cloneChannel(ID channelId);
 /* set*
 Sets several channel properties. */
 
-void setArm(ID channelId, bool value);
-void toggleArm(ID channelId);
 void setInputMonitor(ID channelId, bool value);
-void setMute(ID channelId, bool value);
-void toggleMute(ID channelId);
-void setSolo(ID channelId, bool value);
-void toggleSolo(ID channelId);
-void setVolume(ID channelId, float v, bool gui=true, bool editor=false);
 void setName(ID channelId, const std::string& name);
-void setPitch(ID channelId, float val, bool gui=true);
 void setPan(ID channelId, float val, bool gui=true);
 void setSampleMode(ID channelId, ChannelMode m);
-
-void start(ID channelId, int velocity, bool record);
-void kill(ID channelId, bool record);
-void stop(ID channelId);
-
-/* toggleReadingRecs
-Handles the 'R' button. If gui == true the signal comes from an user interaction
-on the GUI, otherwise it's a MIDI/Jack/external signal. */
-
-void toggleReadingActions(ID channelId);
-void startReadingActions(ID channelId);
-void stopReadingActions(ID channelId);
-
 }}}; // giada::c::channel::
 
 #endif

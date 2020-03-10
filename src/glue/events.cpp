@@ -28,17 +28,23 @@
 #include <FL/Fl.H>
 #include "core/model/model.h"
 #include "core/clock.h"
+#include "core/channels/sampleChannel.h"
+#include "core/pluginHost.h"
 #include "core/mixerHandler.h"
 #include "core/conf.h"
+#include "core/recManager.h"
 #include "gui/dialogs/sampleEditor.h"
 #include "gui/dialogs/mainWindow.h"
+#include "gui/dialogs/warnings.h"
 #include "gui/elems/mainWindow/mainIO.h"
 #include "gui/elems/mainWindow/mainTimer.h"
 #include "gui/elems/basics/dial.h"
 #include "gui/elems/mainWindow/keyboard/keyboard.h"
 #include "gui/elems/mainWindow/keyboard/channel.h"
 #include "gui/elems/sampleEditor/volumeTool.h"
+#include "gui/elems/sampleEditor/pitchTool.h"
 #include "glue/sampleEditor.h"
+#include "glue/plugin.h"
 #include "glue/main.h"
 #include "events.h"
 
@@ -60,54 +66,18 @@ namespace
 /* -------------------------------------------------------------------------- */
 
 
-void keyPress(ID channelId, bool ctrl, bool shift, int velocity)
-{
-	if (ctrl)
-		toggleMuteChannel(channelId);
-	else
-	if (shift)
-		killChannel(channelId, /*record=*/true);
-	else
-		startChannel(channelId, velocity, /*record=*/true);
-}
-
-
-/* -------------------------------------------------------------------------- */
-
-
-void keyRelease(ID channelId, bool ctrl, bool shift)
-{
-	if (!ctrl && !shift)
-		stopChannel(channelId);
-}
-
-
-/* -------------------------------------------------------------------------- */
-
-
-void startChannel(ID channelId, int velocity, bool record)
+void pressChannel(ID channelId, int velocity)
 {
 	m::model::onSwap(m::model::channels, channelId, [&](m::Channel& ch)
 	{
-		if (record && !ch.recordStart(m::clock::canQuantize()))
+		if (!ch.recordStart(m::clock::canQuantize()))
 			return;
 		ch.start(/*localFrame=*/0, m::clock::canQuantize(), velocity); // Frame 0: user-generated event
 	});
 }
 
 
-void killChannel(ID channelId, bool record)
-{
-	m::model::onSwap(m::model::channels, channelId, [&](m::Channel& ch)
-	{
-		if (record && !ch.recordKill())
-			return;
-		ch.kill(/*localFrame=*/0); // Frame 0: user-generated event
-	});
-}
-
-
-void stopChannel(ID channelId)
+void releaseChannel(ID channelId)
 {
 	m::model::onSwap(m::model::channels, channelId, [&](m::Channel& ch)
 	{
@@ -117,12 +87,27 @@ void stopChannel(ID channelId)
 }
 
 
+void killChannel(ID channelId)
+{
+	m::model::onSwap(m::model::channels, channelId, [&](m::Channel& ch)
+	{
+		if (!ch.recordKill())
+			return;
+		ch.kill(/*localFrame=*/0); // Frame 0: user-generated event
+	});
+}
+
+
 /* -------------------------------------------------------------------------- */
 
 
 void setChannelVolume(ID channelId, float v, bool gui, bool editor)
 {
-	m::model::onGet(m::model::channels, channelId, [&](m::Channel& c) { c.volume = v; });
+	/* TODO - this changes the model directly without a swap! */
+	m::model::onGet(m::model::channels, channelId, [&](m::Channel& ch)
+	{
+		ch.volume = v;
+	});
 
 	/* Changing channel volume? Update wave editor (if it's shown). */
 
@@ -134,6 +119,23 @@ void setChannelVolume(ID channelId, float v, bool gui, bool editor)
 		G_MainWin->keyboard->getChannel(channelId)->vol->value(v);
 		Fl::unlock();
 	}
+}
+
+
+
+/* -------------------------------------------------------------------------- */
+
+
+void setChannelPitch(ID channelId, float v, bool gui, bool editor)
+{	
+	/* TODO - this changes the model directly without a swap! */
+	m::model::onGet(m::model::channels, channelId, [&](m::Channel& c)
+	{ 
+		static_cast<m::SampleChannel&>(c).setPitch(v); 
+	});
+	
+	if (editor)
+		sampleEditor::onRefresh(gui, [](v::gdSampleEditor& e) { e.pitchTool->rebuild(); });
 }
 
 
@@ -239,16 +241,8 @@ void divideBeats()
 /* -------------------------------------------------------------------------- */
 
 
-void toggleSequencer()
-{
-	m::mh::toggleSequencer();
-}
-
-
-void rewindSequencer()
-{
-	m::mh::rewindSequencer();
-}
+void toggleSequencer() { m::mh::toggleSequencer(); }
+void rewindSequencer() { m::mh::rewindSequencer(); }
 
 
 /* -------------------------------------------------------------------------- */
@@ -256,8 +250,23 @@ void rewindSequencer()
 
 void toggleActionRecording()
 {
-
+	m::recManager::toggleActionRec(m::conf::conf.recTriggerMode);
 }
-void toggleInputRecording ();
 
+
+void toggleInputRecording()
+{
+	if (!m::recManager::toggleInputRec(m::conf::conf.recTriggerMode))
+		v::gdAlert("No channels armed/available for audio recording.");
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+void setPluginParameter(ID pluginId, int paramIndex, float value, bool gui)
+{
+	m::pluginHost::setPluginParameter(pluginId, paramIndex, value);
+	c::plugin::updateEditor(pluginId, gui); 	
+}
 }}}; // giada::c::events::

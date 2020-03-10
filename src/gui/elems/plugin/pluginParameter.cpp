@@ -31,7 +31,7 @@
 #include "core/model/model.h"
 #include "core/plugin.h"
 #include "core/const.h"
-#include "glue/plugin.h"
+#include "glue/events.h"
 #include "gui/elems/basics/boxtypes.h"
 #include "gui/elems/basics/box.h"
 #include "gui/elems/basics/slider.h"
@@ -84,7 +84,7 @@ void gePluginParameter::cb_setValue(Fl_Widget* v, void* p)  { ((gePluginParamete
 
 void gePluginParameter::cb_setValue()
 {
-	c::plugin::setParameter(m_pluginId, m_paramIndex, m_slider->value(), 
+	c::events::setPluginParameter(m_pluginId, m_paramIndex, m_slider->value(), 
 		/*gui=*/true);
 }
 

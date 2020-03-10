@@ -32,7 +32,7 @@
 #include "core/const.h"
 #include "core/graphics.h"  
 #include "core/clock.h"
-#include "glue/channel.h"
+#include "glue/events.h"
 #include "utils/gui.h"
 #include "utils/string.h"
 #include "gui/dialogs/sampleEditor.h"
@@ -112,7 +112,7 @@ void gePitchTool::cb_setPitchNum   (Fl_Widget* w, void* p) { ((gePitchTool*)p)->
 
 void gePitchTool::cb_setPitch()
 {
-	c::channel::setPitch(m_channelId, dial->value());
+	c::events::setChannelPitch(m_channelId, dial->value(), /*gui=*/true, /*editor=*/true);
 }
 
 
@@ -121,7 +121,7 @@ void gePitchTool::cb_setPitch()
 
 void gePitchTool::cb_setPitchNum()
 {
-	c::channel::setPitch(m_channelId, atof(input->value()));
+	c::events::setChannelPitch(m_channelId, atof(input->value()), /*gui=*/true, /*editor=*/true);
 }
 
 
@@ -130,7 +130,7 @@ void gePitchTool::cb_setPitchNum()
 
 void gePitchTool::cb_setPitchHalf()
 {
-	c::channel::setPitch(m_channelId, dial->value()/2);
+	c::events::setChannelPitch(m_channelId, dial->value()/2, /*gui=*/true, /*editor=*/true);
 }
 
 
@@ -139,7 +139,7 @@ void gePitchTool::cb_setPitchHalf()
 
 void gePitchTool::cb_setPitchDouble()
 {
-	c::channel::setPitch(m_channelId, dial->value()*2);
+	c::events::setChannelPitch(m_channelId, dial->value()*2, /*gui=*/true, /*editor=*/true);
 }
 
 
@@ -154,7 +154,8 @@ void gePitchTool::cb_setPitchToBar()
 		end = static_cast<m::SampleChannel&>(c).getEnd();
 	});
 
-	c::channel::setPitch(m_channelId, end / (float) m::clock::getFramesInBar());
+	c::events::setChannelPitch(m_channelId, end / (float) m::clock::getFramesInBar(), 
+		/*gui=*/true, /*editor=*/true);
 }
 
 
@@ -169,7 +170,8 @@ void gePitchTool::cb_setPitchToSong()
 		end = static_cast<m::SampleChannel&>(c).getEnd();
 	});
 
-	c::channel::setPitch(m_channelId, end / (float) m::clock::getFramesInLoop());
+	c::events::setChannelPitch(m_channelId, end / (float) m::clock::getFramesInLoop(),
+		/*gui=*/true, /*editor=*/true);
 }
 
 
@@ -178,7 +180,7 @@ void gePitchTool::cb_setPitchToSong()
 
 void gePitchTool::cb_resetPitch()
 {
-	c::channel::setPitch(m_channelId, G_DEFAULT_PITCH);
+	c::events::setChannelPitch(m_channelId, G_DEFAULT_PITCH, /*gui=*/true, /*editor=*/true);
 }
 
 }} // giada::v::

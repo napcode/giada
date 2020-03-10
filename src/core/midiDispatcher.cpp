@@ -29,8 +29,6 @@
 #include <vector>
 #include "glue/plugin.h"
 #include "glue/events.h"
-#include "glue/channel.h"
-#include "glue/main.h"
 #include "utils/log.h"
 #include "utils/math.h"
 #include "core/model/model.h"
@@ -101,11 +99,11 @@ void processPlugins_(const std::vector<ID>& ids, const MidiEvent& midiEvent)
 	m::model::PluginsLock l(m::model::plugins);
 
 	for (ID id : ids) {
-		m::Plugin& p = m::model::get(m::model::plugins, id);
+		const m::Plugin& p = m::model::get(m::model::plugins, id);
 		for (unsigned k = 0; k < p.midiInParams.size(); k++) {
 			if (pure != p.midiInParams.at(k))
 				continue;
-			c::plugin::setParameter(id, k, vf, /*gui=*/false);
+			c::events::setPluginParameter(id, k, vf, /*gui=*/false);
 			u::log::print("  >>> [plugin %d parameter %d] (pure=0x%X, value=%d, float=%f)\n",
 				p.id, k, pure, midiEvent.getVelocity(), vf);
 		}
@@ -140,37 +138,37 @@ void processChannels_(const MidiEvent& midiEvent)
 		if      (pure == ch->midiInKeyPress) {
 			actions.push_back([=] {
 				u::log::print("  >>> keyPress, ch=%d (pure=0x%X)\n", ch->id, pure);
-				c::events::keyPress(ch->id, false, false, midiEvent.getVelocity());
+				c::events::pressChannel(ch->id, midiEvent.getVelocity());
 			});
 		}
 		else if (pure == ch->midiInKeyRel) {
 			actions.push_back([=] {
 				u::log::print("  >>> keyRel ch=%d (pure=0x%X)\n", ch->id, pure);
-				c::events::keyRelease(ch->id, false, false);
+				c::events::releaseChannel(ch->id);
 			});
 		}
 		else if (pure == ch->midiInMute) {
 			actions.push_back([=] {
 				u::log::print("  >>> mute ch=%d (pure=0x%X)\n", ch->id, pure);
-				c::channel::toggleMute(ch->id);
+				c::events::toggleMuteChannel(ch->id);
 			});
 		}		
 		else if (pure == ch->midiInKill) {
 			actions.push_back([=] {
 				u::log::print("  >>> kill ch=%d (pure=0x%X)\n", ch->id, pure);
-				c::channel::kill(ch->id, /*record=*/false);
+				c::events::killChannel(ch->id);
 			});
 		}		
 		else if (pure == ch->midiInArm) {
 			actions.push_back([=] {
 				u::log::print("  >>> arm ch=%d (pure=0x%X)\n", ch->id, pure);
-				c::channel::toggleArm(ch->id);
+				c::events::toggleArmChannel(ch->id);
 			});
 		}
 		else if (pure == ch->midiInSolo) {
 			actions.push_back([=] {
 				u::log::print("  >>> solo ch=%d (pure=0x%X)\n", ch->id, pure);
-				c::channel::toggleSolo(ch->id);
+				c::events::toggleSoloChannel(ch->id);
 			});
 		}
 		else if (pure == ch->midiInVolume) {
@@ -178,7 +176,7 @@ void processChannels_(const MidiEvent& midiEvent)
 				float vf = u::math::map(midiEvent.getVelocity(), G_MAX_VELOCITY, G_MAX_VOLUME); 
 				u::log::print("  >>> volume ch=%d (pure=0x%X, value=%d, float=%f)\n",
 					ch->id, pure, midiEvent.getVelocity(), vf);
-				c::channel::setVolume(ch->id, vf, /*gui=*/false);
+				c::events::setChannelVolume(ch->id, vf, /*gui=*/false, /*editor=*/false);
 			});
 		}
 		else {
@@ -188,14 +186,14 @@ void processChannels_(const MidiEvent& midiEvent)
 					float vf = u::math::map(midiEvent.getVelocity(), G_MAX_VELOCITY, G_MAX_PITCH); 
 					u::log::print("  >>> pitch ch=%d (pure=0x%X, value=%d, float=%f)\n",
 						sch->id, pure, midiEvent.getVelocity(), vf);
-					c::channel::setPitch(sch->id, vf);
+					c::events::setChannelPitch(sch->id, vf, /*gui=*/false, /*editor=*/false);
 				});
 			}
 			else 
 			if (pure == sch->midiInReadActions) {
 				actions.push_back([=] {
 					u::log::print("  >>> toggle read actions ch=%d (pure=0x%X)\n", sch->id, pure);
-					c::channel::toggleReadingActions(sch->id);
+					c::events::toggleReadActionsChannel(sch->id);
 				});
 			}
 		}
@@ -228,43 +226,43 @@ void processMaster_(const MidiEvent& midiEvent)
 	const model::MidiIn* midiIn = model::midiIn.get();
 
 	if      (pure == midiIn->rewind) {
-		mh::rewindSequencer();
+		c::events::rewindSequencer();
 		u::log::print("  >>> rewind (master) (pure=0x%X)\n", pure);
 	}
 	else if (pure == midiIn->startStop) {
-		mh::toggleSequencer();
+		c::events::toggleSequencer();
 		u::log::print("  >>> startStop (master) (pure=0x%X)\n", pure);
 	}
 	else if (pure == midiIn->actionRec) {
-		recManager::toggleActionRec(conf::conf.recTriggerMode);
+		c::events::toggleActionRecording();
 		u::log::print("  >>> actionRec (master) (pure=0x%X)\n", pure);
 	}
 	else if (pure == midiIn->inputRec) {
-		c::main::toggleInputRec();
+		c::events::toggleInputRecording();
 		u::log::print("  >>> inputRec (master) (pure=0x%X)\n", pure);
 	}
 	else if (pure == midiIn->metronome) {
-		m::mixer::toggleMetronome();
+		c::events::toggleMetronome();
 		u::log::print("  >>> metronome (master) (pure=0x%X)\n", pure);
 	}
 	else if (pure == midiIn->volumeIn) {
 		float vf = u::math::map(midiEvent.getVelocity(), G_MAX_VELOCITY, G_MAX_VOLUME); 
-		c::main::setInVol(vf, /*gui=*/false);
+		c::events::setMasterInVolume(vf, /*gui=*/false);
 		u::log::print("  >>> input volume (master) (pure=0x%X, value=%d, float=%f)\n",
 			pure, midiEvent.getVelocity(), vf);
 	}
 	else if (pure == midiIn->volumeOut) {
 		float vf = u::math::map(midiEvent.getVelocity(), G_MAX_VELOCITY, G_MAX_VOLUME); 
-		c::main::setOutVol(vf, /*gui=*/false);
+		c::events::setMasterOutVolume(vf, /*gui=*/false);
 		u::log::print("  >>> output volume (master) (pure=0x%X, value=%d, float=%f)\n",
 			pure, midiEvent.getVelocity(), vf);
 	}
 	else if (pure == midiIn->beatDouble) {
-		c::main::beatsMultiply();
+		c::events::multiplyBeats();
 		u::log::print("  >>> sequencer x2 (master) (pure=0x%X)\n", pure);
 	}
 	else if (pure == midiIn->beatHalf) {
-		c::main::beatsDivide();
+		c::events::divideBeats();
 		u::log::print("  >>> sequencer /2 (master) (pure=0x%X)\n", pure);
 	}
 }

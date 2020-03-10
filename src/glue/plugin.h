@@ -45,16 +45,11 @@ class Channel;
 namespace c {
 namespace plugin 
 {
-void addPlugin(int pluginListIndex, ID channelId);
-
-void swapPlugins(ID pluginId1, ID pluginId2, ID channelId);
-
-void freePlugin(ID pluginId, ID channelId);
-
-void setParameter(ID pluginId, int paramIndex, float value, bool gui=true); 
-
-void setProgram(ID pluginId, int programIndex);
-
+void updateEditor(ID pluginId, bool gui);
+void addPlugin   (int pluginListIndex, ID channelId);
+void swapPlugins (ID pluginId1, ID pluginId2, ID channelId);
+void freePlugin  (ID pluginId, ID channelId);
+void setProgram  (ID pluginId, int programIndex);
 void toggleBypass(ID pluginId);
 
 /* setPluginPathCb

@@ -34,6 +34,7 @@
 #include "core/pluginHost.h"
 #include "utils/gui.h"
 #include "glue/channel.h"
+#include "glue/events.h"
 #include "gui/dialogs/mainWindow.h"
 #include "gui/dialogs/pluginList.h"
 #include "gui/elems/basics/button.h"
@@ -115,7 +116,7 @@ void geChannel::refresh()
 
 void geChannel::cb_arm()
 {
-	c::channel::setArm(channelId, arm->value());
+	c::events::toggleArmChannel(channelId);
 }
 
 
@@ -124,7 +125,7 @@ void geChannel::cb_arm()
 
 void geChannel::cb_mute()
 {
-	c::channel::toggleMute(channelId);
+	c::events::toggleMuteChannel(channelId);
 }
 
 
@@ -133,7 +134,7 @@ void geChannel::cb_mute()
 
 void geChannel::cb_solo()
 {
-	c::channel::toggleSolo(channelId);
+	c::events::toggleSoloChannel(channelId);
 }
 
 
@@ -142,7 +143,7 @@ void geChannel::cb_solo()
 
 void geChannel::cb_changeVol()
 {
-	c::channel::setVolume(channelId, vol->value());
+	c::events::setChannelVolume(channelId, vol->value(), /*gui=*/true, /*editor=*/false);
 }
 
 
