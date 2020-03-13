@@ -39,10 +39,6 @@ namespace m
 {
 WaveReader::WaveReader()
 : wave    (nullptr),
-  shift   (0),
-  pitch   (G_DEFAULT_PITCH),
-  begin   (0),
-  end     (0),
   srcState(src_new(SRC_LINEAR, G_MAX_IO_CHANS, nullptr))
 {
 	if (srcState == nullptr) {
@@ -57,10 +53,6 @@ WaveReader::WaveReader()
 
 WaveReader::WaveReader(const WaveReader& o)
 : wave    (o.wave),
-  shift   (o.shift),
-  pitch   (o.pitch),
-  begin   (o.begin),
-  end     (o.end),
   srcState(src_new(SRC_LINEAR, G_MAX_IO_CHANS, nullptr))
 {
 	if (srcState == nullptr) {
@@ -75,10 +67,6 @@ WaveReader::WaveReader(const WaveReader& o)
 
 WaveReader::WaveReader(WaveReader&& o)
 : wave    (o.wave),
-  shift   (o.shift),
-  pitch   (o.pitch),
-  begin   (o.begin),
-  end     (o.end),
   srcState(o.srcState)
 {
 	o.srcState = nullptr;
@@ -98,26 +86,26 @@ WaveReader::~WaveReader()
 /* -------------------------------------------------------------------------- */
 
 
-Frame WaveReader::fill(AudioBuffer& out, Frame start, Frame offset) const
+Frame WaveReader::fill(AudioBuffer& out, Frame start, Frame offset, float pitch) const
 {
 	assert(wave != nullptr);
-	assert(start >= begin);
+	assert(start >= 0);
 	assert(offset < out.countFrames());
 	
 	if (pitch == 1.0) return fillCopy(out, start, offset);
-	else              return fillResampled(out, start, offset);
+	else              return fillResampled(out, start, offset, pitch);
 }
 
 
 /* -------------------------------------------------------------------------- */
 
 
-Frame WaveReader::fillResampled(AudioBuffer& dest, Frame start, Frame offset) const
+Frame WaveReader::fillResampled(AudioBuffer& dest, Frame start, Frame offset, float pitch) const
 {
     SRC_DATA srcData;
 	
 	srcData.data_in       = wave->getFrame(start);        // Source data
-	srcData.input_frames  = end - start;                  // How many readable frames
+	srcData.input_frames  = wave->getSize() - start;      // How many readable frames
 	srcData.data_out      = dest[offset];                 // Destination (processed data)
 	srcData.output_frames = dest.countFrames() - offset;  // How many frames to process
 	srcData.end_of_input  = false;

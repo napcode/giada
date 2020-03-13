@@ -31,5 +31,117 @@
 namespace giada {
 namespace m 
 {
+Channel_NEW::Channel_NEW(ChannelState& s)
+: state(s)
+{
 
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+Channel_NEW::Channel_NEW(const Channel_NEW& o)
+: state(o.state)
+{
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+Channel_NEW::Channel_NEW(Channel_NEW&& o)
+: state(o.state)
+{
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+void Channel_NEW::parse(const mixer::FrameEvents& fe) const
+{
+	if (fe.onBar)
+        onBar(fe.frameLocal);
+    else
+	if (fe.onFirstBeat)
+        onFirstBeat(fe.frameLocal);
+    
+    if (samplePlayer)
+        samplePlayer->parse(fe);
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+void Channel_NEW::render(AudioBuffer& out, const AudioBuffer& in) const
+{
+    if (samplePlayer)
+        samplePlayer->render(out);
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+void Channel_NEW::onBar(Frame localFrame) const
+{
+    if (!samplePlayer)
+        return;
+
+    ChannelStatus s = state.status.load();
+
+    /* On bar, waiting channels with sample in LOOP_ONCE mode start playing 
+    again. */
+
+    if (s == ChannelStatus::WAIT && samplePlayer->mode == SamplePlayer::Mode::LOOP_ONCE_BAR)
+        state.status.store(ChannelStatus::PLAY);
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+void Channel_NEW::onFirstBeat(Frame localFrame) const
+{
+    ChannelStatus s = state.status.load();
+
+    /* On first beat, wating channels start playing. Ending channels (i.e. those
+    that are about to end) stop. */
+
+    if (s == ChannelStatus::WAIT)
+        state.status.store(ChannelStatus::PLAY);
+    else
+    if (s == ChannelStatus::ENDING)
+        state.status.store(ChannelStatus::OFF);
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+void Channel_NEW::kill() const
+{
+    state.status.store(ChannelStatus::OFF);
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+bool Channel_NEW::isPlaying() const
+{
+    ChannelStatus s = state.status.load();
+	return s == ChannelStatus::PLAY || s == ChannelStatus::ENDING;
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+const ChannelState& Channel_NEW::getState() const
+{
+    return state;
+}
 }} // giada::m::

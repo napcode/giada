@@ -6,7 +6,7 @@ AUTOMAKE_OPTIONS = foreign
 
 
 cppFlags = -I$(top_srcdir)/src
-cxxFlags = -std=c++14 -Wall
+cxxFlags = -std=c++17 -Wall
 ldAdd =
 ldFlags =
 sourcesExtra = 

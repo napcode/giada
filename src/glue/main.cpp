@@ -171,36 +171,6 @@ void quantize(int val)
 /* -------------------------------------------------------------------------- */
 
 
-void setOutVol(float v, bool gui)
-{
-	m::mh::setOutVol(v);
-	
-	if (!gui) {
-		Fl::lock();
-		G_MainWin->mainIO->setOutVol(v);
-		Fl::unlock();
-	}
-}
-
-
-/* -------------------------------------------------------------------------- */
-
-
-void setInVol(float v, bool gui)
-{
-	m::mh::setInVol(v);
-
-	if (!gui) {
-		Fl::lock();
-		G_MainWin->mainIO->setInVol(v);
-		Fl::unlock();
-	}
-}
-
-
-/* -------------------------------------------------------------------------- */
-
-
 void clearAllSamples()
 {
 	if (!v::gdConfirmWin("Warning", "Clear all samples: are you sure?"))
@@ -234,36 +204,4 @@ void resetToInitState(bool createColumns)
 	m::init::reset();	
 	m::mixer::enable();
 }
-
-
-/* -------------------------------------------------------------------------- */
-
-
-void beatsMultiply()
-{
-	setBeats(m::clock::getBeats() * 2, m::clock::getBars());
-}
-
-void beatsDivide()
-{
-	setBeats(m::clock::getBeats() / 2, m::clock::getBars());
-}
-
-
-/* -------------------------------------------------------------------------- */
-
-
-
-void startActionRec()
-{
-	m::recManager::startActionRec(static_cast<RecTriggerMode>(m::conf::conf.recTriggerMode));
-}
-
-
-void stopActionRec()
-{
-	m::recManager::stopActionRec();
-	u::gui::refreshActionEditor();  // If Action Editor window is open
-}
-
 }}} // giada::c::main::

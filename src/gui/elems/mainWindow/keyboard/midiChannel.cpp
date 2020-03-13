@@ -195,7 +195,7 @@ void geMidiChannel::cb_openMenu(Fl_Widget* v, void* p) { ((geMidiChannel*)p)->cb
 
 void geMidiChannel::cb_playButton()
 {
-	v::dispatcher::dispatchTouch(this, playButton->value());
+	v::dispatcher::dispatchTouch(*this, playButton->value());
 }
 
 

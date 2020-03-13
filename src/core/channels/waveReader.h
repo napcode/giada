@@ -46,21 +46,16 @@ public:
     WaveReader(WaveReader&&);
     ~WaveReader();
 
-    Frame fill(AudioBuffer& out, Frame start, Frame offset) const;
+    Frame fill(AudioBuffer& out, Frame start, Frame offset, float pitch) const;
 
 	/* wave
 	Wave object. Might be null if the channel has no sample. */
 
 	const Wave* wave;
 
-	Frame shift;
-	float pitch;
-	Frame begin;
-	Frame end;
-
 private:
 
-	Frame fillResampled(AudioBuffer& out, Frame start, Frame offset) const;
+	Frame fillResampled(AudioBuffer& out, Frame start, Frame offset, float pitch) const;
 	Frame fillCopy     (AudioBuffer& out, Frame start, Frame offset) const;
 
 	/* srcState

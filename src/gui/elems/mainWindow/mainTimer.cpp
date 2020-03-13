@@ -33,6 +33,7 @@
 #include "core/graphics.h"
 #include "core/clock.h"
 #include "glue/main.h"
+#include "glue/events.h"
 #include "utils/gui.h"
 #include "utils/string.h"
 #include "gui/elems/basics/button.h"
@@ -135,7 +136,7 @@ void geMainTimer::cb_quantizer()
 
 void geMainTimer::cb_multiplier()
 {
-	c::main::beatsMultiply();
+	c::events::multiplyBeats();
 }
 
 
@@ -144,7 +145,7 @@ void geMainTimer::cb_multiplier()
 
 void geMainTimer::cb_divider()
 {
-	c::main::beatsDivide();
+	c::events::divideBeats();
 }
 
 

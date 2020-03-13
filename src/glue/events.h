@@ -57,14 +57,14 @@ void toggleMuteChannel       (ID channelId);
 void toggleSoloChannel       (ID channelId);
 void toggleArmChannel        (ID channelId);
 void toggleReadActionsChannel(ID channelId);
-void sendMidiToChannel       (ID channelId, const m::MidiEvent& e); // TODO
+void sendMidiToChannel       (ID channelId, const m::MidiEvent& e); // <--------- TODO
 
 /* Main*
 Master I/O, transport and other engine-related events. */
 
 void toggleMetronome      ();
-void setMasterInVolume    (bool v, bool gui=true);
-void setMasterOutVolume   (bool v, bool gui=true);
+void setMasterInVolume    (bool v, bool gui);
+void setMasterOutVolume   (bool v, bool gui);
 void multiplyBeats        ();
 void divideBeats          ();
 void toggleSequencer      ();

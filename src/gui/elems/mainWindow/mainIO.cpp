@@ -31,6 +31,7 @@
 #include "core/mixer.h"
 #include "core/mixerHandler.h"
 #include "core/pluginHost.h"
+#include "glue/events.h"
 #include "glue/main.h"
 #include "utils/gui.h"
 #include "gui/elems/soundMeter.h"
@@ -112,7 +113,7 @@ void geMainIO::cb_inToOut    (Fl_Widget* v, void* p) { ((geMainIO*)p)->cb_inToOu
 
 void geMainIO::cb_outVol()
 {
-	c::main::setOutVol(outVol->value());
+	c::events::setMasterOutVolume(outVol->value(), /*gui=*/true);
 }
 
 
@@ -121,7 +122,7 @@ void geMainIO::cb_outVol()
 
 void geMainIO::cb_inVol()
 {
-	c::main::setInVol(inVol->value());
+	c::events::setMasterInVolume(inVol->value(), /*gui=*/true);
 }
 
 

@@ -276,7 +276,7 @@ void geSampleChannel::cb_readActions(Fl_Widget* v, void* p) { ((geSampleChannel*
 
 void geSampleChannel::cb_playButton()
 {
-	v::dispatcher::dispatchTouch(this, playButton->value());
+	v::dispatcher::dispatchTouch(*this, playButton->value());
 }
 
 

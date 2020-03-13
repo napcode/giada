@@ -45,8 +45,6 @@ void setBpm(float v);
 
 void setBeats(int beats, int bars);
 void quantize(int val);
-void setOutVol(float v, bool gui=true);
-void setInVol(float v, bool gui=true);
 void clearAllSamples();
 void clearAllActions();
 
@@ -55,30 +53,6 @@ Resets Giada to init state. If resetGui also refresh all widgets. If
 createColumns also build initial empty columns. */
 
 void resetToInitState(bool createColumns);
-
-/* beatsDivide/Multiply
-Shrinks or enlarges the number of beats by 2. */
-
-void beatsMultiply();
-void beatsDivide();
-
-
-
-
-
-
-
-
-
-
-
-/* toggleInputRec
-Handles the input recording.*/
-
-
-
-void startActionRec();
-void stopActionRec();
 }}} // giada::c::main::
 
 #endif

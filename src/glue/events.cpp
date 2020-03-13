@@ -122,7 +122,6 @@ void setChannelVolume(ID channelId, float v, bool gui, bool editor)
 }
 
 
-
 /* -------------------------------------------------------------------------- */
 
 

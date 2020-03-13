@@ -29,16 +29,51 @@
 #define G_CHANNEL_NEW_H
 
 
+#include <atomic>
+#include <optional>
 #include "core/mixer.h"
+#include "core/channels/samplePlayer.h"
 
 
 namespace giada {
 namespace m
 {
-class Channel_NEW
+struct ChannelState final
 {
-    void parseEvents(mixer::FrameEvents fe) const;
+    std::atomic<ChannelStatus> status;
+    std::atomic<float>         volume;
+    std::atomic<float>         pan;
+};
+
+
+/* -------------------------------------------------------------------------- */
+
+
+class Channel_NEW final
+{
+public:
+
+    Channel_NEW(ChannelState& c);
+    Channel_NEW(const Channel_NEW&);
+    Channel_NEW(Channel_NEW&&);
+    ~Channel_NEW() = default;
+
+    void parse(const mixer::FrameEvents& fe) const;
     void render(AudioBuffer& out, const AudioBuffer& in) const;
+
+    const ChannelState& getState() const;
+
+	bool isPlaying() const;
+
+private:
+
+    void onBar(Frame localFrame) const;
+    void onFirstBeat(Frame localFrame) const;
+    void kill() const;
+
+    ChannelState& state;
+
+    std::optional<SamplePlayer> samplePlayer;
 };
 }} // giada::m::
 

@@ -163,10 +163,10 @@ void dispatchKey(int event)
 /* -------------------------------------------------------------------------- */
 
 
-void dispatchTouch(const geChannel* gch, bool status)
+void dispatchTouch(const geChannel& gch, bool status)
 {
 	triggerSignalCb_();
-	perform_(gch->channelId, status ? FL_KEYDOWN : FL_KEYUP);
+	perform_(gch.channelId, status ? FL_KEYDOWN : FL_KEYUP);
 }
 
 

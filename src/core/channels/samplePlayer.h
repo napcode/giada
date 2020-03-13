@@ -31,6 +31,7 @@
 
 #include <atomic>
 #include "core/types.h"
+#include "core/mixer.h"
 #include "core/audioBuffer.h"
 #include "core/channels/waveReader.h"
 
@@ -38,6 +39,25 @@
 namespace giada {
 namespace m
 {
+struct SamplePlayerState final
+{
+    std::atomic<Frame> tracker;
+    std::atomic<float> pitch;
+
+	/* buffer
+	Working buffer for internal processing. */
+
+    AudioBuffer buffer;
+
+    bool  rewinding;
+    bool  quantizing;
+    Frame offset;
+};
+
+
+/* -------------------------------------------------------------------------- */
+
+class Channel_NEW;
 class SamplePlayer final
 {
 public:
@@ -48,36 +68,40 @@ public:
         SINGLE_BASIC, SINGLE_PRESS, SINGLE_RETRIG, SINGLE_ENDLESS
     };
 
-    SamplePlayer(std::atomic<Frame>&);
+    SamplePlayer(SamplePlayerState&, const Channel_NEW&);
+    SamplePlayer(const SamplePlayer&);
     ~SamplePlayer() = default;
 
-    void render(AudioBuffer& out, bool rewinding) const;
+    void parse(const mixer::FrameEvents& fe) const;
+    void render(AudioBuffer& out) const;
 
-    Mode mode;
+    Mode  mode;
+    Frame shift;
+    Frame begin;
+    Frame end;
 
 private:
 
     bool isOnLastFrame() const;
     bool shouldLoop() const;
+    bool isAnyLoopMode() const;
 
-    /* tracker
-    A reference to the mutable atomic channel tracker. */
+    void onBar(Frame localFrame) const;
+    void onFirstBeat(Frame localFrame) const;
+    void rewind(Frame localFrame) const;
+    void kill(Frame localFrame) const;
 
-    std::atomic<Frame>& trackerRef;
+    const Channel_NEW& channel;
+
+    /* state
+    References to mutable SamplePlayerState. */
+
+    SamplePlayerState& state;
+
+    /* waveReader
+    Used to read data from Wave and fill incoming buffer. */
 
     WaveReader waveReader;
-
-	/* buffer
-	Working buffer for internal processing. */
-
-    mutable AudioBuffer buffer;
-
-	/* offset
-	Offset used while filling the internal buffer with audio data. Value is 
-	greater than zero on start sample. */
-
-    mutable Frame offset;
-
 };
 }} // giada::m::
 
