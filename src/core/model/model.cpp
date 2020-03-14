@@ -45,6 +45,8 @@ RCUList<Recorder> recorder(std::make_unique<Recorder>());
 RCUList<MidiIn>   midiIn(std::make_unique<MidiIn>());
 RCUList<Actions>  actions(std::make_unique<Actions>());
 RCUList<Channel>  channels;
+RCUList<Channel_NEW>  channels_NEW;
+RCUList<ChannelState> channelStates;
 RCUList<Wave>     waves;
 #ifdef WITH_VST
 RCUList<Plugin>   plugins;

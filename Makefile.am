@@ -311,7 +311,7 @@ sourcesCore =                               \
 	src/utils/ver.cpp                      \
 	src/utils/string.h                     \
 	src/utils/string.cpp                   \
-	src/deps/rtaudio/RtAudio.h         \
+	src/deps/rtaudio/RtAudio.h             \
 	src/deps/rtaudio/RtAudio.cpp
 sourcesTests =                   \
 	tests/main.cpp               \
@@ -322,6 +322,7 @@ sourcesTests =                   \
 	tests/recorder.cpp           \
 	tests/waveFx.cpp             \
 	tests/audioBuffer.cpp        \
+	tests/samplePlayer.cpp       \
 	tests/sampleChannel.cpp
 
 if WITH_VST
@@ -431,7 +432,7 @@ endif
 
 bin_PROGRAMS = giada
 
-giada_SOURCES = $(sourcesCore) $(sourcesMain) $(sourcesExtra)
+giada_SOURCES = $(sourcesCore) $(sourcesExtra) $(sourcesMain)
 giada_CPPFLAGS = $(cppFlags)
 giada_CXXFLAGS = $(cxxFlags)
 giada_LDADD = $(ldAdd)

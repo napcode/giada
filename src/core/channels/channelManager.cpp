@@ -31,6 +31,8 @@
 #include "core/channels/midiChannel.h"
 #include "core/channels/masterChannel.h"
 #include "core/channels/channel.h"
+#include "core/channels/channel_NEW.h"
+#include "core/channels/samplePlayer.h"
 #include "core/const.h"
 #include "core/patch.h"
 #include "core/mixer.h"
@@ -87,6 +89,18 @@ std::unique_ptr<Channel> create(ChannelType type, int bufferSize,
 		ch = std::make_unique<MasterChannel>(bufferSize, channelId_.get()); // TODO - temporary placeholder
 	
 	assert(ch != nullptr);
+	return ch;
+}
+
+
+std::unique_ptr<Channel_NEW> create_NEW(ChannelType type, int bufferSize, 
+	bool inputMonitorOn, ID columnId)
+{
+	std::unique_ptr<Channel_NEW> ch = std::make_unique<Channel_NEW>(channelId_.get(), columnId);
+
+	if (type == ChannelType::SAMPLE)
+		ch->samplePlayer = std::make_optional<SamplePlayer>();
+
 	return ch;
 }
 

@@ -25,18 +25,21 @@
  * -------------------------------------------------------------------------- */
 
 
+#include <cassert>
 #include <algorithm>
 #include "core/channels/channel_NEW.h"
+#include "core/channels/state.h"
+#include "core/wave.h"
 #include "samplePlayer.h"
 
 
 namespace giada {
 namespace m 
 {
-SamplePlayer::SamplePlayer(SamplePlayerState& s, const Channel_NEW& c)
-: mode   (SamplePlayer::Mode::SINGLE_BASIC),
-  channel(c),
-  state  (s)
+SamplePlayer::SamplePlayer()
+: mode     (SamplePlayer::Mode::SINGLE_BASIC),
+  m_state  (nullptr),
+  m_channel(nullptr)
 {
 }
 
@@ -45,14 +48,24 @@ SamplePlayer::SamplePlayer(SamplePlayerState& s, const Channel_NEW& c)
 
 
 SamplePlayer::SamplePlayer(const SamplePlayer& o)
-: mode      (o.mode),
-  shift     (o.shift),
-  begin     (o.begin),
-  end       (o.end),
-  channel   (o.channel),
-  state     (o.state),
-  waveReader(o.waveReader)
+: mode        (o.mode),
+  shift       (o.shift),
+  begin       (o.begin),
+  end         (o.end),
+  m_waveReader(o.m_waveReader),
+  m_state     (o.m_state),
+  m_channel   (o.m_channel)
 {
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+void SamplePlayer::setup(SamplePlayerState* s, const Channel_NEW* c)
+{
+    m_state   = s;
+    m_channel = c;
 }
 
 
@@ -66,7 +79,6 @@ void SamplePlayer::parse(const mixer::FrameEvents& fe) const
     else
 	if (fe.onFirstBeat)
         onFirstBeat(fe.frameLocal);
-		
 }
 
 
@@ -75,25 +87,27 @@ void SamplePlayer::parse(const mixer::FrameEvents& fe) const
 
 void SamplePlayer::render(AudioBuffer& out) const
 {
-    if (waveReader.wave == nullptr)
+    if (m_waveReader.wave == nullptr)
         return;
-    
-    state.buffer.clear();
 
-    Frame tracker = state.tracker.load();
+    assert(m_state != nullptr);
+
+    m_state->buffer.clear();
+
+    Frame tracker = m_state->tracker.load();
     Frame used    = 0;
-    float pitch   = state.pitch.load();
+    float pitch   = m_state->pitch.load();
 
     /* If rewinding, fill the tail first, then reset the tracker to the begin
     point. The rest is performed as usual. */
 
-    if (state.rewinding) {
+    if (m_state->rewinding) {
 		if (tracker < end)
-            waveReader.fill(state.buffer, tracker, 0, pitch);
+            m_waveReader.fill(m_state->buffer, tracker, 0, pitch);
 		tracker = begin;
     }
 
-    used     = waveReader.fill(state.buffer, tracker, state.offset, pitch);
+    used     = m_waveReader.fill(m_state->buffer, tracker, m_state->offset, pitch);
     tracker += used;
 
     if (tracker >= end) {
@@ -103,12 +117,12 @@ void SamplePlayer::render(AudioBuffer& out) const
             /* 'used' might be imprecise when working with resampled audio, 
             which could cause a buffer overflow if used as offset. Let's clamp 
             it to be at most buffer->countFrames(). */
-            tracker += waveReader.fill(state.buffer, tracker, 
-                std::min(used, state.buffer.countFrames() - 1), pitch);
+            tracker += m_waveReader.fill(m_state->buffer, tracker, 
+                std::min(used, m_state->buffer.countFrames() - 1), pitch);
     }
 
-    state.offset = 0;
-    state.tracker.store(tracker);
+    m_state->offset = 0;
+    m_state->tracker.store(tracker);
 }
 
 
@@ -117,13 +131,16 @@ void SamplePlayer::render(AudioBuffer& out) const
 
 void SamplePlayer::onBar(Frame localFrame) const
 {
-    ChannelStatus s = channel.getState().status.load();
+    assert(m_channel != nullptr);
+    assert(m_state != nullptr);
+
+    ChannelStatus s = m_channel->getStatus().load();
 
     if (s == ChannelStatus::PLAY && mode == Mode::LOOP_REPEAT)
         rewind(localFrame);
     else
     if (s == ChannelStatus::WAIT && mode == Mode::LOOP_ONCE_BAR)
-        state.offset = localFrame;       
+        m_state->offset = localFrame;       
 }
 
 
@@ -132,13 +149,15 @@ void SamplePlayer::onBar(Frame localFrame) const
 
 void SamplePlayer::onFirstBeat(Frame localFrame) const
 {
-    ChannelStatus s = channel.getState().status.load();
+    assert(m_channel != nullptr);
+
+    ChannelStatus s = m_channel->getStatus().load();
 
     if (s == ChannelStatus::PLAY && isAnyLoopMode())
 		rewind(localFrame); 
     else
     if (s == ChannelStatus::WAIT)
-        state.offset = localFrame;
+        m_state->offset = localFrame;
     else
     if (s == ChannelStatus::ENDING && isAnyLoopMode())
         kill(localFrame);
@@ -150,16 +169,19 @@ void SamplePlayer::onFirstBeat(Frame localFrame) const
 
 void SamplePlayer::rewind(Frame localFrame) const
 {
+    assert(m_state != nullptr);
+    assert(m_channel != nullptr);
+
 	/* Quantization stops on rewind. */
 
-	state.quantizing = false; 
+	m_state->quantizing = false; 
 
-	if (channel.isPlaying()) { 
-		state.rewinding = true;
-		state.offset    = localFrame;
+	if (m_channel->isPlaying()) { 
+		m_state->rewinding = true;
+		m_state->offset    = localFrame;
 	}
 	else
-		state.tracker.store(begin);
+		m_state->tracker.store(begin);
 }
 
 
@@ -168,12 +190,26 @@ void SamplePlayer::rewind(Frame localFrame) const
 
 void SamplePlayer::kill(Frame localFrame) const
 {
+    assert(m_state != nullptr);
+
     /*  Clear data in range [localFrame, (buffer.size)) if the kill event occurs
     in the middle of the buffer. */
 
     if (localFrame != 0)
-        state.buffer.clear(localFrame);
+        m_state->buffer.clear(localFrame);
     rewind(localFrame);
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+void SamplePlayer::loadWave(const Wave* w)
+{
+    m_waveReader.wave = w;
+    shift = 0;
+    begin = 0;
+    end   = w != nullptr ? w->getSize() - 1 : 0;
 }
 
 

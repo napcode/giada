@@ -152,6 +152,7 @@ constexpr int   G_DEFAULT_SAMPLERATE        = 44100;
 constexpr int   G_DEFAULT_BUFSIZE           = 1024;
 constexpr int   G_DEFAULT_BIT_DEPTH         = 32;     // float
 constexpr float G_DEFAULT_VOL               = 1.0f;
+constexpr float G_DEFAULT_PAN               = 0.5f;
 constexpr float G_DEFAULT_PITCH             = 1.0f;
 constexpr float G_DEFAULT_BPM               = 120.0f;
 constexpr int   G_DEFAULT_BEATS             = 4;

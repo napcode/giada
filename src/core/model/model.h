@@ -32,6 +32,8 @@
 #include <algorithm>
 #include <type_traits>
 #include "core/channels/channel.h"
+#include "core/channels/channel_NEW.h"
+#include "core/channels/state.h"
 #include "core/const.h"
 #include "core/wave.h"
 #include "core/plugin.h"
@@ -43,24 +45,6 @@ namespace giada {
 namespace m {
 namespace model
 {
-struct ChannelAtomic
-{
-	ID id;
-	std::atomic<ChannelStatus> playStatus{ ChannelStatus::OFF };
-	std::atomic<ChannelStatus> recStatus { ChannelStatus::OFF };
-	std::atomic<Frame>         tracker   { 0 };
-	
-	/* buffer
-	Working buffer for internal processing. */
-/*
-	AudioBuffer buffer;
-	
-	bool quantizing;
-	bool rewinding;
-	float volume_d; 
-	float volume_i;*/
-};
-
 struct Clock
 {	
 	ClockStatus status       = ClockStatus::STOPPED;
@@ -139,6 +123,8 @@ extern RCUList<Recorder> recorder;
 extern RCUList<MidiIn>   midiIn;
 extern RCUList<Actions>  actions;
 extern RCUList<Channel>  channels;
+extern RCUList<Channel_NEW>  channels_NEW;
+extern RCUList<ChannelState> channelStates;
 extern RCUList<Wave>     waves;
 #ifdef WITH_VST
 extern RCUList<Plugin>   plugins;

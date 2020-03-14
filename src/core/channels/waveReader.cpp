@@ -76,6 +76,32 @@ WaveReader::WaveReader(WaveReader&& o)
 /* -------------------------------------------------------------------------- */
 
 
+WaveReader& WaveReader::operator=(const WaveReader& o)
+{
+	if(this == &o) return *this;
+	srcState = src_new(SRC_LINEAR, G_MAX_IO_CHANS, nullptr);
+	if (srcState == nullptr) {
+		u::log::print("[WaveReader] unable to allocate memory for SRC_STATE!\n");
+		throw std::bad_alloc();
+	}
+	return *this;
+}
+
+
+WaveReader& WaveReader::operator=(WaveReader&& o)
+{
+	if(this == &o) return *this;
+	if (srcState != nullptr)
+		src_delete(srcState);
+	srcState   = o.srcState;
+	o.srcState = nullptr;
+	return *this;
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
 WaveReader::~WaveReader()
 {
 	if (srcState != nullptr)

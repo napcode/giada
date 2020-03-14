@@ -31,6 +31,7 @@
 
 #include <atomic>
 #include "core/types.h"
+#include "core/const.h"
 #include "core/mixer.h"
 #include "core/audioBuffer.h"
 #include "core/channels/waveReader.h"
@@ -39,25 +40,14 @@
 namespace giada {
 namespace m
 {
-struct SamplePlayerState final
-{
-    std::atomic<Frame> tracker;
-    std::atomic<float> pitch;
-
-	/* buffer
-	Working buffer for internal processing. */
-
-    AudioBuffer buffer;
-
-    bool  rewinding;
-    bool  quantizing;
-    Frame offset;
-};
+class Channel_NEW;
+class Wave;
+struct SamplePlayerState;
 
 
 /* -------------------------------------------------------------------------- */
 
-class Channel_NEW;
+
 class SamplePlayer final
 {
 public:
@@ -68,12 +58,17 @@ public:
         SINGLE_BASIC, SINGLE_PRESS, SINGLE_RETRIG, SINGLE_ENDLESS
     };
 
-    SamplePlayer(SamplePlayerState&, const Channel_NEW&);
+    SamplePlayer();
     SamplePlayer(const SamplePlayer&);
+    SamplePlayer& operator=(const SamplePlayer&) = default;
+    SamplePlayer& operator=(SamplePlayer&&) = default;
     ~SamplePlayer() = default;
 
     void parse(const mixer::FrameEvents& fe) const;
     void render(AudioBuffer& out) const;
+
+    void setup(SamplePlayerState* s, const Channel_NEW* c);
+    void loadWave(const Wave* w);
 
     Mode  mode;
     Frame shift;
@@ -91,17 +86,17 @@ private:
     void rewind(Frame localFrame) const;
     void kill(Frame localFrame) const;
 
-    const Channel_NEW& channel;
-
-    /* state
-    References to mutable SamplePlayerState. */
-
-    SamplePlayerState& state;
-
     /* waveReader
     Used to read data from Wave and fill incoming buffer. */
 
-    WaveReader waveReader;
+    WaveReader m_waveReader;
+
+    /* state
+    Pointer to mutable SamplePlayer state. */
+
+    SamplePlayerState* m_state;
+
+    const Channel_NEW* m_channel;
 };
 }} // giada::m::
 

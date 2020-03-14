@@ -31,6 +31,7 @@
 
 #include <atomic>
 #include <optional>
+#include "core/const.h"
 #include "core/mixer.h"
 #include "core/channels/samplePlayer.h"
 
@@ -38,12 +39,7 @@
 namespace giada {
 namespace m
 {
-struct ChannelState final
-{
-    std::atomic<ChannelStatus> status;
-    std::atomic<float>         volume;
-    std::atomic<float>         pan;
-};
+struct ChannelState;
 
 
 /* -------------------------------------------------------------------------- */
@@ -53,7 +49,7 @@ class Channel_NEW final
 {
 public:
 
-    Channel_NEW(ChannelState& c);
+    Channel_NEW(ID id, ID columnId);
     Channel_NEW(const Channel_NEW&);
     Channel_NEW(Channel_NEW&&);
     ~Channel_NEW() = default;
@@ -61,9 +57,13 @@ public:
     void parse(const mixer::FrameEvents& fe) const;
     void render(AudioBuffer& out, const AudioBuffer& in) const;
 
-    const ChannelState& getState() const;
-
 	bool isPlaying() const;
+    const std::atomic<ChannelStatus>& getStatus() const;
+    ID getId() const;
+
+    void setup(ChannelState* s);
+
+    std::optional<SamplePlayer> samplePlayer;
 
 private:
 
@@ -71,9 +71,13 @@ private:
     void onFirstBeat(Frame localFrame) const;
     void kill() const;
 
-    ChannelState& state;
+    ID m_id;
+    ID m_columnId;
 
-    std::optional<SamplePlayer> samplePlayer;
+    /* state
+    Pointer to mutable Channel state. */
+
+    ChannelState* m_state;
 };
 }} // giada::m::
 

@@ -25,45 +25,44 @@
  * -------------------------------------------------------------------------- */
 
 
-#ifndef G_CHANNEL_WAVE_READER_H
-#define G_CHANNEL_WAVE_READER_H
+#ifndef G_CHANNEL_STATE_H
+#define G_CHANNEL_STATE_H
 
 
-#include <samplerate.h>
+#include <atomic>
+#include "core/const.h"
 #include "core/types.h"
+#include "core/audioBuffer.h"
 
 
 namespace giada {
 namespace m
 {
-class Wave;
-class WaveReader final
+struct SamplePlayerState final
 {
-public:
+    std::atomic<Frame> tracker {0};
+    std::atomic<float> pitch   {G_DEFAULT_PITCH};
 
-    WaveReader();
-    WaveReader(const WaveReader&);
-    WaveReader(WaveReader&&);
-    WaveReader& operator=(const WaveReader&);
-    WaveReader& operator=(WaveReader&&);
-    ~WaveReader();
+	/* buffer
+	Working buffer for internal processing. */
 
-    Frame fill(AudioBuffer& out, Frame start, Frame offset, float pitch) const;
+    AudioBuffer buffer;
 
-	/* wave
-	Wave object. Might be null if the channel has no sample. */
+    bool  rewinding;
+    bool  quantizing;
+    Frame offset;
+};
 
-	const Wave* wave;
 
-private:
+struct ChannelState final
+{
+    ID id {0};
 
-	Frame fillResampled(AudioBuffer& out, Frame start, Frame offset, float pitch) const;
-	Frame fillCopy     (AudioBuffer& out, Frame start, Frame offset) const;
+    std::atomic<ChannelStatus> status {ChannelStatus::OFF};
+    std::atomic<float>         volume {G_DEFAULT_VOL};
+    std::atomic<float>         pan    {G_DEFAULT_PAN};
 
-	/* srcState
-	Struct from libsamplerate. */
-
-	SRC_STATE* srcState;
+    SamplePlayerState samplePlayerState;
 };
 }} // giada::m::
 
