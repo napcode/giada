@@ -57,7 +57,7 @@ void close();
 Adds a new channel of type 'type' into the channels stack. Returns the new
 channel ID. */
 
-ID addChannel(ChannelType type, ID columnId);
+void addChannel(ChannelType type, ID columnId);
 
 /* loadChannel
 Loads a new Wave inside a Sample Channel. */

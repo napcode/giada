@@ -42,17 +42,16 @@ class geStatusButton;
 namespace giada {
 namespace m
 {
-class Channel;
+class Channel_NEW;
 }
 namespace v
 {
 class geChannelButton;
-
 class geChannel : public Fl_Group
 {
 public:
 
-	geChannel(int x, int y, int w, int h, ID channelId);
+	geChannel(int x, int y, int w, int h, const m::Channel_NEW& c);
 
 	void draw() override;
 
@@ -115,7 +114,7 @@ protected:
 	void cb_solo();
 	void cb_changeVol();
 #ifdef WITH_VST
-		void cb_openFxWindow();
+	void cb_openFxWindow();
 #endif
 
 	/* blink
@@ -127,6 +126,8 @@ protected:
 	Spread widgets across available space. */
 
 	void packWidgets();
+
+	const m::Channel_NEW& m_channel;
 };
 }} // giada::v::
 

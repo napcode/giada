@@ -26,7 +26,7 @@
 
 
 #include <FL/fl_draw.H>
-#include "core/channels/channel.h"
+#include "core/channels/channel_NEW.h"
 #include "core/model/model.h"
 #include "core/const.h"
 #include "core/recorder.h"
@@ -37,10 +37,10 @@
 namespace giada {
 namespace v
 {
-geChannelButton::geChannelButton(int x, int y, int w, int h, ID channelId)
-: geButton   (x, y, w, h), 
-  m_channelId(channelId),
-  m_key      ("")
+geChannelButton::geChannelButton(int x, int y, int w, int h, const m::Channel_NEW& c)
+: geButton (x, y, w, h), 
+  m_channel(c),
+  m_key    ("")
 {
 }
 
@@ -50,6 +50,7 @@ geChannelButton::geChannelButton(int x, int y, int w, int h, ID channelId)
 
 void geChannelButton::refresh()
 {
+	/*
 	m::model::onGet(m::model::channels, m_channelId, [&](m::Channel& c)
 	{
 		switch (c.playStatus) {
@@ -68,7 +69,7 @@ void geChannelButton::refresh()
 				setEndingMode(); break;
 			default: break;
 		}
-	});
+	});*/
 }
 
 

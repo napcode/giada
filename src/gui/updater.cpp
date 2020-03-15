@@ -40,11 +40,13 @@ void update(void* p)
 {
 	if (m::model::waves.changed.load()    == true ||
 		m::model::actions.changed.load()  == true ||
+		m::model::channels_NEW.changed.load()  == true ||
 		m::model::channels.changed.load() == true)
 	{
 		u::gui::rebuild();
 		m::model::waves.changed.store(false);
 		m::model::actions.changed.store(false);
+		m::model::channels_NEW.changed.store(false);
 		m::model::channels.changed.store(false);
 	}
 	else

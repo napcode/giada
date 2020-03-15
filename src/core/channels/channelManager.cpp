@@ -96,12 +96,7 @@ std::unique_ptr<Channel> create(ChannelType type, int bufferSize,
 std::unique_ptr<Channel_NEW> create_NEW(ChannelType type, int bufferSize, 
 	bool inputMonitorOn, ID columnId)
 {
-	std::unique_ptr<Channel_NEW> ch = std::make_unique<Channel_NEW>(channelId_.get(), columnId);
-
-	if (type == ChannelType::SAMPLE)
-		ch->samplePlayer = std::make_optional<SamplePlayer>();
-
-	return ch;
+	return std::make_unique<Channel_NEW>(type, channelId_.get(), columnId);
 }
 
 

@@ -102,13 +102,15 @@ void geKeyboard::rebuild()
 	for (ColumnLayout c : layout)
 		addColumn(c.width, c.id);
 
-	/* Parse the model and assign each channel to its column. */
+	/* Parse the model and assign each channel to its column. The lock on the
+	channel RCUList is valid for geChannel constructor and all its nested
+	classes. */
 
-	m::model::ChannelsLock lock(m::model::channels);
+	m::model::ChannelsLock_NEW lock(m::model::channels_NEW);
 
-	for (const m::Channel* ch : m::model::channels)
+	for (const m::Channel_NEW* ch : m::model::channels_NEW)
 		if (!ch->isInternal())
-			getColumn(ch->columnId)->addChannel(ch->id, ch->type, ch->height);
+			getColumn(ch->getColumnId())->addChannel(*ch);
 	
 	redraw();
 }

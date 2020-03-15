@@ -36,7 +36,7 @@
 namespace giada {
 namespace m
 {
-class MidiChannel;
+class Channel_NEW;
 }
 namespace v
 {
@@ -44,7 +44,7 @@ class geMidiChannel : public geChannel
 {
 public:
 
-    geMidiChannel(int x, int y, int w, int h, ID channelId);
+    geMidiChannel(int x, int y, int w, int h, const m::Channel_NEW& c);
 
     void resize(int x, int y, int w, int h) override;
 

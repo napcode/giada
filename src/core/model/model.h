@@ -111,6 +111,7 @@ using RecorderLock = RCUList<Recorder>::Lock;
 using MidiInLock   = RCUList<MidiIn>::Lock;
 using ActionsLock  = RCUList<Actions>::Lock;
 using ChannelsLock = RCUList<Channel>::Lock;
+using ChannelsLock_NEW = RCUList<Channel_NEW>::Lock;
 using WavesLock    = RCUList<Wave>::Lock;
 #ifdef WITH_VST
 using PluginsLock  = RCUList<Plugin>::Lock;
@@ -124,7 +125,6 @@ extern RCUList<MidiIn>   midiIn;
 extern RCUList<Actions>  actions;
 extern RCUList<Channel>  channels;
 extern RCUList<Channel_NEW>  channels_NEW;
-extern RCUList<ChannelState> channelStates;
 extern RCUList<Wave>     waves;
 #ifdef WITH_VST
 extern RCUList<Plugin>   plugins;
@@ -136,6 +136,8 @@ extern RCUList<Plugin>   plugins;
 
 template <typename T> struct has_id : std::false_type {};
 template <> struct has_id<Channel>  : std::true_type {};
+template <> struct has_id<Channel_NEW> : std::true_type {};
+template <> struct has_id<ChannelState> : std::true_type {};
 template <> struct has_id<Wave>     : std::true_type {};
 #ifdef WITH_VST
 template <> struct has_id<Plugin>   : std::true_type {};

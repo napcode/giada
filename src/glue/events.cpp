@@ -103,10 +103,9 @@ void killChannel(ID channelId)
 
 void setChannelVolume(ID channelId, float v, bool gui, bool editor)
 {
-	/* TODO - this changes the model directly without a swap! */
-	m::model::onGet(m::model::channels, channelId, [&](m::Channel& ch)
+	m::model::onGet(m::model::channels_NEW, channelId, [&](m::Channel_NEW& c)
 	{
-		ch.volume = v;
+		c.state->volume.store(v);
 	});
 
 	/* Changing channel volume? Update wave editor (if it's shown). */

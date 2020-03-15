@@ -48,9 +48,10 @@ extern giada::v::gdMainWindow* G_MainWin;
 namespace giada {
 namespace v
 {
-geSampleChannelButton::geSampleChannelButton(int x, int y, int w, int h, ID channelId)
-: geChannelButton(x, y, w, h, channelId)
+geSampleChannelButton::geSampleChannelButton(int x, int y, int w, int h, const m::Channel_NEW& c)
+: geChannelButton(x, y, w, h, c)
 {
+	/*
 	m::model::onGet(m::model::channels, m_channelId, [&](m::Channel& c)
 	{
 		const m::SampleChannel& sc = static_cast<m::SampleChannel&>(c);
@@ -74,7 +75,7 @@ geSampleChannelButton::geSampleChannelButton(int x, int y, int w, int h, ID chan
 					label(sc.name.c_str());
 				break;
 		}
-	});
+	});*/
 }
 
 
@@ -84,7 +85,7 @@ geSampleChannelButton::geSampleChannelButton(int x, int y, int w, int h, ID chan
 void geSampleChannelButton::refresh()
 {
 	geChannelButton::refresh();
-	
+	/*
 	m::model::onGet(m::model::channels, m_channelId, [&](m::Channel& c)
 	{
 		if (m::recManager::isRecordingInput() && c.armed)
@@ -92,7 +93,7 @@ void geSampleChannelButton::refresh()
 		else
 		if (m::recManager::isRecordingAction() && c.hasData())
 			setActionRecordMode();
-	});
+	});*/
 
 	redraw();
 }
@@ -103,6 +104,8 @@ void geSampleChannelButton::refresh()
 
 int geSampleChannelButton::handle(int e)
 {
+	m::model::ChannelsLock_NEW l(m::model::channels_NEW);
+
 	int ret = geButton::handle(e);
 	switch (e) {
 		case FL_DND_ENTER:
@@ -112,7 +115,7 @@ int geSampleChannelButton::handle(int e)
 			break;
 		}
 		case FL_PASTE: {
-			c::channel::loadChannel(m_channelId, u::string::trim(u::fs::stripFileUrl(Fl::event_text())));
+			c::channel::loadChannel(m_channel.id, u::string::trim(u::fs::stripFileUrl(Fl::event_text())));
 			ret = 1;
 			break;
 		}

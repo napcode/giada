@@ -39,8 +39,9 @@
 namespace giada {
 namespace v
 {
-geChannelStatus::geChannelStatus(int x, int y, int w, int h, ID channelId)
-: Fl_Box(x, y, w, h), channelId(channelId)
+geChannelStatus::geChannelStatus(int x, int y, int w, int h, const m::Channel_NEW& c)
+: Fl_Box   (x, y, w, h), 
+  m_channel(c)
 {
 }
 
@@ -53,8 +54,9 @@ void geChannelStatus::draw()
 	fl_rect(x(), y(), w(), h(), G_COLOR_GREY_4);              // reset border
 	fl_rectf(x()+1, y()+1, w()-2, h()-2, G_COLOR_GREY_2);     // reset background
 
-	m::model::ChannelsLock l(m::model::channels);
-	const m::SampleChannel& ch = static_cast<m::SampleChannel&>(m::model::get(m::model::channels, channelId));
+	m::model::ChannelsLock_NEW l(m::model::channels_NEW);
+	
+#if 0
 	
 	if (ch.playStatus == ChannelStatus::WAIT    || 
 	    ch.playStatus == ChannelStatus::ENDING  ||
@@ -85,6 +87,7 @@ void geChannelStatus::draw()
 	else
 		pos = (pos * (w()-1)) / ((ch.getEnd() - ch.getBegin()));
 	fl_rectf(x()+1, y()+1, pos, h()-2, G_COLOR_LIGHT_1);
+#endif
 }
 
 }} // giada::v::

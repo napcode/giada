@@ -61,6 +61,8 @@ sourcesCore =                               \
 	src/core/waveManager.cpp                \
 	src/core/recManager.h                   \
 	src/core/recManager.cpp                 \
+	src/core/channels/state.h               \
+	src/core/channels/state.cpp             \
 	src/core/channels/waveReader.h          \
 	src/core/channels/waveReader.cpp        \
 	src/core/channels/samplePlayer.h        \

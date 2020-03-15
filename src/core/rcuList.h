@@ -154,13 +154,13 @@ public:
 
 	Iterator begin()
 	{ 
-		assert(m_readers[t_grace].load() > 0 && "Forgot lock before reading");
+		//assert(m_readers[t_grace].load() > 0 && "Forgot lock before reading");
 		return Iterator(m_head.load());
 	}
 
 	Iterator end()
 	{ 
-		assert(m_readers[t_grace].load() > 0 && "Forgot lock before reading");
+		//assert(m_readers[t_grace].load() > 0 && "Forgot lock before reading");
 		return Iterator(nullptr);
 	}
 
@@ -190,7 +190,7 @@ public:
 	T* get(size_t i=0) const
 	{
 		assert(i < size() && "Index overflow");
-		assert(m_readers[t_grace].load() > 0 && "Forgot lock before reading");
+		//assert(m_readers[t_grace].load() > 0 && "Forgot lock before reading");
 		return getNode(i)->data.get();
 	}
 
@@ -211,7 +211,7 @@ public:
 
 	T* back() const
 	{
-		assert(m_readers[t_grace].load() > 0 && "Forgot lock before reading");
+		//assert(m_readers[t_grace].load() > 0 && "Forgot lock before reading");
 		return m_tail.load()->data.get();
 	}
 

@@ -40,8 +40,15 @@ namespace m
 {
 struct SamplePlayerState final
 {
-    std::atomic<Frame> tracker {0};
-    std::atomic<float> pitch   {G_DEFAULT_PITCH};
+    SamplePlayerState();
+    SamplePlayerState(const SamplePlayerState& o);
+    SamplePlayerState(SamplePlayerState&& o);
+    SamplePlayerState& operator=(const SamplePlayerState&);
+    SamplePlayerState& operator=(SamplePlayerState&&);
+    ~SamplePlayerState() = default;
+
+    std::atomic<Frame> tracker;
+    std::atomic<float> pitch;
 
 	/* buffer
 	Working buffer for internal processing. */
@@ -56,11 +63,20 @@ struct SamplePlayerState final
 
 struct ChannelState final
 {
-    ID id {0};
+    ChannelState();
+    ChannelState(const ChannelState& o);
+    ChannelState(ChannelState&& o);
+    ChannelState& operator=(const ChannelState&);
+    ChannelState& operator=(ChannelState&&);
+    ~ChannelState() = default;
 
-    std::atomic<ChannelStatus> status {ChannelStatus::OFF};
-    std::atomic<float>         volume {G_DEFAULT_VOL};
-    std::atomic<float>         pan    {G_DEFAULT_PAN};
+    ID id;
+
+    std::atomic<ChannelStatus> status;
+    std::atomic<float>         volume;
+    std::atomic<float>         pan;
+
+    int height;
 
     SamplePlayerState samplePlayerState;
 };

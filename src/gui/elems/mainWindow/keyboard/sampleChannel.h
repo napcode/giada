@@ -38,7 +38,7 @@ class geStatusButton;
 namespace giada {
 namespace m 
 { 
-class SampleChannel; 
+class Channel_NEW; 
 }
 namespace v
 {
@@ -48,10 +48,11 @@ class geSampleChannel : public geChannel
 {
 public:
 
-	geSampleChannel(int x, int y, int w, int h, ID channelId);
+	geSampleChannel(int x, int y, int w, int h, const m::Channel_NEW& c);
 
 	void resize(int x, int y, int w, int h) override;
 	void draw() override;
+
 
 	void refresh() override;
 

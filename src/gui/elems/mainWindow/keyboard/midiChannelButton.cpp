@@ -35,9 +35,10 @@
 namespace giada {
 namespace v
 {
-geMidiChannelButton::geMidiChannelButton(int x, int y, int w, int h, ID channelId)
-: geChannelButton(x, y, w, h, channelId)
+geMidiChannelButton::geMidiChannelButton(int x, int y, int w, int h, const m::Channel_NEW& c)
+: geChannelButton(x, y, w, h, c)
 {
+	/*
     std::string l; 
 	m::model::onGet(m::model::channels, m_channelId, [&](m::Channel& c)
 	{
@@ -51,7 +52,7 @@ geMidiChannelButton::geMidiChannelButton(int x, int y, int w, int h, ID channelI
 			l += " (ch " + u::string::iToString(mc.midiOutChan + 1) + " out)";
 	});
 
-    label(l.c_str());
+    label(l.c_str());*/
 }
 
 
@@ -60,6 +61,7 @@ geMidiChannelButton::geMidiChannelButton(int x, int y, int w, int h, ID channelI
 
 void geMidiChannelButton::refresh()
 {
+	/*
 	geChannelButton::refresh();
 
 	m::model::onGet(m::model::channels, m_channelId, [&](m::Channel& c)
@@ -68,6 +70,6 @@ void geMidiChannelButton::refresh()
 			setActionRecordMode();
 	});
 	
-	redraw();
+	redraw();*/
 }
 }} // giada::v::

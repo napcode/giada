@@ -35,7 +35,7 @@
 namespace giada {
 namespace m 
 { 
-class SampleChannel; 
+class Channel_NEW; 
 }
 namespace v
 {
@@ -43,7 +43,7 @@ class geSampleChannelButton : public geChannelButton
 {
 public:
 
-	geSampleChannelButton(int x, int y, int w, int h, ID channelId);
+	geSampleChannelButton(int x, int y, int w, int h, const m::Channel_NEW& c);
 	
     int handle(int e) override;
 

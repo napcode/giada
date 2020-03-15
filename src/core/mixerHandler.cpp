@@ -191,26 +191,17 @@ bool uniqueSamplePath(ID channelToSkip, const std::string& path)
 /* -------------------------------------------------------------------------- */
 
 
-ID addChannel(ChannelType type, ID columnId)
+void addChannel(ChannelType type, ID columnId)
 {
 	/*
 	std::unique_ptr<Channel> c  = createChannel_(type, columnId);
 	ID                       id = c->id;
 	model::channels.push(std::move(c));
 	return id;
-*/
-	std::unique_ptr<ChannelState> cs = std::make_unique<ChannelState>();
-	std::unique_ptr<Channel_NEW>  c  = channelManager::create_NEW(type, 
-		kernelAudio::getRealBufSize(), conf::conf.inputMonitorDefaultOn, columnId);
-	
-	ID id = c->getId();
-	cs->id = id;
-	cs->samplePlayerState.buffer.alloc(kernelAudio::getRealBufSize(), G_MAX_IO_CHANS);
+*/	
 
-	model::channelStates.push(std::move(cs));
-	model::channels_NEW.push(std::move(c));
-
-	return id;
+	model::channels_NEW.push(std::move(channelManager::create_NEW(type, 
+		kernelAudio::getRealBufSize(), conf::conf.inputMonitorDefaultOn, columnId)));
 }
 
 

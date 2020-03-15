@@ -124,8 +124,8 @@ void menuCallback(Fl_Widget* w, void* v)
 /* -------------------------------------------------------------------------- */
 
 
-geMidiChannel::geMidiChannel(int X, int Y, int W, int H, ID channelId)
-: geChannel(X, Y, W, H, channelId)
+geMidiChannel::geMidiChannel(int X, int Y, int W, int H, const m::Channel_NEW& c)
+: geChannel(X, Y, W, H, c)
 {
 #if defined(WITH_VST)
 	constexpr int delta = 6 * (G_GUI_UNIT + G_GUI_INNER_MARGIN);
@@ -135,7 +135,7 @@ geMidiChannel::geMidiChannel(int X, int Y, int W, int H, ID channelId)
 
 	playButton = new geStatusButton     (x(), y(), G_GUI_UNIT, G_GUI_UNIT, channelStop_xpm, channelPlay_xpm);
 	arm        = new geButton           (playButton->x() + playButton->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, G_GUI_UNIT, "", armOff_xpm, armOn_xpm);
-	mainButton = new geMidiChannelButton(arm->x() + arm->w() + G_GUI_INNER_MARGIN, y(), w() - delta, H, channelId);
+	mainButton = new geMidiChannelButton(arm->x() + arm->w() + G_GUI_INNER_MARGIN, y(), w() - delta, H, c);
 	mute       = new geStatusButton     (mainButton->x() + mainButton->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, G_GUI_UNIT, muteOff_xpm, muteOn_xpm);
 	solo       = new geStatusButton     (mute->x() + mute->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, G_GUI_UNIT, soloOff_xpm, soloOn_xpm);
 #if defined(WITH_VST)

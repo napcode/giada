@@ -52,9 +52,10 @@ extern giada::v::gdMainWindow* G_MainWin;
 namespace giada {
 namespace v
 {
-geChannel::geChannel(int X, int Y, int W, int H, ID channelId)
+geChannel::geChannel(int X, int Y, int W, int H, const m::Channel_NEW& c)
 : Fl_Group (X, Y, W, H),
-  channelId(channelId)
+  channelId(c.id),
+  m_channel(c)
 {
 }
 
@@ -98,6 +99,7 @@ void geChannel::cb_openFxWindow(Fl_Widget* v, void* p) { ((geChannel*)p)->cb_ope
 
 void geChannel::refresh()
 {
+	/*
 	m::model::onGet(m::model::channels, channelId, [&](m::Channel& c)
 	{
 		if (mainButton->visible())
@@ -107,7 +109,7 @@ void geChannel::refresh()
 		playButton->setStatus(c.isPlaying());
 		mute->setStatus(c.mute);
 		solo->setStatus(c.solo);
-	});
+	});*/
 }
 
 

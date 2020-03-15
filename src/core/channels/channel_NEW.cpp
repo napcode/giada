@@ -33,12 +33,14 @@
 namespace giada {
 namespace m 
 {
-Channel_NEW::Channel_NEW(ID id, ID columnId)
-: m_id      (id),
+Channel_NEW::Channel_NEW(ChannelType type, ID id, ID columnId)
+: id        (id),
   m_columnId(columnId),
-  m_state   (nullptr)
+  m_type    (type),
+  state     (std::make_unique<ChannelState>())
 {
-
+	if (type == ChannelType::SAMPLE)
+		samplePlayer = std::make_optional<SamplePlayer>(state->samplePlayerState, this);
 }
 
 
@@ -46,8 +48,9 @@ Channel_NEW::Channel_NEW(ID id, ID columnId)
 
 
 Channel_NEW::Channel_NEW(const Channel_NEW& o)
-: m_id   (o.m_id),
-  m_state(o.m_state)
+: id    (o.id),
+  m_type(o.m_type),
+  state (std::make_unique<ChannelState>(*o.state))
 {
 }
 
@@ -56,8 +59,9 @@ Channel_NEW::Channel_NEW(const Channel_NEW& o)
 
 
 Channel_NEW::Channel_NEW(Channel_NEW&& o)
-: m_id   (o.m_id),
-  m_state(o.m_state)
+: id    (o.id),
+  m_type(o.m_type),
+  state (std::move(o.state))
 {
 }
 
@@ -65,9 +69,8 @@ Channel_NEW::Channel_NEW(Channel_NEW&& o)
 /* -------------------------------------------------------------------------- */
 
 
-void Channel_NEW::setup(ChannelState* s)
+Channel_NEW& Channel_NEW::operator=(const Channel_NEW& o)
 {
-    m_state = s;
 }
 
 
@@ -104,16 +107,14 @@ void Channel_NEW::onBar(Frame localFrame) const
 {
     if (!samplePlayer)
         return;
-    
-    assert(m_state != nullptr);
 
-    ChannelStatus s = m_state->status.load();
+    ChannelStatus s = state->status.load();
 
     /* On bar, waiting channels with sample in LOOP_ONCE mode start playing 
     again. */
 
     if (s == ChannelStatus::WAIT && samplePlayer->mode == SamplePlayer::Mode::LOOP_ONCE_BAR)
-        m_state->status.store(ChannelStatus::PLAY);
+        state->status.store(ChannelStatus::PLAY);
 }
 
 
@@ -122,18 +123,16 @@ void Channel_NEW::onBar(Frame localFrame) const
 
 void Channel_NEW::onFirstBeat(Frame localFrame) const
 {
-    assert(m_state != nullptr);
-
-    ChannelStatus s = m_state->status.load();
+    ChannelStatus s = state->status.load();
 
     /* On first beat, wating channels start playing. Ending channels (i.e. those
     that are about to end) stop. */
 
     if (s == ChannelStatus::WAIT)
-        m_state->status.store(ChannelStatus::PLAY);
+        state->status.store(ChannelStatus::PLAY);
     else
     if (s == ChannelStatus::ENDING)
-        m_state->status.store(ChannelStatus::OFF);
+        state->status.store(ChannelStatus::OFF);
 }
 
 
@@ -142,24 +141,27 @@ void Channel_NEW::onFirstBeat(Frame localFrame) const
 
 void Channel_NEW::kill() const
 {
-    assert(m_state != nullptr);
-    m_state->status.store(ChannelStatus::OFF);
+    state->status.store(ChannelStatus::OFF);
 }
 
 
 /* -------------------------------------------------------------------------- */
 
 
-const std::atomic<ChannelStatus>& Channel_NEW::getStatus() const 
-{ 
-    return m_state->status; 
-}
+ID Channel_NEW::getId() const { return id; }
+ID Channel_NEW::getColumnId() const { return m_columnId; };
+ChannelType Channel_NEW::getType() const { return m_type; };
 
 
 /* -------------------------------------------------------------------------- */
 
 
-ID Channel_NEW::getId() const { return m_id; }
+bool Channel_NEW::isInternal() const
+{
+    return id == mixer::MASTER_OUT_CHANNEL_ID ||
+	       id == mixer::MASTER_IN_CHANNEL_ID  ||
+	       id == mixer::PREVIEW_CHANNEL_ID;
+}
 
 
 /* -------------------------------------------------------------------------- */
@@ -167,8 +169,7 @@ ID Channel_NEW::getId() const { return m_id; }
 
 bool Channel_NEW::isPlaying() const
 {
-    assert(m_state != nullptr);
-    ChannelStatus s = m_state->status.load();
+    ChannelStatus s = state->status.load();
 	return s == ChannelStatus::PLAY || s == ChannelStatus::ENDING;
 }
 }} // giada::m::

@@ -58,16 +58,17 @@ public:
         SINGLE_BASIC, SINGLE_PRESS, SINGLE_RETRIG, SINGLE_ENDLESS
     };
 
-    SamplePlayer();
+    SamplePlayer(SamplePlayerState&, const Channel_NEW*);
     SamplePlayer(const SamplePlayer&);
-    SamplePlayer& operator=(const SamplePlayer&) = default;
-    SamplePlayer& operator=(SamplePlayer&&) = default;
+    SamplePlayer& operator=(const SamplePlayer&) = delete;
+    SamplePlayer& operator=(SamplePlayer&&);
     ~SamplePlayer() = default;
 
     void parse(const mixer::FrameEvents& fe) const;
     void render(AudioBuffer& out) const;
+    
+    bool isAnyLoopMode() const;
 
-    void setup(SamplePlayerState* s, const Channel_NEW* c);
     void loadWave(const Wave* w);
 
     Mode  mode;
@@ -79,7 +80,6 @@ private:
 
     bool isOnLastFrame() const;
     bool shouldLoop() const;
-    bool isAnyLoopMode() const;
 
     void onBar(Frame localFrame) const;
     void onFirstBeat(Frame localFrame) const;
@@ -92,9 +92,9 @@ private:
     WaveReader m_waveReader;
 
     /* state
-    Pointer to mutable SamplePlayer state. */
+    Reference to mutable SamplePlayer state. */
 
-    SamplePlayerState* m_state;
+    SamplePlayerState& m_state;
 
     const Channel_NEW* m_channel;
 };

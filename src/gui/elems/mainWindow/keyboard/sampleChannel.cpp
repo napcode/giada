@@ -26,6 +26,8 @@
 
 
 #include <cassert>
+#include "core/channels/channel_NEW.h"
+#include "core/channels/samplePlayer.h"
 #include "core/channels/sampleChannel.h"
 #include "core/model/model.h"
 #include "core/mixer.h"
@@ -195,8 +197,8 @@ void menuCallback(Fl_Widget* w, void* v)
 /* -------------------------------------------------------------------------- */
 
 
-geSampleChannel::geSampleChannel(int X, int Y, int W, int H, ID channelId)
-: geChannel(X, Y, W, H, channelId)
+geSampleChannel::geSampleChannel(int X, int Y, int W, int H, const m::Channel_NEW& c)
+: geChannel(X, Y, W, H, c)
 {
 #if defined(WITH_VST)
 	constexpr int delta = 9 * (G_GUI_UNIT + G_GUI_INNER_MARGIN);
@@ -206,10 +208,10 @@ geSampleChannel::geSampleChannel(int X, int Y, int W, int H, ID channelId)
 
 	playButton  = new geStatusButton       (x(), y(), G_GUI_UNIT, G_GUI_UNIT, channelStop_xpm, channelPlay_xpm);
 	arm         = new geButton             (playButton->x() + playButton->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, G_GUI_UNIT, "", armOff_xpm, armOn_xpm);
-	status      = new geChannelStatus      (arm->x() + arm->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, H, channelId);
-	mainButton  = new geSampleChannelButton(status->x() + status->w() + G_GUI_INNER_MARGIN, y(), w() - delta, H, channelId);
+	status      = new geChannelStatus      (arm->x() + arm->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, H, m_channel);
+	mainButton  = new geSampleChannelButton(status->x() + status->w() + G_GUI_INNER_MARGIN, y(), w() - delta, H, m_channel);
 	readActions = new geStatusButton       (mainButton->x() + mainButton->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, G_GUI_UNIT, readActionOff_xpm, readActionOn_xpm, readActionDisabled_xpm);
-	modeBox     = new geChannelMode        (readActions->x() + readActions->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, G_GUI_UNIT, channelId);
+	modeBox     = new geChannelMode        (readActions->x() + readActions->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, G_GUI_UNIT, m_channel);
 	mute        = new geStatusButton       (modeBox->x() + modeBox->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, G_GUI_UNIT, muteOff_xpm, muteOn_xpm);
 	solo        = new geStatusButton       (mute->x() + mute->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, G_GUI_UNIT, soloOff_xpm, soloOn_xpm);
 #if defined(WITH_VST)
@@ -223,21 +225,18 @@ geSampleChannel::geSampleChannel(int X, int Y, int W, int H, ID channelId)
 
 	resizable(mainButton);
 
-	m::model::ChannelsLock l(m::model::channels);
-	const m::SampleChannel& ch = static_cast<m::SampleChannel&>(m::model::get(m::model::channels, channelId));
-
-	modeBox->value(static_cast<int>(ch.mode));
+	modeBox->value(static_cast<int>(m_channel.samplePlayer->mode));
 	modeBox->redraw();
 
 #ifdef WITH_VST
-	fx->setStatus(ch.pluginIds.size() > 0);
+	//fx->setStatus(ch.pluginIds.size() > 0);
 #endif
 
 	playButton->callback(cb_playButton, (void*)this);
 	playButton->when(FL_WHEN_CHANGED);   // On keypress && on keyrelease
 
 	arm->type(FL_TOGGLE_BUTTON);
-	arm->value(ch.armed);
+	//arm->value(ch.armed);
 	arm->callback(cb_arm, (void*)this);
 
 #ifdef WITH_VST
@@ -250,13 +249,13 @@ geSampleChannel::geSampleChannel(int X, int Y, int W, int H, ID channelId)
 	solo->type(FL_TOGGLE_BUTTON);
 	solo->callback(cb_solo, (void*)this);
 
-	mainButton->setKey(ch.key);
+	//mainButton->setKey(ch.key);
 	mainButton->callback(cb_openMenu, (void*)this);
 
-	readActions->setStatus(ch.readActions);
+	//readActions->setStatus(ch.readActions);
 	readActions->callback(cb_readActions, (void*)this);
 
-	vol->value(ch.volume);
+	vol->value(m_channel.state->volume.load());
 	vol->callback(cb_changeVol, (void*)this);
 
 	size(w(), h()); // Force responsiveness
@@ -285,18 +284,16 @@ void geSampleChannel::cb_playButton()
 
 void geSampleChannel::cb_openMenu()
 {
-	bool inputMonitor;
-	bool isEmptyOrMissing;
-	bool hasActions;
-	bool isAnyLoopMode;
-	m::model::onGet(m::model::channels, channelId, [&](m::Channel& c)
-	{
-		const m::SampleChannel& sc = static_cast<m::SampleChannel&>(c);
-		inputMonitor     = sc.inputMonitor;
-		isEmptyOrMissing = sc.playStatus == ChannelStatus::EMPTY || sc.playStatus == ChannelStatus::MISSING;
-		hasActions       = sc.hasActions;
-		isAnyLoopMode    = sc.isAnyLoopMode();
-	});
+	m::model::ChannelsLock_NEW lock(m::model::channels_NEW);
+
+	/* TODO */
+	/* TODO */
+	/* TODO */
+
+	bool inputMonitor     = false;
+	bool isEmptyOrMissing = false;
+	bool hasActions       = false;
+	bool isAnyLoopMode    = m_channel.samplePlayer->isAnyLoopMode();
 
 	/* If you're recording (input or actions) no menu is allowed; you can't do
 	anything, especially deallocate the channel. */
@@ -371,7 +368,7 @@ void geSampleChannel::cb_readActions()
 void geSampleChannel::refresh()
 {
 	geChannel::refresh();
-
+/*
 	m::model::onGet(m::model::channels, channelId, [&](m::Channel& c)
 	{
 		if (c.hasData()) 
@@ -382,7 +379,7 @@ void geSampleChannel::refresh()
 		}
 		else
 			readActions->deactivate();
-	});
+	});*/
 }
 
 

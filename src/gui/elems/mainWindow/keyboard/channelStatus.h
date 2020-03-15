@@ -37,7 +37,7 @@
 namespace giada {
 namespace m 
 { 
-class SampleChannel; 
+class Channel_NEW;
 }
 namespace v
 {
@@ -45,11 +45,13 @@ class geChannelStatus : public Fl_Box
 {
 public:
 
-	geChannelStatus(int x, int y, int w, int h, ID channelId);
+	geChannelStatus(int x, int y, int w, int h, const m::Channel_NEW& c);
 
 	void draw() override;
 
-	ID channelId;
+private:
+
+	const m::Channel_NEW& m_channel;
 };
 }} // giada::v::
 
