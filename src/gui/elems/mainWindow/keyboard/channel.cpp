@@ -52,10 +52,10 @@ extern giada::v::gdMainWindow* G_MainWin;
 namespace giada {
 namespace v
 {
-geChannel::geChannel(int X, int Y, int W, int H, const m::Channel_NEW& c)
+geChannel::geChannel(int X, int Y, int W, int H, const m::ChannelState& cs)
 : Fl_Group (X, Y, W, H),
-  channelId(c.id),
-  m_channel(c)
+  channelId(cs.id),
+  m_state  (cs)
 {
 }
 

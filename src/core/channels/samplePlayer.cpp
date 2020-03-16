@@ -37,8 +37,7 @@ namespace giada {
 namespace m 
 {
 SamplePlayer::SamplePlayer(SamplePlayerState& s, const Channel_NEW* c)
-: mode     (SamplePlayer::Mode::SINGLE_BASIC),
-  m_state  (s),
+: m_state  (s),
   m_channel(c)
 {
     // TODO m_state.buffer.alloc(kernelAudio::getRealBufSize(), G_MAX_IO_CHANS);
@@ -49,8 +48,7 @@ SamplePlayer::SamplePlayer(SamplePlayerState& s, const Channel_NEW* c)
 
 
 SamplePlayer::SamplePlayer(const SamplePlayer& o)
-: mode        (o.mode),
-  shift       (o.shift),
+: shift       (o.shift),
   begin       (o.begin),
   end         (o.end),
   m_waveReader(o.m_waveReader),
@@ -66,7 +64,6 @@ SamplePlayer::SamplePlayer(const SamplePlayer& o)
 SamplePlayer& SamplePlayer::operator=(SamplePlayer&& o)
 {
 	if(this == &o) return *this;
-    mode      = o.mode;
     shift     = o.shift;
     begin     = o.begin;
     end       = o.end;
@@ -79,13 +76,14 @@ SamplePlayer& SamplePlayer::operator=(SamplePlayer&& o)
 /* -------------------------------------------------------------------------- */
 
 
-void SamplePlayer::parse(const mixer::FrameEvents& fe) const
+void SamplePlayer::parse(const std::vector<mixer::Event>& e) const
 {
+    /*
 	if (fe.onBar)
         onBar(fe.frameLocal);
     else
 	if (fe.onFirstBeat)
-        onFirstBeat(fe.frameLocal);
+        onFirstBeat(fe.frameLocal);*/
 }
 
 
@@ -136,12 +134,13 @@ void SamplePlayer::render(AudioBuffer& out) const
 
 void SamplePlayer::onBar(Frame localFrame) const
 {
-    ChannelStatus s = m_channel->state->status.load();
+    ChannelStatus    s = m_channel->state->status.load();
+    SamplePlayerMode m = m_state.mode.load();
 
-    if (s == ChannelStatus::PLAY && mode == Mode::LOOP_REPEAT)
+    if (s == ChannelStatus::PLAY && m == SamplePlayerMode::LOOP_REPEAT)
         rewind(localFrame);
     else
-    if (s == ChannelStatus::WAIT && mode == Mode::LOOP_ONCE_BAR)
+    if (s == ChannelStatus::WAIT && m == SamplePlayerMode::LOOP_ONCE_BAR)
         m_state.offset = localFrame;       
 }
 
@@ -213,9 +212,11 @@ void SamplePlayer::loadWave(const Wave* w)
 
 bool SamplePlayer::shouldLoop() const
 {
-    return mode == Mode::LOOP_BASIC  || 
-           mode == Mode::LOOP_REPEAT || 
-           mode == Mode::SINGLE_ENDLESS;
+    SamplePlayerMode m = m_state.mode.load();
+    
+    return m == SamplePlayerMode::LOOP_BASIC  || 
+           m == SamplePlayerMode::LOOP_REPEAT || 
+           m == SamplePlayerMode::SINGLE_ENDLESS;
 }
 
 
@@ -224,9 +225,11 @@ bool SamplePlayer::shouldLoop() const
 
 bool SamplePlayer::isAnyLoopMode() const
 {
-	return mode == Mode::LOOP_BASIC  || 
-	       mode == Mode::LOOP_ONCE   || 
-	       mode == Mode::LOOP_REPEAT || 
-	       mode == Mode::LOOP_ONCE_BAR;
+    SamplePlayerMode m = m_state.mode.load();
+
+	return m == SamplePlayerMode::LOOP_BASIC  || 
+	       m == SamplePlayerMode::LOOP_ONCE   || 
+	       m == SamplePlayerMode::LOOP_REPEAT || 
+	       m == SamplePlayerMode::LOOP_ONCE_BAR;
 }
 }} // giada::m::

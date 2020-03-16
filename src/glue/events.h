@@ -48,8 +48,8 @@ namespace events
 /* Channel*
 Channel-related events. */
 
-void pressChannel            (ID channelId, int velocity);
-void releaseChannel          (ID channelId);
+void pressChannel            (ID channelId, int velocity, Thread t);
+void releaseChannel          (ID channelId, Thread t);
 void killChannel             (ID channelId);
 void setChannelVolume        (ID channelId, float v, bool gui, bool editor);
 void setChannelPitch         (ID channelId, float v, bool gui, bool editor);

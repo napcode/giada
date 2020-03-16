@@ -118,6 +118,12 @@ std::function<void()> signalCb_ = nullptr;
 std::atomic<bool> processing_(false);
 std::atomic<bool> active_(false);
 
+/* eventBuffer_
+Buffer of events sent to channels for event parsing. This is filled with Events
+coming from the two event queues. */
+
+std::vector<Event> eventBuffer_;
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -216,6 +222,21 @@ void renderMetronome_(AudioBuffer& outBuf, Frame f)
 
 
 /* -------------------------------------------------------------------------- */
+
+void parseEvents_()
+{
+	eventBuffer_.clear();
+
+	Event e;
+	while (UIevents.pop(e))
+		eventBuffer_.push_back(e);
+	while (MidiEvents.pop(e))
+		eventBuffer_.push_back(e);
+
+	model::ChannelsLock lock(model::channels);
+	for (const Channel_NEW* ch : model::channels_NEW)
+		ch->parse(eventBuffer_); 
+}
 
 
 void parseEvents_(Frame f)
@@ -347,6 +368,9 @@ std::atomic<bool>  rewindWait(false);
 std::atomic<float> peakOut(0.0);
 std::atomic<float> peakIn(0.0);
 
+Queue<Event, G_MAX_QUEUE_EVENTS> UIevents;
+Queue<Event, G_MAX_QUEUE_EVENTS> MidiEvents;
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -358,6 +382,10 @@ void init(Frame framesInSeq, Frame framesInBuffer)
 	
 	vChanInput_.alloc(framesInSeq, G_MAX_IO_CHANS);
 	vChanInToOut_.alloc(framesInBuffer, G_MAX_IO_CHANS);
+
+	/* Prepare the event buffer to store events without allocation. */
+
+	eventBuffer_.reserve(G_MAX_QUEUE_EVENTS*2);
 
 	u::log::print("[mixer::init] buffers ready - framesInSeq=%d, framesInBuffer=%d\n", 
 		framesInSeq, framesInBuffer);	
@@ -441,6 +469,7 @@ int masterPlay(void* outBuf, void* inBuf, unsigned bufferSize,
 
 //out[0][0] = 3.0f;
 
+	parseEvents_();
 	if (clock::isActive()) 
 		processSequencer_(out, in);
 	render_(out, in, vChanInToOut_);

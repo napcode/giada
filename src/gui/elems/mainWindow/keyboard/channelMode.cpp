@@ -43,23 +43,23 @@
 namespace giada {
 namespace v
 {
-geChannelMode::geChannelMode(int x, int y, int w, int h, const m::Channel_NEW& c)
+geChannelMode::geChannelMode(int x, int y, int w, int h, const m::ChannelState& cs)
 : Fl_Menu_Button(x, y, w, h), 
-  m_channel     (c)
+  m_state       (cs)
 {
 	box(G_CUSTOM_BORDER_BOX);
 	textsize(G_GUI_FONT_SIZE_BASE);
 	textcolor(G_COLOR_LIGHT_2);
 	color(G_COLOR_GREY_2);
 
-	add("Loop . basic",      0, cb_changeMode, (void*) m::SamplePlayer::Mode::LOOP_BASIC);
-	add("Loop . once",       0, cb_changeMode, (void*) m::SamplePlayer::Mode::LOOP_ONCE);
-	add("Loop . once . bar", 0, cb_changeMode, (void*) m::SamplePlayer::Mode::LOOP_ONCE_BAR);
-	add("Loop . repeat",     0, cb_changeMode, (void*) m::SamplePlayer::Mode::LOOP_REPEAT);
-	add("Oneshot . basic",   0, cb_changeMode, (void*) m::SamplePlayer::Mode::SINGLE_BASIC);
-	add("Oneshot . press",   0, cb_changeMode, (void*) m::SamplePlayer::Mode::SINGLE_PRESS);
-	add("Oneshot . retrig",  0, cb_changeMode, (void*) m::SamplePlayer::Mode::SINGLE_RETRIG);
-	add("Oneshot . endless", 0, cb_changeMode, (void*) m::SamplePlayer::Mode::SINGLE_ENDLESS);
+	add("Loop . basic",      0, cb_changeMode, (void*) SamplePlayerMode::LOOP_BASIC);
+	add("Loop . once",       0, cb_changeMode, (void*) SamplePlayerMode::LOOP_ONCE);
+	add("Loop . once . bar", 0, cb_changeMode, (void*) SamplePlayerMode::LOOP_ONCE_BAR);
+	add("Loop . repeat",     0, cb_changeMode, (void*) SamplePlayerMode::LOOP_REPEAT);
+	add("Oneshot . basic",   0, cb_changeMode, (void*) SamplePlayerMode::SINGLE_BASIC);
+	add("Oneshot . press",   0, cb_changeMode, (void*) SamplePlayerMode::SINGLE_PRESS);
+	add("Oneshot . retrig",  0, cb_changeMode, (void*) SamplePlayerMode::SINGLE_RETRIG);
+	add("Oneshot . endless", 0, cb_changeMode, (void*) SamplePlayerMode::SINGLE_ENDLESS);
 }
 
 
@@ -72,29 +72,31 @@ void geChannelMode::draw()
 
 	m::model::ChannelsLock_NEW l(m::model::channels_NEW);
 
-	switch (m_channel.samplePlayer->mode) {
-		case m::SamplePlayer::Mode::LOOP_BASIC:
+	SamplePlayerMode m = m_state.samplePlayerState.mode.load();
+
+	switch (m) {
+		case SamplePlayerMode::LOOP_BASIC:
 			fl_draw_pixmap(loopBasic_xpm, x()+1, y()+1);
 			break;
-		case m::SamplePlayer::Mode::LOOP_ONCE:
+		case SamplePlayerMode::LOOP_ONCE:
 			fl_draw_pixmap(loopOnce_xpm, x()+1, y()+1);
 			break;
-		case m::SamplePlayer::Mode::LOOP_ONCE_BAR:
+		case SamplePlayerMode::LOOP_ONCE_BAR:
 			fl_draw_pixmap(loopOnceBar_xpm, x()+1, y()+1);
 			break;
-		case m::SamplePlayer::Mode::LOOP_REPEAT:
+		case SamplePlayerMode::LOOP_REPEAT:
 			fl_draw_pixmap(loopRepeat_xpm, x()+1, y()+1);
 			break;
-		case m::SamplePlayer::Mode::SINGLE_BASIC:
+		case SamplePlayerMode::SINGLE_BASIC:
 			fl_draw_pixmap(oneshotBasic_xpm, x()+1, y()+1);
 			break;
-		case m::SamplePlayer::Mode::SINGLE_PRESS:
+		case SamplePlayerMode::SINGLE_PRESS:
 			fl_draw_pixmap(oneshotPress_xpm, x()+1, y()+1);
 			break;
-		case m::SamplePlayer::Mode::SINGLE_RETRIG:
+		case SamplePlayerMode::SINGLE_RETRIG:
 			fl_draw_pixmap(oneshotRetrig_xpm, x()+1, y()+1);
 			break;
-		case m::SamplePlayer::Mode::SINGLE_ENDLESS:
+		case SamplePlayerMode::SINGLE_ENDLESS:
 			fl_draw_pixmap(oneshotEndless_xpm, x()+1, y()+1);
 			break;
 	}

@@ -35,6 +35,8 @@
 #include "deps/rtaudio/RtAudio.h"
 #include "core/recorder.h"
 #include "core/types.h"
+#include "core/queue.h"
+#include "core/midiEvent.h"
 
 
 namespace giada {
@@ -57,6 +59,19 @@ struct FrameEvents
 	const std::vector<Action>* actions;
 };
 
+enum class EventType { PRESS, RELEASE, KILL, SEQUENCER, MIDI, ACTIONS };
+
+struct Event
+{
+	EventType type;
+	Frame     localFrame;
+	Frame     globalFrame;
+	ID        channelId;
+	// TODO Position seqPosition
+	MidiEvent midi;
+	const std::vector<Action>* actions = nullptr;
+};
+
 constexpr int MASTER_OUT_CHANNEL_ID = 1;
 constexpr int MASTER_IN_CHANNEL_ID  = 2;
 constexpr int PREVIEW_CHANNEL_ID    = 3;
@@ -64,6 +79,9 @@ constexpr int PREVIEW_CHANNEL_ID    = 3;
 extern std::atomic<bool>  rewindWait;    // rewind guard, if quantized
 extern std::atomic<float> peakOut;
 extern std::atomic<float> peakIn;
+
+extern Queue<Event, G_MAX_QUEUE_EVENTS> UIevents;
+extern Queue<Event, G_MAX_QUEUE_EVENTS> MidiEvents;
 
 void init(Frame framesInSeq, Frame framesInBuffer);
 

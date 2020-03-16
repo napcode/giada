@@ -48,8 +48,8 @@ extern giada::v::gdMainWindow* G_MainWin;
 namespace giada {
 namespace v
 {
-geSampleChannelButton::geSampleChannelButton(int x, int y, int w, int h, const m::Channel_NEW& c)
-: geChannelButton(x, y, w, h, c)
+geSampleChannelButton::geSampleChannelButton(int x, int y, int w, int h, const m::ChannelState& cs)
+: geChannelButton(x, y, w, h, cs)
 {
 	/*
 	m::model::onGet(m::model::channels, m_channelId, [&](m::Channel& c)
@@ -115,7 +115,7 @@ int geSampleChannelButton::handle(int e)
 			break;
 		}
 		case FL_PASTE: {
-			c::channel::loadChannel(m_channel.id, u::string::trim(u::fs::stripFileUrl(Fl::event_text())));
+			c::channel::loadChannel(m_state.id, u::string::trim(u::fs::stripFileUrl(Fl::event_text())));
 			ret = 1;
 			break;
 		}

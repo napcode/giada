@@ -37,10 +37,10 @@
 namespace giada {
 namespace v
 {
-geChannelButton::geChannelButton(int x, int y, int w, int h, const m::Channel_NEW& c)
-: geButton (x, y, w, h), 
-  m_channel(c),
-  m_key    ("")
+geChannelButton::geChannelButton(int x, int y, int w, int h, const m::ChannelState& cs)
+: geButton(x, y, w, h), 
+  m_state (cs),
+  m_key   ("")
 {
 }
 
@@ -155,5 +155,4 @@ void geChannelButton::setEndingMode()
 {
 	bgColor0 = G_COLOR_GREY_4;
 }
-
 }} // giada::v::

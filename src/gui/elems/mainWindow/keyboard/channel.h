@@ -42,7 +42,7 @@ class geStatusButton;
 namespace giada {
 namespace m
 {
-class Channel_NEW;
+class ChannelState;
 }
 namespace v
 {
@@ -51,7 +51,7 @@ class geChannel : public Fl_Group
 {
 public:
 
-	geChannel(int x, int y, int w, int h, const m::Channel_NEW& c);
+	geChannel(int x, int y, int w, int h, const m::ChannelState& cs);
 
 	void draw() override;
 
@@ -127,7 +127,7 @@ protected:
 
 	void packWidgets();
 
-	const m::Channel_NEW& m_channel;
+	const m::ChannelState& m_state;
 };
 }} // giada::v::
 

@@ -50,7 +50,7 @@ public:
     Channel_NEW(Channel_NEW&&);
     ~Channel_NEW() = default;
 
-    void parse(const mixer::FrameEvents& fe) const;
+    void parse(const std::vector<mixer::Event>& e) const;
     void render(AudioBuffer& out, const AudioBuffer& in) const;
 
     bool isInternal() const;

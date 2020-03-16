@@ -35,7 +35,7 @@
 namespace giada {
 namespace m 
 { 
-class Channel_NEW; 
+class ChannelState; 
 }
 namespace v
 {
@@ -43,7 +43,7 @@ class geChannelButton : public geButton
 {
 public:
 
-	geChannelButton(int x, int y, int w, int h, const m::Channel_NEW& c);
+	geChannelButton(int x, int y, int w, int h, const m::ChannelState& cs);
 
 	virtual void refresh();
 
@@ -58,7 +58,7 @@ public:
 
 protected:
 
-    const m::Channel_NEW& m_channel;
+    const m::ChannelState& m_state;
 	std::string m_key;
 };
 }} // giada::v::

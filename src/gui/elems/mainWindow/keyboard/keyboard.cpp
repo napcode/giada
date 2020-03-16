@@ -110,7 +110,7 @@ void geKeyboard::rebuild()
 
 	for (const m::Channel_NEW* ch : m::model::channels_NEW)
 		if (!ch->isInternal())
-			getColumn(ch->getColumnId())->addChannel(*ch);
+			getColumn(ch->getColumnId())->addChannel(ch->getType(), *ch->state);
 	
 	redraw();
 }

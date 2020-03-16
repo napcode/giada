@@ -35,7 +35,7 @@
 namespace giada {
 namespace m 
 { 
-class Channel_NEW; 
+struct ChannelState; 
 }
 namespace v
 {
@@ -43,7 +43,7 @@ class geMidiChannelButton : public geChannelButton
 {
 public:
 
-	geMidiChannelButton(int x, int y, int w, int h, const m::Channel_NEW& c);
+	geMidiChannelButton(int x, int y, int w, int h, const m::ChannelState& cs);
 	
 	void refresh() override;
 };

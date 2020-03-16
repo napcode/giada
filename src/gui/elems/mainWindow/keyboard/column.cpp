@@ -30,7 +30,7 @@
 #include <FL/Fl_Menu_Button.H>
 #include "core/channels/sampleChannel.h"
 #include "core/channels/midiChannel.h"
-#include "core/channels/channel_NEW.h"
+#include "core/channels/state.h"
 #include "core/model/model.h"
 #include "glue/channel.h"
 #include "utils/log.h"
@@ -77,15 +77,15 @@ void geColumn::cb_addChannel(Fl_Widget* v, void* p) { ((geColumn*)p)->cb_addChan
 /* -------------------------------------------------------------------------- */
 
 
-geChannel* geColumn::addChannel(const m::Channel_NEW& c)
+geChannel* geColumn::addChannel(ChannelType type, const m::ChannelState& cs)
 {
 	geChannel* gch  = nullptr;
 	Fl_Widget* last = m_channels.size() == 0 ? static_cast<Fl_Widget*>(m_addChannelBtn) : m_channels.back();
 
-	if (c.getType() == ChannelType::SAMPLE)
-		gch = new geSampleChannel(x(), last->y() + last->h() + G_GUI_INNER_MARGIN, w(), c.height, c);
+	if (type == ChannelType::SAMPLE)
+		gch = new geSampleChannel(x(), last->y() + last->h() + G_GUI_INNER_MARGIN, w(), cs.height, cs);
 	else
-		gch = new geMidiChannel  (x(), last->y() + last->h() + G_GUI_INNER_MARGIN, w(), c.height, c);
+		gch = new geMidiChannel  (x(), last->y() + last->h() + G_GUI_INNER_MARGIN, w(), cs.height, cs);
 
 	geResizerBar* bar = new geResizerBar(x(), gch->y() + gch->h(), w(), 
 		G_GUI_INNER_MARGIN, G_GUI_UNIT, geResizerBar::VERTICAL, gch);

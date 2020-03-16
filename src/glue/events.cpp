@@ -25,14 +25,18 @@
  * -------------------------------------------------------------------------- */
 
 
+#include <cassert>
 #include <FL/Fl.H>
 #include "core/model/model.h"
-#include "core/clock.h"
 #include "core/channels/sampleChannel.h"
+#include "core/clock.h"
+#include "core/mixer.h"
+#include "core/midiEvent.h"
 #include "core/pluginHost.h"
 #include "core/mixerHandler.h"
 #include "core/conf.h"
 #include "core/recManager.h"
+#include "utils/log.h"
 #include "gui/dialogs/sampleEditor.h"
 #include "gui/dialogs/mainWindow.h"
 #include "gui/dialogs/warnings.h"
@@ -58,6 +62,20 @@ namespace events
 {
 namespace
 {
+void pushEvent_(m::mixer::Event e, Thread t)
+{
+	bool res = true;
+	if (t == Thread::MAIN)
+		res = m::mixer::UIevents.push(e);
+	else
+	if (t == Thread::MIDI)
+		res = m::mixer::MidiEvents.push(e);
+	else
+		assert(false);
+	
+	if (!res)
+		u::log::print("[events] Queue full!\n");
+}
 } // {anonymous}
 
 
@@ -66,24 +84,28 @@ namespace
 /* -------------------------------------------------------------------------- */
 
 
-void pressChannel(ID channelId, int velocity)
+void pressChannel(ID channelId, int velocity, Thread t)
 {
-	m::model::onSwap(m::model::channels, channelId, [&](m::Channel& ch)
-	{
-		if (!ch.recordStart(m::clock::canQuantize()))
-			return;
-		ch.start(/*localFrame=*/0, m::clock::canQuantize(), velocity); // Frame 0: user-generated event
-	});
+	pushEvent_({ m::mixer::EventType::PRESS, 0, 0, channelId }, t);
+
+	//m::model::onSwap(m::model::channels, channelId, [&](m::Channel& ch)
+	//{
+	//	if (!ch.recordStart(m::clock::canQuantize()))
+	//		return;
+	//	ch.start(/*localFrame=*/0, m::clock::canQuantize(), velocity); // Frame 0: user-generated event
+	//});
 }
 
 
-void releaseChannel(ID channelId)
+void releaseChannel(ID channelId, Thread t)
 {
+	pushEvent_({ m::mixer::EventType::RELEASE, 0, 0, channelId }, t);
+	/*
 	m::model::onSwap(m::model::channels, channelId, [&](m::Channel& ch)
 	{
 		ch.recordStop();
 		ch.stop();
-	});
+	});*/
 }
 
 

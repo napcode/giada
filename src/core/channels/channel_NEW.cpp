@@ -37,7 +37,7 @@ Channel_NEW::Channel_NEW(ChannelType type, ID id, ID columnId)
 : id        (id),
   m_columnId(columnId),
   m_type    (type),
-  state     (std::make_unique<ChannelState>())
+  state     (std::make_unique<ChannelState>(id))
 {
 	if (type == ChannelType::SAMPLE)
 		samplePlayer = std::make_optional<SamplePlayer>(state->samplePlayerState, this);
@@ -77,8 +77,10 @@ Channel_NEW& Channel_NEW::operator=(const Channel_NEW& o)
 /* -------------------------------------------------------------------------- */
 
 
-void Channel_NEW::parse(const mixer::FrameEvents& fe) const
+void Channel_NEW::parse(const std::vector<mixer::Event>& e) const
 {
+    printf("%d events\n", e.size());
+    /*
 	if (fe.onBar)
         onBar(fe.frameLocal);
     else
@@ -86,7 +88,7 @@ void Channel_NEW::parse(const mixer::FrameEvents& fe) const
         onFirstBeat(fe.frameLocal);
     
     if (samplePlayer)
-        samplePlayer->parse(fe);
+        samplePlayer->parse(fe);*/
 }
 
 
@@ -108,12 +110,13 @@ void Channel_NEW::onBar(Frame localFrame) const
     if (!samplePlayer)
         return;
 
-    ChannelStatus s = state->status.load();
+    ChannelStatus s    = state->status.load();
+    SamplePlayerMode m = state->samplePlayerState.mode.load();
 
     /* On bar, waiting channels with sample in LOOP_ONCE mode start playing 
     again. */
 
-    if (s == ChannelStatus::WAIT && samplePlayer->mode == SamplePlayer::Mode::LOOP_ONCE_BAR)
+    if (s == ChannelStatus::WAIT && m == SamplePlayerMode::LOOP_ONCE_BAR)
         state->status.store(ChannelStatus::PLAY);
 }
 

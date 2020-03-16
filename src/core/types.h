@@ -35,6 +35,8 @@ using ID    = int;
 using Pixel = int;
 using Frame = int;
 
+enum class Thread { MAIN, MIDI, AUDIO };
+
 enum class ClockStatus { STOPPED, WAITING, RUNNING };
 
 enum class ChannelType : int { SAMPLE = 1, MIDI, MASTER, PREVIEW };
@@ -45,6 +47,12 @@ enum class ChannelStatus : int
 };
 
 enum class ChannelMode : int
+{
+	LOOP_BASIC = 1, LOOP_ONCE, LOOP_REPEAT, LOOP_ONCE_BAR,
+	SINGLE_BASIC, SINGLE_PRESS, SINGLE_RETRIG, SINGLE_ENDLESS
+};
+
+enum class SamplePlayerMode : int
 {
 	LOOP_BASIC = 1, LOOP_ONCE, LOOP_REPEAT, LOOP_ONCE_BAR,
 	SINGLE_BASIC, SINGLE_PRESS, SINGLE_RETRIG, SINGLE_ENDLESS

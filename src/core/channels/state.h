@@ -47,8 +47,9 @@ struct SamplePlayerState final
     SamplePlayerState& operator=(SamplePlayerState&&);
     ~SamplePlayerState() = default;
 
-    std::atomic<Frame> tracker;
-    std::atomic<float> pitch;
+    std::atomic<Frame>            tracker;
+    std::atomic<float>            pitch;
+    std::atomic<SamplePlayerMode> mode;
 
 	/* buffer
 	Working buffer for internal processing. */
@@ -63,7 +64,7 @@ struct SamplePlayerState final
 
 struct ChannelState final
 {
-    ChannelState();
+    ChannelState(ID id);
     ChannelState(const ChannelState& o);
     ChannelState(ChannelState&& o);
     ChannelState& operator=(const ChannelState&);

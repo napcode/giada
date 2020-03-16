@@ -110,6 +110,7 @@ constexpr int    G_MAX_IO_CHANS     = 2;
 constexpr int    G_MAX_VELOCITY     = 0x7F;
 constexpr int    G_MAX_MIDI_CHANS   = 16;
 constexpr int    G_MAX_POLYPHONY    = 32;
+constexpr int    G_MAX_QUEUE_EVENTS = 32;
 
 
 

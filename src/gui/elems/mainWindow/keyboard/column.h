@@ -42,7 +42,7 @@ class geResizerBar;
 namespace giada {
 namespace m
 {
-class Channel_NEW;
+class ChannelState;
 }
 namespace v
 {
@@ -59,7 +59,7 @@ public:
 	/* addChannel
 	Adds a new channel in this column. */
 
-	geChannel* addChannel(const m::Channel_NEW& c);
+	geChannel* addChannel(ChannelType t, const m::ChannelState& cs);
 
 	/* refreshChannels
 	Updates channels' graphical statues. Called on each GUI cycle. */

@@ -138,13 +138,13 @@ void processChannels_(const MidiEvent& midiEvent)
 		if      (pure == ch->midiInKeyPress) {
 			actions.push_back([=] {
 				u::log::print("  >>> keyPress, ch=%d (pure=0x%X)\n", ch->id, pure);
-				c::events::pressChannel(ch->id, midiEvent.getVelocity());
+				c::events::pressChannel(ch->id, midiEvent.getVelocity(), Thread::MIDI);
 			});
 		}
 		else if (pure == ch->midiInKeyRel) {
 			actions.push_back([=] {
 				u::log::print("  >>> keyRel ch=%d (pure=0x%X)\n", ch->id, pure);
-				c::events::releaseChannel(ch->id);
+				c::events::releaseChannel(ch->id, Thread::MIDI);
 			});
 		}
 		else if (pure == ch->midiInMute) {

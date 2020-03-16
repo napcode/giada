@@ -33,21 +33,24 @@ namespace m
 {
 SamplePlayerState::SamplePlayerState()
 : tracker(0),
-  pitch  (G_DEFAULT_PITCH)
+  pitch  (G_DEFAULT_PITCH),
+  mode   (SamplePlayerMode::SINGLE_BASIC)
 {
 }
 
 
 SamplePlayerState::SamplePlayerState(const SamplePlayerState& o)
 : tracker(o.tracker.load()),
-  pitch  (o.pitch.load())
+  pitch  (o.pitch.load()),
+  mode   (o.mode.load())
 {
 }
 
 
 SamplePlayerState::SamplePlayerState(SamplePlayerState&& o)
 : tracker(o.tracker.load()),
-  pitch  (o.pitch.load())
+  pitch  (o.pitch.load()),
+  mode   (o.mode.load())
 {
 }
 
@@ -57,6 +60,7 @@ SamplePlayerState& SamplePlayerState::operator=(const SamplePlayerState& o)
     if(this == &o) return *this;
     tracker.store(o.tracker.load());
     pitch.store(o.pitch.load());
+    mode.store(o.mode.load());
     return *this;
 }
 
@@ -66,6 +70,7 @@ SamplePlayerState& SamplePlayerState::operator=(SamplePlayerState&& o)
 	if(this == &o) return *this;
     tracker.store(o.tracker.load());
     pitch.store(o.pitch.load());
+    mode.store(o.mode.load());
     return *this;
 }
 
@@ -73,11 +78,12 @@ SamplePlayerState& SamplePlayerState::operator=(SamplePlayerState&& o)
 /* -------------------------------------------------------------------------- */
 
 
-ChannelState::ChannelState()
-: id    (0),
+ChannelState::ChannelState(ID id)
+: id    (id),
   status(ChannelStatus::OFF),
   volume(G_DEFAULT_VOL),
-  pan   (G_DEFAULT_PAN)
+  pan   (G_DEFAULT_PAN),
+  height(20) // TODO
 {
 }
     

@@ -39,9 +39,9 @@
 namespace giada {
 namespace v
 {
-geChannelStatus::geChannelStatus(int x, int y, int w, int h, const m::Channel_NEW& c)
-: Fl_Box   (x, y, w, h), 
-  m_channel(c)
+geChannelStatus::geChannelStatus(int x, int y, int w, int h, const m::ChannelState& cs)
+: Fl_Box (x, y, w, h), 
+  m_state(cs)
 {
 }
 

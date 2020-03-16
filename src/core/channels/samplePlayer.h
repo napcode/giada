@@ -52,26 +52,19 @@ class SamplePlayer final
 {
 public:
 
-    enum class Mode : int
-    {
-        LOOP_BASIC = 1, LOOP_ONCE, LOOP_REPEAT, LOOP_ONCE_BAR,
-        SINGLE_BASIC, SINGLE_PRESS, SINGLE_RETRIG, SINGLE_ENDLESS
-    };
-
     SamplePlayer(SamplePlayerState&, const Channel_NEW*);
     SamplePlayer(const SamplePlayer&);
     SamplePlayer& operator=(const SamplePlayer&) = delete;
     SamplePlayer& operator=(SamplePlayer&&);
     ~SamplePlayer() = default;
 
-    void parse(const mixer::FrameEvents& fe) const;
+    void parse(const std::vector<mixer::Event>& e) const;
     void render(AudioBuffer& out) const;
     
     bool isAnyLoopMode() const;
 
     void loadWave(const Wave* w);
 
-    Mode  mode;
     Frame shift;
     Frame begin;
     Frame end;

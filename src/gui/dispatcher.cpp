@@ -67,11 +67,11 @@ void perform_(ID channelId, int event)
 		if (Fl::event_shift())
 			c::events::killChannel(channelId);
 		else
-			c::events::pressChannel(channelId, G_MAX_VELOCITY);
+			c::events::pressChannel(channelId, G_MAX_VELOCITY, Thread::MAIN);
 	}
 	else
 	if (event == FL_KEYUP)	
-		c::events::releaseChannel(channelId);
+		c::events::releaseChannel(channelId, Thread::MAIN);
 }
 
 
