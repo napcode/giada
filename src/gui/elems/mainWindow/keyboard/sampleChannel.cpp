@@ -104,11 +104,12 @@ void menuCallback(Fl_Widget* w, void* v)
 	geSampleChannel* gch = static_cast<geSampleChannel*>(w);
 
 	ID    waveId;
-	bool inputMonitor;
-	m::model::onGet(m::model::channels, gch->channelId, [&](m::Channel& c)
+	bool inputMonitor = false; // TODO
+
+	m::model::onGet(m::model::channels_NEW, gch->channelId, [&](const m::Channel_NEW& c)
 	{
-		waveId       = static_cast<m::SampleChannel&>(c).waveId;
-		inputMonitor = static_cast<m::SampleChannel&>(c).inputMonitor;
+		waveId       = c.samplePlayer->getWaveId();
+		//inputMonitor = static_cast<m::SampleChannel&>(c).inputMonitor;
 	});
 
 	Menu selectedItem = (Menu) (intptr_t) v;
@@ -197,8 +198,8 @@ void menuCallback(Fl_Widget* w, void* v)
 /* -------------------------------------------------------------------------- */
 
 
-geSampleChannel::geSampleChannel(int X, int Y, int W, int H, const m::ChannelState& cs)
-: geChannel(X, Y, W, H, cs)
+geSampleChannel::geSampleChannel(int X, int Y, int W, int H, c::channel::Data d)
+: geChannel(X, Y, W, H, d)
 {
 #if defined(WITH_VST)
 	constexpr int delta = 9 * (G_GUI_UNIT + G_GUI_INNER_MARGIN);
@@ -208,10 +209,10 @@ geSampleChannel::geSampleChannel(int X, int Y, int W, int H, const m::ChannelSta
 
 	playButton  = new geStatusButton       (x(), y(), G_GUI_UNIT, G_GUI_UNIT, channelStop_xpm, channelPlay_xpm);
 	arm         = new geButton             (playButton->x() + playButton->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, G_GUI_UNIT, "", armOff_xpm, armOn_xpm);
-	status      = new geChannelStatus      (arm->x() + arm->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, H, m_state);
-	mainButton  = new geSampleChannelButton(status->x() + status->w() + G_GUI_INNER_MARGIN, y(), w() - delta, H, m_state);
+	status      = new geChannelStatus      (arm->x() + arm->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, H, m_data);
+	mainButton  = new geSampleChannelButton(status->x() + status->w() + G_GUI_INNER_MARGIN, y(), w() - delta, H, m_data);
 	readActions = new geStatusButton       (mainButton->x() + mainButton->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, G_GUI_UNIT, readActionOff_xpm, readActionOn_xpm, readActionDisabled_xpm);
-	modeBox     = new geChannelMode        (readActions->x() + readActions->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, G_GUI_UNIT, m_state);
+	modeBox     = new geChannelMode        (readActions->x() + readActions->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, G_GUI_UNIT, m_data);
 	mute        = new geStatusButton       (modeBox->x() + modeBox->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, G_GUI_UNIT, muteOff_xpm, muteOn_xpm);
 	solo        = new geStatusButton       (mute->x() + mute->w() + G_GUI_INNER_MARGIN, y(), G_GUI_UNIT, G_GUI_UNIT, soloOff_xpm, soloOn_xpm);
 #if defined(WITH_VST)
@@ -224,9 +225,6 @@ geSampleChannel::geSampleChannel(int X, int Y, int W, int H, const m::ChannelSta
 	end();
 
 	resizable(mainButton);
-
-	modeBox->value(static_cast<int>(m_state.samplePlayerState.mode.load()));
-	modeBox->redraw();
 
 #ifdef WITH_VST
 	//fx->setStatus(ch.pluginIds.size() > 0);
@@ -255,7 +253,7 @@ geSampleChannel::geSampleChannel(int X, int Y, int W, int H, const m::ChannelSta
 	//readActions->setStatus(ch.readActions);
 	readActions->callback(cb_readActions, (void*)this);
 
-	vol->value(m_state.volume.load());
+	vol->value(m_data.volume);
 	vol->callback(cb_changeVol, (void*)this);
 
 	size(w(), h()); // Force responsiveness

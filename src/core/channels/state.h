@@ -29,6 +29,7 @@
 #define G_CHANNEL_STATE_H
 
 
+#include <string>
 #include <atomic>
 #include "core/const.h"
 #include "core/types.h"
@@ -77,9 +78,8 @@ struct ChannelState final
     std::atomic<float>         volume;
     std::atomic<float>         pan;
 
-    int height;
-
-    SamplePlayerState samplePlayerState;
+    std::string name;
+    int         height;
 };
 }} // giada::m::
 

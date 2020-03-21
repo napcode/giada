@@ -46,7 +46,7 @@ enum class ChannelStatus : int
 	ENDING = 1, WAIT, PLAY, OFF, EMPTY, MISSING, WRONG  
 };
 
-enum class ChannelMode : int
+enum class ChannelMode : int // deprecated
 {
 	LOOP_BASIC = 1, LOOP_ONCE, LOOP_REPEAT, LOOP_ONCE_BAR,
 	SINGLE_BASIC, SINGLE_PRESS, SINGLE_RETRIG, SINGLE_ENDLESS

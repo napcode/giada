@@ -35,8 +35,8 @@
 namespace giada {
 namespace v
 {
-geMidiChannelButton::geMidiChannelButton(int x, int y, int w, int h, const m::ChannelState& cs)
-: geChannelButton(x, y, w, h, cs)
+geMidiChannelButton::geMidiChannelButton(int x, int y, int w, int h, const c::channel::Data& d)
+: geChannelButton(x, y, w, h, d)
 {
 	/*
     std::string l; 

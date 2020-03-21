@@ -32,6 +32,7 @@
 #include <functional>
 #include <vector>
 #include <FL/Fl_Group.H>
+#include "glue/channel.h"
 #include "core/types.h"
 
 
@@ -40,10 +41,6 @@ class geResizerBar;
 
 
 namespace giada {
-namespace m
-{
-class ChannelState;
-}
 namespace v
 {
 class geKeyboard;
@@ -59,7 +56,7 @@ public:
 	/* addChannel
 	Adds a new channel in this column. */
 
-	geChannel* addChannel(ChannelType t, const m::ChannelState& cs);
+	geChannel* addChannel(c::channel::Data d);
 
 	/* refreshChannels
 	Updates channels' graphical statues. Called on each GUI cycle. */

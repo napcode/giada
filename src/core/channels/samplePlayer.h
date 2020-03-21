@@ -52,7 +52,7 @@ class SamplePlayer final
 {
 public:
 
-    SamplePlayer(SamplePlayerState&, const Channel_NEW*);
+    SamplePlayer(const Channel_NEW*);
     SamplePlayer(const SamplePlayer&);
     SamplePlayer& operator=(const SamplePlayer&) = delete;
     SamplePlayer& operator=(SamplePlayer&&);
@@ -62,8 +62,16 @@ public:
     void render(AudioBuffer& out) const;
     
     bool isAnyLoopMode() const;
+    bool hasWave() const;
+    ID getWaveId() const;
 
+    void setChannel(const Channel_NEW* c);
     void loadWave(const Wave* w);
+
+    /* state
+    Pointer to mutable SamplePlayerState state. */
+
+    std::unique_ptr<SamplePlayerState> state;
 
     Frame shift;
     Frame begin;
@@ -83,11 +91,6 @@ private:
     Used to read data from Wave and fill incoming buffer. */
 
     WaveReader m_waveReader;
-
-    /* state
-    Reference to mutable SamplePlayer state. */
-
-    SamplePlayerState& m_state;
 
     const Channel_NEW* m_channel;
 };

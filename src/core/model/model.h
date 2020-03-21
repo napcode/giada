@@ -137,7 +137,6 @@ extern RCUList<Plugin>   plugins;
 template <typename T> struct has_id : std::false_type {};
 template <> struct has_id<Channel>  : std::true_type {};
 template <> struct has_id<Channel_NEW> : std::true_type {};
-template <> struct has_id<ChannelState> : std::true_type {};
 template <> struct has_id<Wave>     : std::true_type {};
 #ifdef WITH_VST
 template <> struct has_id<Plugin>   : std::true_type {};
@@ -205,11 +204,13 @@ typename L::value_type& get(L& list, ID id)
 Utility function for reading ID-based things from a RCUList. */
 
 template<typename L>
-void onGet(L& list, ID id, std::function<void(typename L::value_type&)> f)
+void onGet(L& list, ID id, std::function<void(typename L::value_type&)> f, bool rebuild=false)
 {
 	static_assert(has_id<typename L::value_type>(), "This type has no ID");
 	typename L::Lock l(list);
 	f(**getIter(list, id));
+	if (rebuild)
+		list.changed.store(true);
 }
 
 

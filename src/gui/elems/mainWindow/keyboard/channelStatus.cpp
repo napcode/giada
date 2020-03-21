@@ -39,9 +39,9 @@
 namespace giada {
 namespace v
 {
-geChannelStatus::geChannelStatus(int x, int y, int w, int h, const m::ChannelState& cs)
-: Fl_Box (x, y, w, h), 
-  m_state(cs)
+geChannelStatus::geChannelStatus(int x, int y, int w, int h, c::channel::Data& d)
+: Fl_Box(x, y, w, h), 
+  m_data(d)
 {
 }
 
@@ -54,8 +54,6 @@ void geChannelStatus::draw()
 	fl_rect(x(), y(), w(), h(), G_COLOR_GREY_4);              // reset border
 	fl_rectf(x()+1, y()+1, w()-2, h()-2, G_COLOR_GREY_2);     // reset background
 
-	m::model::ChannelsLock_NEW l(m::model::channels_NEW);
-	
 #if 0
 	
 	if (ch.playStatus == ChannelStatus::WAIT    || 

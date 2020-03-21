@@ -52,10 +52,9 @@ extern giada::v::gdMainWindow* G_MainWin;
 namespace giada {
 namespace v
 {
-geChannel::geChannel(int X, int Y, int W, int H, const m::ChannelState& cs)
+geChannel::geChannel(int X, int Y, int W, int H, c::channel::Data d)
 : Fl_Group (X, Y, W, H),
-  channelId(cs.id),
-  m_state  (cs)
+  m_data   (d)
 {
 }
 
@@ -100,7 +99,7 @@ void geChannel::cb_openFxWindow(Fl_Widget* v, void* p) { ((geChannel*)p)->cb_ope
 void geChannel::refresh()
 {
 	/*
-	m::model::onGet(m::model::channels, channelId, [&](m::Channel& c)
+	m::model::onGet(m::model::channels, m_data.id, [&](m::Channel& c)
 	{
 		if (mainButton->visible())
 			mainButton->refresh();
@@ -118,7 +117,7 @@ void geChannel::refresh()
 
 void geChannel::cb_arm()
 {
-	c::events::toggleArmChannel(channelId);
+	c::events::toggleArmChannel(m_data.id);
 }
 
 
@@ -127,7 +126,7 @@ void geChannel::cb_arm()
 
 void geChannel::cb_mute()
 {
-	c::events::toggleMuteChannel(channelId);
+	c::events::toggleMuteChannel(m_data.id);
 }
 
 
@@ -136,7 +135,7 @@ void geChannel::cb_mute()
 
 void geChannel::cb_solo()
 {
-	c::events::toggleSoloChannel(channelId);
+	c::events::toggleSoloChannel(m_data.id);
 }
 
 
@@ -145,7 +144,7 @@ void geChannel::cb_solo()
 
 void geChannel::cb_changeVol()
 {
-	c::events::setChannelVolume(channelId, vol->value(), /*gui=*/true, /*editor=*/false);
+	c::events::setChannelVolume(m_data.id, vol->value(), /*gui=*/true, /*editor=*/false);
 }
 
 
@@ -155,7 +154,7 @@ void geChannel::cb_changeVol()
 #ifdef WITH_VST
 void geChannel::cb_openFxWindow()
 {
-	u::gui::openSubWindow(G_MainWin, new v::gdPluginList(channelId), WID_FX_LIST);
+	u::gui::openSubWindow(G_MainWin, new v::gdPluginList(m_data.id), WID_FX_LIST);
 }
 #endif
 
@@ -221,8 +220,9 @@ void geChannel::packWidgets()
 
 bool geChannel::handleKey(int e)
 {
+	/*
 	m::model::ChannelsLock l(m::model::channels);
-	const m::Channel& ch = m::model::get(m::model::channels, channelId);
+	const m::Channel& ch = m::model::get(m::model::channels, m_data.id);
 	
 	if (Fl::event_key() != ch.key) 
 		return false;
@@ -237,7 +237,7 @@ bool geChannel::handleKey(int e)
 		playButton->value(0);
 		return true;
 	}
-	
+	*/
 	return false;
 }
 }} // giada::v::

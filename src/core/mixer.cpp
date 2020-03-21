@@ -232,10 +232,15 @@ void parseEvents_()
 		eventBuffer_.push_back(e);
 	while (MidiEvents.pop(e))
 		eventBuffer_.push_back(e);
-
+/*
+puts("-- block --------");
+if (eventBuffer_.size() > 0)
+	printf("%d\n", eventBuffer_.size());
+*/
 	model::ChannelsLock lock(model::channels);
 	for (const Channel_NEW* ch : model::channels_NEW)
 		ch->parse(eventBuffer_); 
+/*puts("-----------------");*/
 }
 
 

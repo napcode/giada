@@ -43,9 +43,9 @@
 namespace giada {
 namespace v
 {
-geChannelMode::geChannelMode(int x, int y, int w, int h, const m::ChannelState& cs)
+geChannelMode::geChannelMode(int x, int y, int w, int h, c::channel::Data& d)
 : Fl_Menu_Button(x, y, w, h), 
-  m_state       (cs)
+  m_data        (d)
 {
 	box(G_CUSTOM_BORDER_BOX);
 	textsize(G_GUI_FONT_SIZE_BASE);
@@ -60,6 +60,8 @@ geChannelMode::geChannelMode(int x, int y, int w, int h, const m::ChannelState& 
 	add("Oneshot . press",   0, cb_changeMode, (void*) SamplePlayerMode::SINGLE_PRESS);
 	add("Oneshot . retrig",  0, cb_changeMode, (void*) SamplePlayerMode::SINGLE_RETRIG);
 	add("Oneshot . endless", 0, cb_changeMode, (void*) SamplePlayerMode::SINGLE_ENDLESS);
+
+	value(static_cast<int>(m_data.sample->mode));
 }
 
 
@@ -70,11 +72,7 @@ void geChannelMode::draw()
 {
 	fl_rect(x(), y(), w(), h(), G_COLOR_GREY_4);    // border
 
-	m::model::ChannelsLock_NEW l(m::model::channels_NEW);
-
-	SamplePlayerMode m = m_state.samplePlayerState.mode.load();
-
-	switch (m) {
+	switch (m_data.sample->mode) {
 		case SamplePlayerMode::LOOP_BASIC:
 			fl_draw_pixmap(loopBasic_xpm, x()+1, y()+1);
 			break;
@@ -114,6 +112,6 @@ void geChannelMode::cb_changeMode(Fl_Widget* v, void* p) { ((geChannelMode*)v)->
 
 void geChannelMode::cb_changeMode(int mode)
 {
-	//c::channel::setSampleMode(m_channelId, static_cast<ChannelMode>(mode));
+	c::channel::setSamplePlayerMode(m_data.id, static_cast<SamplePlayerMode>(mode));
 }
 }} // giada::v::

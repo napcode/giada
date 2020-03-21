@@ -35,17 +35,13 @@
 
 
 namespace giada {
-namespace m 
-{ 
-struct ChannelState; 
-}
 namespace v
 {
 class geChannelMode : public Fl_Menu_Button
 {
 public:
 
-	geChannelMode(int x, int y, int w, int h, const m::ChannelState& cs);
+	geChannelMode(int x, int y, int w, int h, c::channel::Data& d);
 
 	void draw() override;
 
@@ -54,7 +50,7 @@ private:
     static void cb_changeMode(Fl_Widget* v, void* p);
     void cb_changeMode(int mode);
 
-    const m::ChannelState& m_state;
+    c::channel::Data& m_data;
 };
 }} // giada::v::
 

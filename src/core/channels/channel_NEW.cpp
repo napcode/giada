@@ -40,7 +40,7 @@ Channel_NEW::Channel_NEW(ChannelType type, ID id, ID columnId)
   state     (std::make_unique<ChannelState>(id))
 {
 	if (type == ChannelType::SAMPLE)
-		samplePlayer = std::make_optional<SamplePlayer>(state->samplePlayerState, this);
+		samplePlayer = std::make_optional<SamplePlayer>(this);
 }
 
 
@@ -48,21 +48,13 @@ Channel_NEW::Channel_NEW(ChannelType type, ID id, ID columnId)
 
 
 Channel_NEW::Channel_NEW(const Channel_NEW& o)
-: id    (o.id),
-  m_type(o.m_type),
-  state (std::make_unique<ChannelState>(*o.state))
+: id          (o.id),
+  m_columnId  (o.m_columnId),
+  m_type      (o.m_type),
+  state       (std::make_unique<ChannelState>(*o.state)),
+  samplePlayer(o.samplePlayer)
 {
-}
-
-
-/* -------------------------------------------------------------------------- */
-
-
-Channel_NEW::Channel_NEW(Channel_NEW&& o)
-: id    (o.id),
-  m_type(o.m_type),
-  state (std::move(o.state))
-{
+    samplePlayer->setChannel(this);
 }
 
 
@@ -71,15 +63,24 @@ Channel_NEW::Channel_NEW(Channel_NEW&& o)
 
 Channel_NEW& Channel_NEW::operator=(const Channel_NEW& o)
 {
+    assert(false);
 }
 
 
 /* -------------------------------------------------------------------------- */
 
 
-void Channel_NEW::parse(const std::vector<mixer::Event>& e) const
+void Channel_NEW::parse(const std::vector<mixer::Event>& events) const
 {
-    printf("%d events\n", e.size());
+    if (!isActive())
+        return;
+
+    for (const mixer::Event& e : events) {
+        if (e.channelId > 0 && e.channelId != id)
+            continue;
+
+        printf("%d event on %d\n", (int) e.type, id);
+    }
     /*
 	if (fe.onBar)
         onBar(fe.frameLocal);
@@ -97,6 +98,9 @@ void Channel_NEW::parse(const std::vector<mixer::Event>& e) const
 
 void Channel_NEW::render(AudioBuffer& out, const AudioBuffer& in) const
 {
+    if (!isActive())
+        return;
+
     if (samplePlayer)
         samplePlayer->render(out);
 }
@@ -107,11 +111,8 @@ void Channel_NEW::render(AudioBuffer& out, const AudioBuffer& in) const
 
 void Channel_NEW::onBar(Frame localFrame) const
 {
-    if (!samplePlayer)
-        return;
-
     ChannelStatus s    = state->status.load();
-    SamplePlayerMode m = state->samplePlayerState.mode.load();
+    SamplePlayerMode m = samplePlayer->state->mode.load();
 
     /* On bar, waiting channels with sample in LOOP_ONCE mode start playing 
     again. */
@@ -164,6 +165,17 @@ bool Channel_NEW::isInternal() const
     return id == mixer::MASTER_OUT_CHANNEL_ID ||
 	       id == mixer::MASTER_IN_CHANNEL_ID  ||
 	       id == mixer::PREVIEW_CHANNEL_ID;
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+bool Channel_NEW::isActive() const
+{
+    if (samplePlayer && samplePlayer->hasWave()) 
+        return true;
+    return false;
 }
 
 

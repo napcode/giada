@@ -47,7 +47,7 @@ public:
     Channel_NEW(ChannelType t, ID id, ID columnId);
     Channel_NEW(const Channel_NEW&);
     Channel_NEW& operator=(const Channel_NEW&);
-    Channel_NEW(Channel_NEW&&);
+    Channel_NEW(Channel_NEW&&) = delete;
     ~Channel_NEW() = default;
 
     void parse(const std::vector<mixer::Event>& e) const;
@@ -66,13 +66,15 @@ public:
 
     std::unique_ptr<ChannelState> state;
 
+    std::optional<SamplePlayer> samplePlayer;
+    
 private:
 
     void onBar(Frame localFrame) const;
     void onFirstBeat(Frame localFrame) const;
     void kill() const;
 
-    std::optional<SamplePlayer> samplePlayer;
+    bool isActive() const;
 
     ID m_columnId;
     ChannelType m_type;

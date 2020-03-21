@@ -83,7 +83,7 @@ ChannelState::ChannelState(ID id)
   status(ChannelStatus::OFF),
   volume(G_DEFAULT_VOL),
   pan   (G_DEFAULT_PAN),
-  height(20) // TODO
+  height(G_GUI_UNIT)
 {
 }
     
@@ -93,7 +93,8 @@ ChannelState::ChannelState(const ChannelState& o)
   status(o.status.load()),
   volume(o.volume.load()),
   pan   (o.pan.load()),
-  samplePlayerState(o.samplePlayerState)
+  name  (o.name),
+  height(o.height)
 {
 }
     
@@ -103,7 +104,8 @@ ChannelState::ChannelState(ChannelState&& o)
   status(o.status.load()),
   volume(o.volume.load()),
   pan   (o.pan.load()),
-  samplePlayerState(std::move(o.samplePlayerState))
+  name  (o.name),
+  height(o.height)
 {
 }
 
@@ -115,7 +117,6 @@ ChannelState& ChannelState::operator=(const ChannelState& o)
     status.store(o.status.load());
     volume.store(o.volume.load());
     pan.store(o.pan.load());
-    samplePlayerState = o.samplePlayerState;
     return *this;
 }
 
@@ -127,7 +128,6 @@ ChannelState& ChannelState::operator=(ChannelState&& o)
     status.store(o.status.load());
     volume.store(o.volume.load());
     pan.store(o.pan.load());
-    samplePlayerState = std::move(o.samplePlayerState);
     return *this;
 }
 }} // giada::m::

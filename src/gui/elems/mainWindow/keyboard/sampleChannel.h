@@ -29,6 +29,7 @@
 #define GE_SAMPLE_CHANNEL_H
 
 
+#include "glue/channel.h"
 #include "channel.h"
 
 
@@ -36,19 +37,14 @@ class geStatusButton;
 
 
 namespace giada {
-namespace m 
-{ 
-class ChannelState; 
-}
 namespace v
 {
 class geChannelMode;
-
 class geSampleChannel : public geChannel
 {
 public:
 
-	geSampleChannel(int x, int y, int w, int h, const m::ChannelState& cs);
+	geSampleChannel(int x, int y, int w, int h, c::channel::Data d);
 
 	void resize(int x, int y, int w, int h) override;
 	void draw() override;

@@ -48,34 +48,18 @@ extern giada::v::gdMainWindow* G_MainWin;
 namespace giada {
 namespace v
 {
-geSampleChannelButton::geSampleChannelButton(int x, int y, int w, int h, const m::ChannelState& cs)
-: geChannelButton(x, y, w, h, cs)
+geSampleChannelButton::geSampleChannelButton(int x, int y, int w, int h, const c::channel::Data& d)
+: geChannelButton(x, y, w, h, d)
 {
-	/*
-	m::model::onGet(m::model::channels, m_channelId, [&](m::Channel& c)
-	{
-		const m::SampleChannel& sc = static_cast<m::SampleChannel&>(c);
-		
-		switch (sc.playStatus) {
-			case ChannelStatus::EMPTY:
-				label("-- no sample --");
-				break;
-			case ChannelStatus::MISSING:
-			case ChannelStatus::WRONG:
-				label("* file not found! *");
-				break;
-			default:
-				if (sc.name.empty()) {
-					m::model::onGet(m::model::waves, sc.waveId, [&](m::Wave& w)
-					{
-						label(w.getBasename(false).c_str());
-					});
-				}
-				else
-					label(sc.name.c_str());
-				break;
-		}
-	});*/
+	switch (m_data.status) {
+		case ChannelStatus::MISSING:
+		case ChannelStatus::WRONG:
+			label("* file not found! *");
+			break;
+		default:
+			label(m_data.name == "" ? "-- no sample --" : m_data.name.c_str());
+			break;
+	}
 }
 
 
@@ -104,8 +88,6 @@ void geSampleChannelButton::refresh()
 
 int geSampleChannelButton::handle(int e)
 {
-	m::model::ChannelsLock_NEW l(m::model::channels_NEW);
-
 	int ret = geButton::handle(e);
 	switch (e) {
 		case FL_DND_ENTER:
@@ -115,7 +97,7 @@ int geSampleChannelButton::handle(int e)
 			break;
 		}
 		case FL_PASTE: {
-			c::channel::loadChannel(m_state.id, u::string::trim(u::fs::stripFileUrl(Fl::event_text())));
+			c::channel::loadChannel(m_data.id, u::string::trim(u::fs::stripFileUrl(Fl::event_text())));
 			ret = 1;
 			break;
 		}

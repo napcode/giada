@@ -77,15 +77,15 @@ void geColumn::cb_addChannel(Fl_Widget* v, void* p) { ((geColumn*)p)->cb_addChan
 /* -------------------------------------------------------------------------- */
 
 
-geChannel* geColumn::addChannel(ChannelType type, const m::ChannelState& cs)
+geChannel* geColumn::addChannel(c::channel::Data d)
 {
 	geChannel* gch  = nullptr;
 	Fl_Widget* last = m_channels.size() == 0 ? static_cast<Fl_Widget*>(m_addChannelBtn) : m_channels.back();
 
-	if (type == ChannelType::SAMPLE)
-		gch = new geSampleChannel(x(), last->y() + last->h() + G_GUI_INNER_MARGIN, w(), cs.height, cs);
+	if (d.type == ChannelType::SAMPLE)
+		gch = new geSampleChannel(x(), last->y() + last->h() + G_GUI_INNER_MARGIN, w(), d.height, d);
 	else
-		gch = new geMidiChannel  (x(), last->y() + last->h() + G_GUI_INNER_MARGIN, w(), cs.height, cs);
+		gch = new geMidiChannel  (x(), last->y() + last->h() + G_GUI_INNER_MARGIN, w(), d.height, d);
 
 	geResizerBar* bar = new geResizerBar(x(), gch->y() + gch->h(), w(), 
 		G_GUI_INNER_MARGIN, G_GUI_UNIT, geResizerBar::VERTICAL, gch);

@@ -36,11 +36,11 @@
 namespace giada {
 namespace m 
 {
-SamplePlayer::SamplePlayer(SamplePlayerState& s, const Channel_NEW* c)
-: m_state  (s),
+SamplePlayer::SamplePlayer(const Channel_NEW* c)
+: state  (std::make_unique<SamplePlayerState>()),
   m_channel(c)
 {
-    // TODO m_state.buffer.alloc(kernelAudio::getRealBufSize(), G_MAX_IO_CHANS);
+    // TODO state->buffer.alloc(kernelAudio::getRealBufSize(), G_MAX_IO_CHANS);
 }
 
 
@@ -52,7 +52,7 @@ SamplePlayer::SamplePlayer(const SamplePlayer& o)
   begin       (o.begin),
   end         (o.end),
   m_waveReader(o.m_waveReader),
-  m_state     (o.m_state),
+  state     (std::make_unique<SamplePlayerState>(*o.state)),
   m_channel   (o.m_channel)
 {
 }
@@ -67,7 +67,7 @@ SamplePlayer& SamplePlayer::operator=(SamplePlayer&& o)
     shift     = o.shift;
     begin     = o.begin;
     end       = o.end;
-    m_state   = std::move(o.m_state);
+    state   = std::move(o.state);
     m_channel = o.m_channel;
 	return *this;
 }
@@ -95,22 +95,22 @@ void SamplePlayer::render(AudioBuffer& out) const
     if (m_waveReader.wave == nullptr)
         return;
 
-    m_state.buffer.clear();
+    state->buffer.clear();
 
-    Frame tracker = m_state.tracker.load();
+    Frame tracker = state->tracker.load();
     Frame used    = 0;
-    float pitch   = m_state.pitch.load();
+    float pitch   = state->pitch.load();
 
     /* If rewinding, fill the tail first, then reset the tracker to the begin
     point. The rest is performed as usual. */
 
-    if (m_state.rewinding) {
+    if (state->rewinding) {
 		if (tracker < end)
-            m_waveReader.fill(m_state.buffer, tracker, 0, pitch);
+            m_waveReader.fill(state->buffer, tracker, 0, pitch);
 		tracker = begin;
     }
 
-    used     = m_waveReader.fill(m_state.buffer, tracker, m_state.offset, pitch);
+    used     = m_waveReader.fill(state->buffer, tracker, state->offset, pitch);
     tracker += used;
 
     if (tracker >= end) {
@@ -120,12 +120,12 @@ void SamplePlayer::render(AudioBuffer& out) const
             /* 'used' might be imprecise when working with resampled audio, 
             which could cause a buffer overflow if used as offset. Let's clamp 
             it to be at most buffer->countFrames(). */
-            tracker += m_waveReader.fill(m_state.buffer, tracker, 
-                std::min(used, m_state.buffer.countFrames() - 1), pitch);
+            tracker += m_waveReader.fill(state->buffer, tracker, 
+                std::min(used, state->buffer.countFrames() - 1), pitch);
     }
 
-    m_state.offset = 0;
-    m_state.tracker.store(tracker);
+    state->offset = 0;
+    state->tracker.store(tracker);
 }
 
 
@@ -135,13 +135,13 @@ void SamplePlayer::render(AudioBuffer& out) const
 void SamplePlayer::onBar(Frame localFrame) const
 {
     ChannelStatus    s = m_channel->state->status.load();
-    SamplePlayerMode m = m_state.mode.load();
+    SamplePlayerMode m = state->mode.load();
 
     if (s == ChannelStatus::PLAY && m == SamplePlayerMode::LOOP_REPEAT)
         rewind(localFrame);
     else
     if (s == ChannelStatus::WAIT && m == SamplePlayerMode::LOOP_ONCE_BAR)
-        m_state.offset = localFrame;       
+        state->offset = localFrame;       
 }
 
 
@@ -156,7 +156,7 @@ void SamplePlayer::onFirstBeat(Frame localFrame) const
 		rewind(localFrame); 
     else
     if (s == ChannelStatus::WAIT)
-        m_state.offset = localFrame;
+        state->offset = localFrame;
     else
     if (s == ChannelStatus::ENDING && isAnyLoopMode())
         kill(localFrame);
@@ -170,14 +170,14 @@ void SamplePlayer::rewind(Frame localFrame) const
 {
 	/* Quantization stops on rewind. */
 
-	m_state.quantizing = false; 
+	state->quantizing = false; 
 
 	if (m_channel->isPlaying()) { 
-		m_state.rewinding = true;
-		m_state.offset    = localFrame;
+		state->rewinding = true;
+		state->offset    = localFrame;
 	}
 	else
-		m_state.tracker.store(begin);
+		state->tracker.store(begin);
 }
 
 
@@ -190,7 +190,7 @@ void SamplePlayer::kill(Frame localFrame) const
     in the middle of the buffer. */
 
     if (localFrame != 0)
-        m_state.buffer.clear(localFrame);
+        state->buffer.clear(localFrame);
     rewind(localFrame);
 }
 
@@ -203,7 +203,14 @@ void SamplePlayer::loadWave(const Wave* w)
     m_waveReader.wave = w;
     shift = 0;
     begin = 0;
-    end   = w != nullptr ? w->getSize() - 1 : 0;
+    if (w != nullptr) {
+        end = w->getSize() - 1;
+        m_channel->state->name = w->getBasename(/*ext=*/false);
+    }
+    else {
+        end = 0;
+        m_channel->state->name = "";
+    }
 }
 
 
@@ -212,7 +219,7 @@ void SamplePlayer::loadWave(const Wave* w)
 
 bool SamplePlayer::shouldLoop() const
 {
-    SamplePlayerMode m = m_state.mode.load();
+    SamplePlayerMode m = state->mode.load();
     
     return m == SamplePlayerMode::LOOP_BASIC  || 
            m == SamplePlayerMode::LOOP_REPEAT || 
@@ -225,11 +232,32 @@ bool SamplePlayer::shouldLoop() const
 
 bool SamplePlayer::isAnyLoopMode() const
 {
-    SamplePlayerMode m = m_state.mode.load();
+    SamplePlayerMode m = state->mode.load();
 
 	return m == SamplePlayerMode::LOOP_BASIC  || 
 	       m == SamplePlayerMode::LOOP_ONCE   || 
 	       m == SamplePlayerMode::LOOP_REPEAT || 
 	       m == SamplePlayerMode::LOOP_ONCE_BAR;
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+bool SamplePlayer::hasWave() const { return m_waveReader.wave != nullptr; }
+
+
+/* -------------------------------------------------------------------------- */
+
+
+void SamplePlayer::setChannel(const Channel_NEW* c) { m_channel = c; }
+
+
+/* -------------------------------------------------------------------------- */
+
+
+ID SamplePlayer::getWaveId() const
+{
+    return hasWave() ? m_waveReader.wave->id : 0;
 }
 }} // giada::m::

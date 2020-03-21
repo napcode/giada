@@ -30,6 +30,7 @@
 
 
 #include <FL/Fl_Group.H>
+#include "glue/channel.h"
 #include "core/types.h"
 
 
@@ -40,10 +41,6 @@ class geStatusButton;
 
 
 namespace giada {
-namespace m
-{
-class ChannelState;
-}
 namespace v
 {
 class geChannelButton;
@@ -51,7 +48,7 @@ class geChannel : public Fl_Group
 {
 public:
 
-	geChannel(int x, int y, int w, int h, const m::ChannelState& cs);
+	geChannel(int x, int y, int w, int h, c::channel::Data d);
 
 	void draw() override;
 
@@ -127,7 +124,7 @@ protected:
 
 	void packWidgets();
 
-	const m::ChannelState& m_state;
+	c::channel::Data m_data;
 };
 }} // giada::v::
 

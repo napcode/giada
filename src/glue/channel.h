@@ -29,6 +29,8 @@
 #define G_GLUE_CHANNEL_H
 
 
+#include <optional>
+#include <atomic>
 #include <string>
 #include <vector>
 #include "core/types.h"
@@ -42,6 +44,39 @@ class Channel;
 namespace c {
 namespace channel 
 {
+/* SampleData, MidiData, Data */
+
+struct SampleData
+{
+    SamplePlayerMode    mode;
+    float               pitch;
+    std::atomic<Frame>* tracker {nullptr};
+};
+
+struct MidiData
+{
+
+};
+
+struct Data
+{
+    ID               id;
+    ChannelType      type;
+    Pixel            height;
+    std::string      name;
+    ChannelStatus    status;
+    float            volume;
+    float            pan;
+
+    std::optional<SampleData> sample;
+    std::optional<MidiData>   midi;
+};
+
+/* getData
+Returns a Data object filled with data from a channel. */
+
+Data getData(ID channelId);
+
 /* addChannel
 Adds an empty new channel to the stack. */
 
@@ -83,7 +118,8 @@ Sets several channel properties. */
 void setInputMonitor(ID channelId, bool value);
 void setName(ID channelId, const std::string& name);
 void setPan(ID channelId, float val, bool gui=true);
-void setSampleMode(ID channelId, ChannelMode m);
+
+void setSamplePlayerMode(ID channelId, SamplePlayerMode m);
 }}}; // giada::c::channel::
 
 #endif

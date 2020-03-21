@@ -108,6 +108,36 @@ void onRefreshSampleEditor_(bool gui, std::function<void(v::gdSampleEditor*)> f)
 /* -------------------------------------------------------------------------- */
 
 
+Data getData(ID channelId)
+{
+	Data d;
+	m::model::onGet(m::model::channels_NEW, channelId, [&](const m::Channel_NEW& c) 
+	{ 
+		d = {
+			c.id,
+			c.getType(),
+			c.state->height,
+			c.state->name,
+			c.state->status.load(),
+			c.state->volume,
+			c.state->pan,
+		};
+
+		if (c.getType() == ChannelType::SAMPLE) {
+			d.sample = {
+				c.samplePlayer->state->mode.load(),
+				c.samplePlayer->state->pitch.load(),
+				&c.samplePlayer->state->tracker
+			};
+		}
+	});
+	return d;
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
 int loadChannel(ID channelId, const std::string& fname)
 {
 	/* Save the patch and take the last browser's dir in order to re-use it the 
@@ -219,12 +249,12 @@ void setPan(ID channelId, float val, bool gui)
 /* -------------------------------------------------------------------------- */
 
 
-void setSampleMode(ID channelId, ChannelMode m)
+void setSamplePlayerMode(ID channelId, SamplePlayerMode m)
 {
-	m::model::onSwap(m::model::channels, channelId, [&](m::Channel& ch)
+	m::model::onGet(m::model::channels_NEW, channelId, [&](m::Channel_NEW& c)
 	{
-		static_cast<m::SampleChannel&>(ch).mode = m;
-	});
+		c.samplePlayer->state->mode.store(m);
+	}, /*rebuild=*/true);
 
 	u::gui::refreshActionEditor();
 }

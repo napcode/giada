@@ -136,6 +136,15 @@ void pushWave_(SampleChannel& ch, std::unique_ptr<Wave>&& w, bool clone)
 	model::waves.push(std::move(w));
 	ch.pushWave(id, size);	
 }
+
+
+void pushWave_(Channel_NEW& ch, std::unique_ptr<Wave>&& w, bool clone)
+{
+	assert(ch.samplePlayer);
+
+	model::waves.push(std::move(w));
+	ch.samplePlayer->loadWave(model::waves.back());
+}
 }; // {anonymous}
 
 
@@ -193,13 +202,6 @@ bool uniqueSamplePath(ID channelToSkip, const std::string& path)
 
 void addChannel(ChannelType type, ID columnId)
 {
-	/*
-	std::unique_ptr<Channel> c  = createChannel_(type, columnId);
-	ID                       id = c->id;
-	model::channels.push(std::move(c));
-	return id;
-*/	
-
 	model::channels_NEW.push(std::move(channelManager::create_NEW(type, 
 		kernelAudio::getRealBufSize(), conf::conf.inputMonitorDefaultOn, columnId)));
 }
@@ -215,9 +217,9 @@ int loadChannel(ID channelId, const std::string& fname)
 	if (res.status != G_RES_OK) 
 		return res.status;
 
-	model::onSwap(model::channels, channelId, [&](Channel& c)
+	model::onSwap(model::channels_NEW, channelId, [&](Channel_NEW& c)
 	{
-		pushWave_(static_cast<SampleChannel&>(c), std::move(res.wave), /*clone=*/false);
+		pushWave_(c, std::move(res.wave), /*clone=*/false);
 	});
 
 	return res.status;
@@ -354,7 +356,10 @@ void deleteChannel(ID channelId)
 
 void renameChannel(ID channelId, const std::string& name)
 {
-	model::onSwap(model::channels, channelId, [&](Channel& c) { c.name = name; });
+	model::onGet(model::channels_NEW, channelId, [&](Channel_NEW& c) 
+	{ 
+		c.state->name = name; 
+	}, /*rebuild=*/true);
 }
 
 
