@@ -240,4 +240,13 @@ bool geChannel::handleKey(int e)
 	*/
 	return false;
 }
+
+
+/* -------------------------------------------------------------------------- */
+
+
+const c::channel::Data& geChannel::getData() const
+{
+	return m_data;
+}
 }} // giada::v::

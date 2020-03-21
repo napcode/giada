@@ -48,6 +48,7 @@ namespace channel
 
 struct SampleData
 {
+    ID                  waveId;
     SamplePlayerMode    mode;
     float               pitch;
     std::atomic<Frame>* tracker {nullptr};
@@ -118,6 +119,7 @@ Sets several channel properties. */
 void setInputMonitor(ID channelId, bool value);
 void setName(ID channelId, const std::string& name);
 void setPan(ID channelId, float val, bool gui=true);
+void setHeight(ID channelId, Pixel p);
 
 void setSamplePlayerMode(ID channelId, SamplePlayerMode m);
 }}}; // giada::c::channel::

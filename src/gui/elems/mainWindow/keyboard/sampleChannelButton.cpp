@@ -57,7 +57,7 @@ geSampleChannelButton::geSampleChannelButton(int x, int y, int w, int h, const c
 			label("* file not found! *");
 			break;
 		default:
-			label(m_data.name == "" ? "-- no sample --" : m_data.name.c_str());
+			label(m_data.sample->waveId == 0 ? "-- no sample --" : m_data.name.c_str());
 			break;
 	}
 }

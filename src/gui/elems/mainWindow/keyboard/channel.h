@@ -68,7 +68,10 @@ public:
 
 	bool handleKey(int e);
 
-	ID channelId;
+	/* getData
+	Returns a reference to the internal data. Read-only. */
+
+	const c::channel::Data& getData() const;
  
 	geStatusButton*  playButton;
 	geButton*        arm;
@@ -123,6 +126,9 @@ protected:
 	Spread widgets across available space. */
 
 	void packWidgets();
+
+	/* m_data
+	Channel's data. */
 
 	c::channel::Data m_data;
 };

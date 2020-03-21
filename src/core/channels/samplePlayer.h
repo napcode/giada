@@ -73,10 +73,6 @@ public:
 
     std::unique_ptr<SamplePlayerState> state;
 
-    Frame shift;
-    Frame begin;
-    Frame end;
-
 private:
 
     bool isOnLastFrame() const;

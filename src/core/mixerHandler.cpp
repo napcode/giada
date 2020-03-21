@@ -286,22 +286,19 @@ void cloneChannel(ID channelId)
 
 void freeChannel(ID channelId)
 {
-	bool hasWave;	
-	ID   waveId;
+	ID waveId;
 	
 	/* Remove Wave reference from Channel. */
 	
-	model::onSwap(model::channels, channelId, [&](Channel& c)
+	model::onSwap(model::channels_NEW, channelId, [&](Channel_NEW& c)
 	{
-		SampleChannel& sc = static_cast<SampleChannel&>(c);
-		hasWave = sc.hasWave;
-		waveId  = sc.waveId;
-		sc.empty();
+		waveId = c.samplePlayer->getWaveId();
+		c.samplePlayer->loadWave(nullptr);
 	});
 
 	/* Then remove the actual Wave, if any. */
 	
-	if (hasWave)
+	if (waveId != 0)
 		model::waves.pop(model::getIndex(model::waves, waveId)); 
 }
 

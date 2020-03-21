@@ -86,7 +86,7 @@ void dispatchChannels_(int event)
 	G_MainWin->keyboard->forEachChannel([=](geChannel& c)
 	{
 		if (c.handleKey(event))
-			perform_(c.channelId, event);
+			perform_(c.getData().id, event);
 	});
 }
 
@@ -166,7 +166,7 @@ void dispatchKey(int event)
 void dispatchTouch(const geChannel& gch, bool status)
 {
 	triggerSignalCb_();
-	perform_(gch.channelId, status ? FL_KEYDOWN : FL_KEYUP);
+	perform_(gch.getData().id, status ? FL_KEYDOWN : FL_KEYUP);
 }
 
 

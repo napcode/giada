@@ -101,58 +101,48 @@ enum class Menu
 
 void menuCallback(Fl_Widget* w, void* v)
 {
-	geSampleChannel* gch = static_cast<geSampleChannel*>(w);
+	const geSampleChannel*  gch  = static_cast<geSampleChannel*>(w);
+	const c::channel::Data& data = gch->getData();
 
-	ID    waveId;
-	bool inputMonitor = false; // TODO
-
-	m::model::onGet(m::model::channels_NEW, gch->channelId, [&](const m::Channel_NEW& c)
-	{
-		waveId       = c.samplePlayer->getWaveId();
-		//inputMonitor = static_cast<m::SampleChannel&>(c).inputMonitor;
-	});
-
-	Menu selectedItem = (Menu) (intptr_t) v;
-
-	switch (selectedItem) {
+	switch ((Menu) (intptr_t) v) {
 		case Menu::INPUT_MONITOR: {
-			c::channel::setInputMonitor(gch->channelId, !inputMonitor);
+		//	c::channel::setInputMonitor(data.id, !inputMonitor); TODO
 			break;
 		}
 		case Menu::LOAD_SAMPLE: {
 			gdWindow* w = new gdBrowserLoad("Browse sample", 
-				m::conf::conf.samplePath.c_str(), c::storage::loadSample, gch->channelId);
+				m::conf::conf.samplePath.c_str(), c::storage::loadSample, data.id);
 			u::gui::openSubWindow(G_MainWin, w, WID_FILE_BROWSER);
 			break;
 		}
 		case Menu::EXPORT_SAMPLE: {
 			gdWindow* w = new gdBrowserSave("Save sample", 
-				m::conf::conf.samplePath.c_str(), "", c::storage::saveSample, gch->channelId);
+				m::conf::conf.samplePath.c_str(), "", c::storage::saveSample, data.id);
 			u::gui::openSubWindow(G_MainWin, w, WID_FILE_BROWSER);
 			break;
 		}
 		case Menu::SETUP_KEYBOARD_INPUT: {
-			u::gui::openSubWindow(G_MainWin, new gdKeyGrabber(gch->channelId), 
+			u::gui::openSubWindow(G_MainWin, new gdKeyGrabber(data.id), 
 				WID_KEY_GRABBER);
 			break;
 		}
 		case Menu::SETUP_MIDI_INPUT: {
-			u::gui::openSubWindow(G_MainWin, new gdMidiInputChannel(gch->channelId), 
+			u::gui::openSubWindow(G_MainWin, new gdMidiInputChannel(data.id), 
 				WID_MIDI_INPUT);
 			break;
 		}
 		case Menu::SETUP_MIDI_OUTPUT: {
-			u::gui::openSubWindow(G_MainWin, new gdMidiOutputSampleCh(gch->channelId), 
+			u::gui::openSubWindow(G_MainWin, new gdMidiOutputSampleCh(data.id), 
 				WID_MIDI_OUTPUT);
 			break;
 		}
 		case Menu::EDIT_SAMPLE: {
-			u::gui::openSubWindow(G_MainWin, new gdSampleEditor(gch->channelId, waveId), 
+			u::gui::openSubWindow(G_MainWin, new gdSampleEditor(data.id, data.sample->waveId), 
 				WID_SAMPLE_EDITOR);
 			break;
 		}
 		case Menu::EDIT_ACTIONS: {
-			u::gui::openSubWindow(G_MainWin, new gdSampleActionEditor(gch->channelId), 
+			u::gui::openSubWindow(G_MainWin, new gdSampleActionEditor(data.id), 
 				WID_ACTION_EDITOR);
 			break;
 		}
@@ -160,32 +150,32 @@ void menuCallback(Fl_Widget* w, void* v)
 		case Menu::__END_CLEAR_ACTIONS_SUBMENU__:
 			break;
 		case Menu::CLEAR_ACTIONS_ALL: {
-			c::recorder::clearAllActions(gch->channelId);
+			c::recorder::clearAllActions(data.id);
 			break;
 		}
 		case Menu::CLEAR_ACTIONS_VOLUME: {
-			c::recorder::clearVolumeActions(gch->channelId);
+			c::recorder::clearVolumeActions(data.id);
 			break;
 		}
 		case Menu::CLEAR_ACTIONS_START_STOP: {
-			c::recorder::clearStartStopActions(gch->channelId);
+			c::recorder::clearStartStopActions(data.id);
 			break;
 		}
 		case Menu::CLONE_CHANNEL: {
-			c::channel::cloneChannel(gch->channelId);
+			c::channel::cloneChannel(data.id);
 			break;
 		}
 		case Menu::RENAME_CHANNEL: {
-			u::gui::openSubWindow(G_MainWin, new gdChannelNameInput(gch->channelId), 
+			u::gui::openSubWindow(G_MainWin, new gdChannelNameInput(data), 
 				WID_SAMPLE_NAME);
 			break;
 		}
 		case Menu::FREE_CHANNEL: {
-			c::channel::freeChannel(gch->channelId);
+			c::channel::freeChannel(data.id);
 			break;
 		}
 		case Menu::DELETE_CHANNEL: {
-			c::channel::deleteChannel(gch->channelId);
+			c::channel::deleteChannel(data.id);
 			break;
 		}
 	}
@@ -282,8 +272,6 @@ void geSampleChannel::cb_playButton()
 
 void geSampleChannel::cb_openMenu()
 {
-	m::model::ChannelsLock_NEW lock(m::model::channels_NEW);
-
 	/* TODO */
 	/* TODO */
 	/* TODO */
@@ -356,7 +344,7 @@ void geSampleChannel::cb_openMenu()
 
 void geSampleChannel::cb_readActions()
 {
-	c::events::toggleReadActionsChannel(channelId);
+	c::events::toggleReadActionsChannel(m_data.id);
 }
 
 

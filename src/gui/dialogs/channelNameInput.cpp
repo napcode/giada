@@ -40,9 +40,9 @@
 namespace giada {
 namespace v 
 {
-gdChannelNameInput::gdChannelNameInput(ID channelId)
-: gdWindow   (u::gui::centerWindowX(400), u::gui::centerWindowY(64), 400, 64, "New channel name"),
-  m_channelId(channelId)
+gdChannelNameInput::gdChannelNameInput(const c::channel::Data& d)
+: gdWindow(u::gui::centerWindowX(400), u::gui::centerWindowY(64), 400, 64, "New channel name"),
+  m_data  (d)
 {
 	set_modal();
 
@@ -51,10 +51,7 @@ gdChannelNameInput::gdChannelNameInput(ID channelId)
 	m_cancel = new geButton(m_ok->x() - 70 - G_GUI_OUTER_MARGIN, m_ok->y(), 70, G_GUI_UNIT, "Cancel");
 	end();
 
-	m::model::onGet(m::model::channels, m_channelId, [&](m::Channel& c)
-	{
-		m_name->value(c.name.c_str());
-	});
+	m_name->value(m_data.name.c_str());
 
 	m_ok->shortcut(FL_Enter);
 	m_ok->callback(cb_update, (void*)this);
@@ -88,7 +85,7 @@ void gdChannelNameInput::cb_cancel()
 
 void gdChannelNameInput::cb_update()
 {
-	c::channel::setName(m_channelId, m_name->value());
+	c::channel::setName(m_data.id, m_name->value());
 	do_callback();
 }
 

@@ -51,6 +51,9 @@ struct SamplePlayerState final
     std::atomic<Frame>            tracker;
     std::atomic<float>            pitch;
     std::atomic<SamplePlayerMode> mode;
+    std::atomic<Frame>            shift;
+    std::atomic<Frame>            begin;
+    std::atomic<Frame>            end;
 
 	/* buffer
 	Working buffer for internal processing. */
@@ -79,7 +82,7 @@ struct ChannelState final
     std::atomic<float>         pan;
 
     std::string name;
-    int         height;
+    Pixel       height;
 };
 }} // giada::m::
 

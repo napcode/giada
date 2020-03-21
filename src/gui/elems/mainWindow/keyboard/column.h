@@ -78,7 +78,6 @@ private:
 
 	int countChannels() const;
 	int computeHeight() const;
-	void storeChannelHeight(const Fl_Widget* c, ID channelId) const;
 
 	std::vector<geChannel*> m_channels;
 

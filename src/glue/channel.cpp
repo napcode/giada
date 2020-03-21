@@ -125,6 +125,7 @@ Data getData(ID channelId)
 
 		if (c.getType() == ChannelType::SAMPLE) {
 			d.sample = {
+				c.samplePlayer->getWaveId(),
 				c.samplePlayer->state->mode.load(),
 				c.samplePlayer->state->pitch.load(),
 				&c.samplePlayer->state->tracker
@@ -257,6 +258,18 @@ void setSamplePlayerMode(ID channelId, SamplePlayerMode m)
 	}, /*rebuild=*/true);
 
 	u::gui::refreshActionEditor();
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+void setHeight(ID channelId, Pixel p)
+{
+	m::model::onGet(m::model::channels_NEW, channelId, [&](m::Channel_NEW& c)
+	{
+		c.state->height = p;
+	});	
 }
 
 

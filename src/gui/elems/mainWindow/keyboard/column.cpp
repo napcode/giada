@@ -102,7 +102,7 @@ geChannel* geColumn::addChannel(c::channel::Data d)
 
 	bar->onRelease = [=](const Fl_Widget* w)
 	{
-		//storeChannelHeight(w, channelId);
+		c::channel::setHeight(d.id, w->h());
 	};
 
 	m_channels.push_back(gch);
@@ -165,7 +165,7 @@ void geColumn::cb_addChannel()
 geChannel* geColumn::getChannel(ID channelId) const
 {
 	for (geChannel* c : m_channels)
-		if (c->channelId == channelId)
+		if (c->getData().id == channelId)
 			return c;
 	return nullptr;
 }
@@ -215,17 +215,4 @@ int geColumn::computeHeight() const
 		out += c->h() + G_GUI_INNER_MARGIN;
 	return out + m_addChannelBtn->h() + G_GUI_INNER_MARGIN;
 }
-
-
-/* -------------------------------------------------------------------------- */
-
-
-void geColumn::storeChannelHeight(const Fl_Widget* w, ID channelId) const
-{	
-	m::model::onSwap(m::model::channels, channelId, [&](m::Channel& c)
-	{	
-		c.height = w->h();
-	});
-}
-
 }} // giada::v::

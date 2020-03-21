@@ -37,7 +37,7 @@ namespace giada {
 namespace m 
 {
 SamplePlayer::SamplePlayer(const Channel_NEW* c)
-: state  (std::make_unique<SamplePlayerState>()),
+: state    (std::make_unique<SamplePlayerState>()),
   m_channel(c)
 {
     // TODO state->buffer.alloc(kernelAudio::getRealBufSize(), G_MAX_IO_CHANS);
@@ -48,11 +48,8 @@ SamplePlayer::SamplePlayer(const Channel_NEW* c)
 
 
 SamplePlayer::SamplePlayer(const SamplePlayer& o)
-: shift       (o.shift),
-  begin       (o.begin),
-  end         (o.end),
-  m_waveReader(o.m_waveReader),
-  state     (std::make_unique<SamplePlayerState>(*o.state)),
+: m_waveReader(o.m_waveReader),
+  state       (std::make_unique<SamplePlayerState>(*o.state)),
   m_channel   (o.m_channel)
 {
 }
@@ -64,10 +61,7 @@ SamplePlayer::SamplePlayer(const SamplePlayer& o)
 SamplePlayer& SamplePlayer::operator=(SamplePlayer&& o)
 {
 	if(this == &o) return *this;
-    shift     = o.shift;
-    begin     = o.begin;
-    end       = o.end;
-    state   = std::move(o.state);
+    state     = std::move(o.state);
     m_channel = o.m_channel;
 	return *this;
 }
@@ -97,9 +91,11 @@ void SamplePlayer::render(AudioBuffer& out) const
 
     state->buffer.clear();
 
+    Frame begin   = state->begin.load();
+    Frame end     = state->end.load();
     Frame tracker = state->tracker.load();
-    Frame used    = 0;
     float pitch   = state->pitch.load();
+    Frame used    = 0;
 
     /* If rewinding, fill the tail first, then reset the tracker to the begin
     point. The rest is performed as usual. */
@@ -177,7 +173,7 @@ void SamplePlayer::rewind(Frame localFrame) const
 		state->offset    = localFrame;
 	}
 	else
-		state->tracker.store(begin);
+		state->tracker.store(state->begin.load());
 }
 
 
@@ -201,14 +197,18 @@ void SamplePlayer::kill(Frame localFrame) const
 void SamplePlayer::loadWave(const Wave* w)
 {
     m_waveReader.wave = w;
-    shift = 0;
-    begin = 0;
+    state->shift.store(0);
+    state->begin.store(0);
+    state->tracker.store(0);
+
     if (w != nullptr) {
-        end = w->getSize() - 1;
+        state->end.store(w->getSize() - 1);
+        m_channel->state->status.store(ChannelStatus::OFF);
         m_channel->state->name = w->getBasename(/*ext=*/false);
     }
     else {
-        end = 0;
+        state->end.store(0);
+        m_channel->state->status.store(ChannelStatus::EMPTY);
         m_channel->state->name = "";
     }
 }

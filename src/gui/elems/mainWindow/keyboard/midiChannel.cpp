@@ -83,38 +83,37 @@ enum class Menu
 
 void menuCallback(Fl_Widget* w, void* v)
 {
-	geMidiChannel* gch = static_cast<geMidiChannel*>(w);
+	const geMidiChannel*    gch  = static_cast<geMidiChannel*>(w);
+	const c::channel::Data& data = gch->getData();
 
-	Menu selectedItem = (Menu) (intptr_t) v;
-
-	switch (selectedItem)
+	switch ((Menu) (intptr_t) v)
 	{
 		case Menu::CLEAR_ACTIONS:
 		case Menu::__END_CLEAR_ACTION_SUBMENU__:
 			break;
 		case Menu::EDIT_ACTIONS:
-			u::gui::openSubWindow(G_MainWin, new v::gdMidiActionEditor(gch->channelId), WID_ACTION_EDITOR);
+			u::gui::openSubWindow(G_MainWin, new v::gdMidiActionEditor(data.id), WID_ACTION_EDITOR);
 			break;
 		case Menu::CLEAR_ACTIONS_ALL:
-			c::recorder::clearAllActions(gch->channelId);
+			c::recorder::clearAllActions(data.id);
 			break;
 		case Menu::SETUP_KEYBOARD_INPUT:
-			u::gui::openSubWindow(G_MainWin, new gdKeyGrabber(gch->channelId), WID_KEY_GRABBER);
+			u::gui::openSubWindow(G_MainWin, new gdKeyGrabber(data.id), WID_KEY_GRABBER);
 			break;
 		case Menu::SETUP_MIDI_INPUT:
-			u::gui::openSubWindow(G_MainWin, new gdMidiInputChannel(gch->channelId), WID_MIDI_INPUT);
+			u::gui::openSubWindow(G_MainWin, new gdMidiInputChannel(data.id), WID_MIDI_INPUT);
 			break;
 		case Menu::SETUP_MIDI_OUTPUT:
-			u::gui::openSubWindow(G_MainWin, new gdMidiOutputMidiCh(gch->channelId), WID_MIDI_OUTPUT);
+			u::gui::openSubWindow(G_MainWin, new gdMidiOutputMidiCh(data.id), WID_MIDI_OUTPUT);
 			break;
 		case Menu::CLONE_CHANNEL:
-			c::channel::cloneChannel(gch->channelId);
+			c::channel::cloneChannel(data.id);
 			break;		
 		case Menu::RENAME_CHANNEL:
-			u::gui::openSubWindow(G_MainWin, new gdChannelNameInput(gch->channelId), WID_SAMPLE_NAME);
+			u::gui::openSubWindow(G_MainWin, new gdChannelNameInput(data), WID_SAMPLE_NAME);
 			break;
 		case Menu::DELETE_CHANNEL:
-			c::channel::deleteChannel(gch->channelId);
+			c::channel::deleteChannel(data.id);
 			break;
 	}
 }
@@ -148,19 +147,16 @@ geMidiChannel::geMidiChannel(int X, int Y, int W, int H, c::channel::Data d)
 	end();
 
 	resizable(mainButton);
-/*
-	m::model::ChannelsLock l(m::model::channels);
-	const m::Channel& ch = m::model::get(m::model::channels, channelId);
 
 #ifdef WITH_VST
-	fx->setStatus(ch.pluginIds.size() > 0);
+	//fx->setStatus(ch.pluginIds.size() > 0);
 #endif
 
 	playButton->callback(cb_playButton, (void*)this);
 	playButton->when(FL_WHEN_CHANGED);   // On keypress && on keyrelease
 
 	arm->type(FL_TOGGLE_BUTTON);
-	arm->value(ch.armed);
+	//arm->value(ch.armed);
 	arm->callback(cb_arm, (void*)this);
 
 #ifdef WITH_VST
@@ -173,12 +169,12 @@ geMidiChannel::geMidiChannel(int X, int Y, int W, int H, c::channel::Data d)
 	solo->type(FL_TOGGLE_BUTTON);
 	solo->callback(cb_solo, (void*)this);
 
-	mainButton->setKey(ch.key);
+	//mainButton->setKey(ch.key);
 	mainButton->callback(cb_openMenu, (void*)this);
 
-	vol->value(ch.volume);
+	vol->value(m_data.volume);
 	vol->callback(cb_changeVol, (void*)this);
-*/
+
 	size(w(), h()); // Force responsiveness
 }
 
@@ -220,12 +216,13 @@ void geMidiChannel::cb_openMenu()
 
 	/* No 'clear actions' if there are no actions. */
 
+/* TODO
 	m::model::onGet(m::model::channels, channelId, [&](m::Channel& c)
 	{
 		if (!c.hasActions)
 			rclick_menu[(int)Menu::CLEAR_ACTIONS].deactivate();
 	});
-
+*/
 	Fl_Menu_Button b(0, 0, 100, 50);
 	b.box(G_CUSTOM_BORDER_BOX);
 	b.textsize(G_GUI_FONT_SIZE_BASE);
