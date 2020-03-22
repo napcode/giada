@@ -53,9 +53,10 @@ public:
 
     SamplePlayer(ChannelState*);
     SamplePlayer(const SamplePlayer&);
-    SamplePlayer& operator=(const SamplePlayer&) = delete;
-    SamplePlayer& operator=(SamplePlayer&&);
-    ~SamplePlayer() = default;
+    SamplePlayer(SamplePlayer&&)                 = default;
+    SamplePlayer& operator=(const SamplePlayer&) = default;
+    SamplePlayer& operator=(SamplePlayer&&)      = default;
+    ~SamplePlayer()                              = default;
 
     void parse(const mixer::Event& e) const;
     void render(AudioBuffer& out) const;

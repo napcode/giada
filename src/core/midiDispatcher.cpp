@@ -156,7 +156,7 @@ void processChannels_(const MidiEvent& midiEvent)
 		else if (pure == ch->midiInKill) {
 			actions.push_back([=] {
 				u::log::print("  >>> kill ch=%d (pure=0x%X)\n", ch->id, pure);
-				c::events::killChannel(ch->id, Thread::MIDI);
+				c::events::killChannel(ch->id, Thread::MAIN);
 			});
 		}		
 		else if (pure == ch->midiInArm) {

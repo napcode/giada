@@ -69,6 +69,8 @@ WaveReader::WaveReader(WaveReader&& o)
 : wave    (o.wave),
   srcState(o.srcState)
 {
+	assert(false);
+	// TODO!
 	o.srcState = nullptr;
 }
 

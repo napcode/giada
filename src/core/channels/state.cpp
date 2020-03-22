@@ -38,6 +38,7 @@ SamplePlayerState::SamplePlayerState()
   rewinding (false),
   quantizing(false)
 {
+    puts("SamplePlayerState CONSTRUCTOR");
 }
 
 
@@ -56,39 +57,6 @@ SamplePlayerState::SamplePlayerState(const SamplePlayerState& o)
 }
 
 
-SamplePlayerState::SamplePlayerState(SamplePlayerState&& o)
-: tracker(o.tracker.load()),
-  pitch  (o.pitch.load()),
-  mode   (o.mode.load())
-{
-    puts("SamplePlayerState MOVE");
-}
-
-
-SamplePlayerState& SamplePlayerState::operator=(const SamplePlayerState& o)
-{
-    puts("SamplePlayerState COPY ASSIGNMENT");
-
-    if(this == &o) return *this;
-    tracker.store(o.tracker.load());
-    pitch.store(o.pitch.load());
-    mode.store(o.mode.load());
-    return *this;
-}
-
-
-SamplePlayerState& SamplePlayerState::operator=(SamplePlayerState&& o)
-{
-    puts("SamplePlayerState MOVE ASSIGNMENT");
-
-	if(this == &o) return *this;
-    tracker.store(o.tracker.load());
-    pitch.store(o.pitch.load());
-    mode.store(o.mode.load());
-    return *this;
-}
-
-
 /* -------------------------------------------------------------------------- */
 
 
@@ -100,6 +68,7 @@ ChannelState::ChannelState(ID id, Frame bufferSize)
   buffer(bufferSize, G_MAX_IO_CHANS),
   height(G_GUI_UNIT)
 {
+    puts("ChannelState CONSTRUCTOR");
 }
     
 
@@ -112,41 +81,9 @@ ChannelState::ChannelState(const ChannelState& o)
   name  (o.name),
   height(o.height)
 {
+    puts("ChannelState COPY");
 }
     
-
-ChannelState::ChannelState(ChannelState&& o)
-: id    (o.id),
-  status(o.status.load()),
-  volume(o.volume.load()),
-  pan   (o.pan.load()),
-  name  (o.name),
-  height(o.height)
-{
-}
-
-
-ChannelState& ChannelState::operator=(const ChannelState& o)
-{
-	if(this == &o) return *this;
-    id = o.id;
-    status.store(o.status.load());
-    volume.store(o.volume.load());
-    pan.store(o.pan.load());
-    return *this;
-}
-
-
-ChannelState& ChannelState::operator=(ChannelState&& o)
-{
-	if(this == &o) return *this;
-    id = o.id;
-    status.store(o.status.load());
-    volume.store(o.volume.load());
-    pan.store(o.pan.load());
-    return *this;
-}
-
 
 /* -------------------------------------------------------------------------- */
 

@@ -41,6 +41,8 @@ Channel_NEW::Channel_NEW(ChannelType type, ID id, ID columnId, Frame bufferSize)
 {
 	if (type == ChannelType::SAMPLE)
 		samplePlayer = std::make_optional<SamplePlayer>(state.get());
+
+    puts("Channel_NEW CONSTRUCTOR");
 }
 
 
@@ -55,15 +57,8 @@ Channel_NEW::Channel_NEW(const Channel_NEW& o)
   samplePlayer(o.samplePlayer)
 {
     samplePlayer->setChannelState(state.get());
-}
 
-
-/* -------------------------------------------------------------------------- */
-
-
-Channel_NEW& Channel_NEW::operator=(const Channel_NEW& o)
-{
-    assert(false);
+    puts("Channel_NEW COPY");
 }
 
 

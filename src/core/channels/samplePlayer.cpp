@@ -40,6 +40,7 @@ SamplePlayer::SamplePlayer(ChannelState* c)
 : state         (std::make_unique<SamplePlayerState>()),
   m_channelState(c)
 {
+    puts("SamplePlayer CONSTRUCTOR");
 }
 
 
@@ -52,20 +53,6 @@ SamplePlayer::SamplePlayer(const SamplePlayer& o)
   m_channelState(o.m_channelState)
 {
     puts("SamplePlayer COPY");
-}
-
-
-/* -------------------------------------------------------------------------- */
-
-
-SamplePlayer& SamplePlayer::operator=(SamplePlayer&& o)
-{
-    puts("SamplePlayer MOVE ASSIGNMENT");
-
-	if(this == &o) return *this;
-    state          = std::move(o.state);
-    m_channelState = o.m_channelState;
-	return *this;
 }
 
 

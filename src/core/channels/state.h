@@ -43,10 +43,10 @@ struct SamplePlayerState final
 {
     SamplePlayerState();
     SamplePlayerState(const SamplePlayerState& o);
-    SamplePlayerState(SamplePlayerState&& o);
-    SamplePlayerState& operator=(const SamplePlayerState&);
-    SamplePlayerState& operator=(SamplePlayerState&&);
-    ~SamplePlayerState() = default;
+    SamplePlayerState(SamplePlayerState&& o)               = default;
+    SamplePlayerState& operator=(const SamplePlayerState&) = default;
+    SamplePlayerState& operator=(SamplePlayerState&&)      = default;
+    ~SamplePlayerState()                                   = default;
 
     std::atomic<Frame>            tracker;
     std::atomic<float>            pitch;
@@ -65,10 +65,10 @@ struct ChannelState final
 {
     ChannelState(ID id, Frame bufferSize);
     ChannelState(const ChannelState& o);
-    ChannelState(ChannelState&& o);
-    ChannelState& operator=(const ChannelState&);
-    ChannelState& operator=(ChannelState&&);
-    ~ChannelState() = default;
+    ChannelState(ChannelState&& o)               = default;
+    ChannelState& operator=(const ChannelState&) = default;
+    ChannelState& operator=(ChannelState&&)      = default;
+    ~ChannelState()                              = default;
 
     bool isPlaying() const;
 

@@ -46,9 +46,10 @@ public:
 
     Channel_NEW(ChannelType t, ID id, ID columnId, Frame bufferSize);
     Channel_NEW(const Channel_NEW&);
-    Channel_NEW& operator=(const Channel_NEW&);
-    Channel_NEW(Channel_NEW&&) = delete;
-    ~Channel_NEW() = default;
+    Channel_NEW(Channel_NEW&&)                 = default;
+    Channel_NEW& operator=(const Channel_NEW&) = default;
+    Channel_NEW& operator=(Channel_NEW&&)      = default;
+    ~Channel_NEW()                             = default;
 
     void parse(const std::vector<mixer::Event>& e) const;
     void render(AudioBuffer& out, const AudioBuffer& in) const;
