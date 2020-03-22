@@ -79,6 +79,9 @@ void SamplePlayer::parse(const mixer::Event& e) const
     else
     if (e.type == mixer::EventType::RELEASE)
         onRelease(e.localFrame);
+    else
+    if (e.type == mixer::EventType::KILL)
+        kill(e.localFrame);
     /*
 	if (fe.onBar)
         onBar(fe.frameLocal);
@@ -129,8 +132,6 @@ void SamplePlayer::render(AudioBuffer& out) const
 
     state->offset = 0;
     state->tracker.store(tracker);
-
-printf("%d\n", tracker);
 }
 
 

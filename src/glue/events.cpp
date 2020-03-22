@@ -109,14 +109,16 @@ void releaseChannel(ID channelId, Thread t)
 }
 
 
-void killChannel(ID channelId)
+void killChannel(ID channelId, Thread t)
 {
+	pushEvent_({ m::mixer::EventType::KILL, 0, 0, channelId }, t);
+	/*
 	m::model::onSwap(m::model::channels, channelId, [&](m::Channel& ch)
 	{
 		if (!ch.recordKill())
 			return;
-		ch.kill(/*localFrame=*/0); // Frame 0: user-generated event
-	});
+		ch.kill(0); // Frame 0: user-generated event
+	});*/
 }
 
 

@@ -50,7 +50,7 @@ Channel-related events. */
 
 void pressChannel            (ID channelId, int velocity, Thread t);
 void releaseChannel          (ID channelId, Thread t);
-void killChannel             (ID channelId);
+void killChannel             (ID channelId, Thread t);
 void setChannelVolume        (ID channelId, float v, bool gui, bool editor);
 void setChannelPitch         (ID channelId, float v, bool gui, bool editor);
 void toggleMuteChannel       (ID channelId);

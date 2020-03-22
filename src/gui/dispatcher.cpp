@@ -65,7 +65,7 @@ void perform_(ID channelId, int event)
 			c::events::toggleMuteChannel(channelId);
 		else
 		if (Fl::event_shift())
-			c::events::killChannel(channelId);
+			c::events::killChannel(channelId, Thread::MAIN);
 		else
 			c::events::pressChannel(channelId, G_MAX_VELOCITY, Thread::MAIN);
 	}

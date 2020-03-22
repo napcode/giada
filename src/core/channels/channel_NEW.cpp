@@ -78,11 +78,13 @@ void Channel_NEW::parse(const std::vector<mixer::Event>& events) const
     for (const mixer::Event& e : events) {
         if (e.channelId > 0 && e.channelId != id)
             continue;
+        if (e.type == mixer::EventType::KILL)
+            kill();
         // if      (fe.onBar)  onBar(fe.frameLocal);
         // else if (fe.onFirstBeat) onFirstBeat(fe.frameLocal);
         if (samplePlayer)
             samplePlayer->parse(e);
-        printf("%d event on %d\n", (int) e.type, id);
+        printf("event type=%d on channel=%d\n", (int) e.type, id);
     }
 }
 
