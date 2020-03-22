@@ -354,7 +354,10 @@ void geSampleChannel::cb_readActions()
 void geSampleChannel::refresh()
 {
 	geChannel::refresh();
-/*
+
+	if (m_data.sample->waveId != 0)
+		status->redraw();
+/* TODO
 	m::model::onGet(m::model::channels, channelId, [&](m::Channel& c)
 	{
 		if (c.hasData()) 

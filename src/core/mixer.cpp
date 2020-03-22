@@ -237,9 +237,10 @@ puts("-- block --------");
 if (eventBuffer_.size() > 0)
 	printf("%d\n", eventBuffer_.size());
 */
-	model::ChannelsLock lock(model::channels);
-	for (const Channel_NEW* ch : model::channels_NEW)
-		ch->parse(eventBuffer_); 
+	model::ChannelsLock_NEW lock(model::channels_NEW);
+
+	for (const Channel_NEW* c : model::channels_NEW)
+		c->parse(eventBuffer_); 
 /*puts("-----------------");*/
 }
 
@@ -267,6 +268,15 @@ void parseEvents_(Frame f)
 
 
 /* -------------------------------------------------------------------------- */
+
+
+void render_NEW(AudioBuffer& out, const AudioBuffer& in, AudioBuffer& inToOut)
+{
+	model::ChannelsLock_NEW lock(model::channels_NEW);
+
+	for (const Channel_NEW* c : model::channels_NEW)
+		c->render(out, in);
+}
 
 
 void render_(AudioBuffer& out, const AudioBuffer& in, AudioBuffer& inToOut)
@@ -477,7 +487,8 @@ int masterPlay(void* outBuf, void* inBuf, unsigned bufferSize,
 	parseEvents_();
 	if (clock::isActive()) 
 		processSequencer_(out, in);
-	render_(out, in, vChanInToOut_);
+	render_NEW(out, in, vChanInToOut_);
+	//render_(out, in, vChanInToOut_);
 
 	/* Post processing. */
 

@@ -30,6 +30,7 @@
 #include "core/model/model.h"
 #include "core/const.h"
 #include "core/recorder.h"
+#include "glue/channel.h"
 #include "utils/string.h"
 #include "channelButton.h"
 
@@ -50,26 +51,22 @@ geChannelButton::geChannelButton(int x, int y, int w, int h, const c::channel::D
 
 void geChannelButton::refresh()
 {
-	/*
-	m::model::onGet(m::model::channels, m_channelId, [&](m::Channel& c)
-	{
-		switch (c.playStatus) {
-			case ChannelStatus::OFF:
-			case ChannelStatus::EMPTY:
-				setDefaultMode(); break;
-			case ChannelStatus::PLAY:
-				setPlayMode(); break;
-			case ChannelStatus::ENDING:
-				setEndingMode(); break;
-			default: break;
-		}
-
-		switch (c.recStatus) {
-			case ChannelStatus::ENDING:
-				setEndingMode(); break;
-			default: break;
-		}
-	});*/
+	switch (m_data.status->load()) {
+		case ChannelStatus::OFF:
+		case ChannelStatus::EMPTY:
+			setDefaultMode(); break;
+		case ChannelStatus::PLAY:
+			setPlayMode(); break;
+		case ChannelStatus::ENDING:
+			setEndingMode(); break;
+		default: break;
+	}	
+	/* TODO
+	switch (c.recStatus) {
+		case ChannelStatus::ENDING:
+			setEndingMode(); break;
+		default: break;
+	}*/
 }
 
 

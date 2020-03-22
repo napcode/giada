@@ -48,7 +48,7 @@ class AudioBuffer;
 
 namespace mixer
 {
-struct FrameEvents
+struct FrameEvents /* TODO deprecated */
 {
 	Frame frameLocal;
 	Frame frameGlobal;
@@ -79,6 +79,11 @@ constexpr int PREVIEW_CHANNEL_ID    = 3;
 extern std::atomic<bool>  rewindWait;    // rewind guard, if quantized
 extern std::atomic<float> peakOut;
 extern std::atomic<float> peakIn;
+
+/* Event queues
+Collect events coming from the UI or MIDI devices. Our poor's man Queue is a
+single-producer/single-consumer one, so we need two queues for two writers.
+TODO - let's add a multi-producer queue sooner or later! */
 
 extern Queue<Event, G_MAX_QUEUE_EVENTS> UIevents;
 extern Queue<Event, G_MAX_QUEUE_EVENTS> MidiEvents;

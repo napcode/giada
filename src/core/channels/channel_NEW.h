@@ -44,7 +44,7 @@ class Channel_NEW final
 {
 public:
 
-    Channel_NEW(ChannelType t, ID id, ID columnId);
+    Channel_NEW(ChannelType t, ID id, ID columnId, Frame bufferSize);
     Channel_NEW(const Channel_NEW&);
     Channel_NEW& operator=(const Channel_NEW&);
     Channel_NEW(Channel_NEW&&) = delete;
@@ -54,8 +54,6 @@ public:
     void render(AudioBuffer& out, const AudioBuffer& in) const;
 
     bool isInternal() const;
-	bool isPlaying() const;
-    ID getId() const;
     ID getColumnId() const;
     ChannelType getType() const;
 
@@ -66,6 +64,9 @@ public:
 
     std::unique_ptr<ChannelState> state;
 
+    /* (optional) samplePlayer
+    For sample rendering. */
+
     std::optional<SamplePlayer> samplePlayer;
     
 private:
@@ -73,6 +74,7 @@ private:
     void onBar(Frame localFrame) const;
     void onFirstBeat(Frame localFrame) const;
     void kill() const;
+    void mergeOutBuffer(AudioBuffer& out) const;
 
     bool isActive() const;
 

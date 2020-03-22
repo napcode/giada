@@ -118,9 +118,9 @@ Data getData(ID channelId)
 			c.getType(),
 			c.state->height,
 			c.state->name,
-			c.state->status.load(),
 			c.state->volume,
 			c.state->pan,
+			&c.state->status,
 		};
 
 		if (c.getType() == ChannelType::SAMPLE) {
@@ -128,7 +128,9 @@ Data getData(ID channelId)
 				c.samplePlayer->getWaveId(),
 				c.samplePlayer->state->mode.load(),
 				c.samplePlayer->state->pitch.load(),
-				&c.samplePlayer->state->tracker
+				&c.samplePlayer->state->tracker,
+				&c.samplePlayer->state->begin,
+				&c.samplePlayer->state->end
 			};
 		}
 	});

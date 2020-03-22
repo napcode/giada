@@ -1,16 +1,55 @@
+/* -----------------------------------------------------------------------------
+ *
+ * Giada - Your Hardcore Loopmachine
+ *
+ * -----------------------------------------------------------------------------
+ *
+ * Copyright (C) 2010-2020 Giovanni A. Zuliani | Monocasual
+ *
+ * This file is part of Giada - Your Hardcore Loopmachine.
+ *
+ * Giada - Your Hardcore Loopmachine is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU General
+ * Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Giada - Your Hardcore Loopmachine is distributed in the hope that it
+ * will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Giada - Your Hardcore Loopmachine. If not, see
+ * <http://www.gnu.org/licenses/>.
+ *
+ * -------------------------------------------------------------------------- */
+
+
 #ifndef G_AUDIO_BUFFER_H
 #define G_AUDIO_BUFFER_H
+
+
+#include "core/types.h"
 
 
 namespace giada {
 namespace m
 {
-/* TODO - this class needs a serious modern C++ lifting */
 class AudioBuffer
 {
 public:
 
+	/* AudioBuffer (1)
+	Creates an empty (and invalid) audio buffer. */
+
 	AudioBuffer();
+
+	/* AudioBuffer (2)
+	Creates an audio buffer and allocates memory for size * channels frames. */
+
+	AudioBuffer(Frame size, int channels);
+
+	AudioBuffer(const AudioBuffer& o);
 	~AudioBuffer();
 
 	/* operator []
@@ -31,7 +70,7 @@ public:
 	int countChannels() const;
 	bool isAllocd() const;
 
-	void alloc(int size, int channels);
+	void alloc(Frame size, int channels);
 	void free();
 
 	/* copyData
@@ -67,7 +106,7 @@ public:
 private:
 
 	float* m_data;
-	int    m_size;     // in frames    
+	Frame  m_size;
 	int    m_channels;
 };
 

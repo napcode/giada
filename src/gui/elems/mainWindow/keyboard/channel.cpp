@@ -98,17 +98,14 @@ void geChannel::cb_openFxWindow(Fl_Widget* v, void* p) { ((geChannel*)p)->cb_ope
 
 void geChannel::refresh()
 {
-	/*
-	m::model::onGet(m::model::channels, m_data.id, [&](m::Channel& c)
-	{
-		if (mainButton->visible())
-			mainButton->refresh();
-		if (c.recStatus == ChannelStatus::WAIT || c.playStatus == ChannelStatus::WAIT)
-			blink();
-		playButton->setStatus(c.isPlaying());
-		mute->setStatus(c.mute);
-		solo->setStatus(c.solo);
-	});*/
+	if (mainButton->visible())
+		mainButton->refresh();
+	// TODO 
+	//if (c.recStatus == ChannelStatus::WAIT || c.playStatus == ChannelStatus::WAIT)
+	//	blink();
+	//playButton->setStatus(c.isPlaying());
+	//mute->setStatus(c.mute);
+	//solo->setStatus(c.solo);
 }
 
 

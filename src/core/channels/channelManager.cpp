@@ -34,6 +34,7 @@
 #include "core/channels/channel_NEW.h"
 #include "core/channels/samplePlayer.h"
 #include "core/const.h"
+#include "core/kernelAudio.h"
 #include "core/patch.h"
 #include "core/mixer.h"
 #include "core/idManager.h"
@@ -96,7 +97,8 @@ std::unique_ptr<Channel> create(ChannelType type, int bufferSize,
 std::unique_ptr<Channel_NEW> create_NEW(ChannelType type, int bufferSize, 
 	bool inputMonitorOn, ID columnId)
 {
-	return std::make_unique<Channel_NEW>(type, channelId_.get(), columnId);
+	return std::make_unique<Channel_NEW>(type, channelId_.get(), columnId, 
+		kernelAudio::getRealBufSize());
 }
 
 

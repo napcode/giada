@@ -32,18 +32,27 @@ namespace giada {
 namespace m 
 {
 SamplePlayerState::SamplePlayerState()
-: tracker(0),
-  pitch  (G_DEFAULT_PITCH),
-  mode   (SamplePlayerMode::SINGLE_BASIC)
+: tracker   (0),
+  pitch     (G_DEFAULT_PITCH),
+  mode      (SamplePlayerMode::SINGLE_BASIC),
+  rewinding (false),
+  quantizing(false)
 {
 }
 
 
 SamplePlayerState::SamplePlayerState(const SamplePlayerState& o)
-: tracker(o.tracker.load()),
-  pitch  (o.pitch.load()),
-  mode   (o.mode.load())
+: tracker   (o.tracker.load()),
+  pitch     (o.pitch.load()),
+  mode      (o.mode.load()),
+  shift     (o.shift.load()),
+  begin     (o.begin.load()),
+  end       (o.end.load()),
+  rewinding (o.rewinding),
+  quantizing(o.quantizing),
+  offset    (o.offset)
 {
+    puts("SamplePlayerState COPY");
 }
 
 
@@ -52,11 +61,14 @@ SamplePlayerState::SamplePlayerState(SamplePlayerState&& o)
   pitch  (o.pitch.load()),
   mode   (o.mode.load())
 {
+    puts("SamplePlayerState MOVE");
 }
 
 
 SamplePlayerState& SamplePlayerState::operator=(const SamplePlayerState& o)
 {
+    puts("SamplePlayerState COPY ASSIGNMENT");
+
     if(this == &o) return *this;
     tracker.store(o.tracker.load());
     pitch.store(o.pitch.load());
@@ -67,6 +79,8 @@ SamplePlayerState& SamplePlayerState::operator=(const SamplePlayerState& o)
 
 SamplePlayerState& SamplePlayerState::operator=(SamplePlayerState&& o)
 {
+    puts("SamplePlayerState MOVE ASSIGNMENT");
+
 	if(this == &o) return *this;
     tracker.store(o.tracker.load());
     pitch.store(o.pitch.load());
@@ -78,11 +92,12 @@ SamplePlayerState& SamplePlayerState::operator=(SamplePlayerState&& o)
 /* -------------------------------------------------------------------------- */
 
 
-ChannelState::ChannelState(ID id)
+ChannelState::ChannelState(ID id, Frame bufferSize)
 : id    (id),
   status(ChannelStatus::OFF),
   volume(G_DEFAULT_VOL),
   pan   (G_DEFAULT_PAN),
+  buffer(bufferSize, G_MAX_IO_CHANS),
   height(G_GUI_UNIT)
 {
 }
@@ -93,6 +108,7 @@ ChannelState::ChannelState(const ChannelState& o)
   status(o.status.load()),
   volume(o.volume.load()),
   pan   (o.pan.load()),
+  buffer(o.buffer),
   name  (o.name),
   height(o.height)
 {
@@ -129,5 +145,15 @@ ChannelState& ChannelState::operator=(ChannelState&& o)
     volume.store(o.volume.load());
     pan.store(o.pan.load());
     return *this;
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+bool ChannelState::isPlaying() const
+{
+    ChannelStatus s = status.load();
+	return s == ChannelStatus::PLAY || s == ChannelStatus::ENDING;
 }
 }} // giada::m::

@@ -55,11 +55,6 @@ struct SamplePlayerState final
     std::atomic<Frame>            begin;
     std::atomic<Frame>            end;
 
-	/* buffer
-	Working buffer for internal processing. */
-
-    AudioBuffer buffer;
-
     bool  rewinding;
     bool  quantizing;
     Frame offset;
@@ -68,18 +63,25 @@ struct SamplePlayerState final
 
 struct ChannelState final
 {
-    ChannelState(ID id);
+    ChannelState(ID id, Frame bufferSize);
     ChannelState(const ChannelState& o);
     ChannelState(ChannelState&& o);
     ChannelState& operator=(const ChannelState&);
     ChannelState& operator=(ChannelState&&);
     ~ChannelState() = default;
 
+    bool isPlaying() const;
+
     ID id;
 
     std::atomic<ChannelStatus> status;
     std::atomic<float>         volume;
     std::atomic<float>         pan;
+
+	/* buffer
+	Working buffer for internal processing. */
+
+    AudioBuffer buffer;
 
     std::string name;
     Pixel       height;

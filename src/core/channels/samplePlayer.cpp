@@ -36,11 +36,10 @@
 namespace giada {
 namespace m 
 {
-SamplePlayer::SamplePlayer(const Channel_NEW* c)
-: state    (std::make_unique<SamplePlayerState>()),
-  m_channel(c)
+SamplePlayer::SamplePlayer(ChannelState* c)
+: state         (std::make_unique<SamplePlayerState>()),
+  m_channelState(c)
 {
-    // TODO state->buffer.alloc(kernelAudio::getRealBufSize(), G_MAX_IO_CHANS);
 }
 
 
@@ -48,10 +47,11 @@ SamplePlayer::SamplePlayer(const Channel_NEW* c)
 
 
 SamplePlayer::SamplePlayer(const SamplePlayer& o)
-: m_waveReader(o.m_waveReader),
-  state       (std::make_unique<SamplePlayerState>(*o.state)),
-  m_channel   (o.m_channel)
+: m_waveReader  (o.m_waveReader),
+  state         (std::make_unique<SamplePlayerState>(*o.state)),
+  m_channelState(o.m_channelState)
 {
+    puts("SamplePlayer COPY");
 }
 
 
@@ -60,9 +60,11 @@ SamplePlayer::SamplePlayer(const SamplePlayer& o)
 
 SamplePlayer& SamplePlayer::operator=(SamplePlayer&& o)
 {
+    puts("SamplePlayer MOVE ASSIGNMENT");
+
 	if(this == &o) return *this;
-    state     = std::move(o.state);
-    m_channel = o.m_channel;
+    state          = std::move(o.state);
+    m_channelState = o.m_channelState;
 	return *this;
 }
 
@@ -70,8 +72,13 @@ SamplePlayer& SamplePlayer::operator=(SamplePlayer&& o)
 /* -------------------------------------------------------------------------- */
 
 
-void SamplePlayer::parse(const std::vector<mixer::Event>& e) const
+void SamplePlayer::parse(const mixer::Event& e) const
 {
+    if (e.type == mixer::EventType::PRESS)
+        onPress(e.localFrame);
+    else
+    if (e.type == mixer::EventType::RELEASE)
+        onRelease(e.localFrame);
     /*
 	if (fe.onBar)
         onBar(fe.frameLocal);
@@ -86,10 +93,8 @@ void SamplePlayer::parse(const std::vector<mixer::Event>& e) const
 
 void SamplePlayer::render(AudioBuffer& out) const
 {
-    if (m_waveReader.wave == nullptr)
+    if (m_waveReader.wave == nullptr || !m_channelState->isPlaying())
         return;
-
-    state->buffer.clear();
 
     Frame begin   = state->begin.load();
     Frame end     = state->end.load();
@@ -102,26 +107,100 @@ void SamplePlayer::render(AudioBuffer& out) const
 
     if (state->rewinding) {
 		if (tracker < end)
-            m_waveReader.fill(state->buffer, tracker, 0, pitch);
+            m_waveReader.fill(m_channelState->buffer, tracker, 0, pitch);
+        state->rewinding = false;
 		tracker = begin;
     }
 
-    used     = m_waveReader.fill(state->buffer, tracker, state->offset, pitch);
+    used     = m_waveReader.fill(m_channelState->buffer, tracker, state->offset, pitch);
     tracker += used;
 
     if (tracker >= end) {
-        // TODO - onLastFrame callback
         tracker = begin;
         if (shouldLoop())
             /* 'used' might be imprecise when working with resampled audio, 
             which could cause a buffer overflow if used as offset. Let's clamp 
             it to be at most buffer->countFrames(). */
-            tracker += m_waveReader.fill(state->buffer, tracker, 
-                std::min(used, state->buffer.countFrames() - 1), pitch);
+            tracker += m_waveReader.fill(m_channelState->buffer, tracker, 
+                std::min(used, m_channelState->buffer.countFrames() - 1), pitch);
+        else
+            m_channelState->status.store(ChannelStatus::OFF);
     }
 
     state->offset = 0;
     state->tracker.store(tracker);
+
+printf("%d\n", tracker);
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+void SamplePlayer::onPress(Frame localFrame) const
+{
+    ChannelStatus    status = m_channelState->status.load();
+    SamplePlayerMode mode   = state->mode.load();
+
+    switch (status) {
+		case ChannelStatus::OFF:
+            state->offset = localFrame;
+			if (isAnyLoopMode()) {
+				status = ChannelStatus::WAIT;
+			}
+			else {
+                /*
+				if (doQuantize)
+					ch->quantizing = true;
+				else {
+                */
+            
+					status = ChannelStatus::PLAY;
+                /*
+				}*/
+			}
+			break;
+
+		case ChannelStatus::PLAY:
+			if (mode == SamplePlayerMode::SINGLE_RETRIG) {
+				//if (doQuantize)
+				//	ch->quantizing = true;
+				//else
+				rewind(localFrame);
+			}
+			else
+			if (isAnyLoopMode() || mode == SamplePlayerMode::SINGLE_ENDLESS) {
+				status = ChannelStatus::ENDING;
+			}
+			else
+			if (mode == SamplePlayerMode::SINGLE_BASIC) {
+				rewind(localFrame);
+				status = ChannelStatus::OFF;
+			}
+			break;
+
+		default: break;
+	}
+
+    m_channelState->status.store(status);
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+void SamplePlayer::onRelease(Frame localFrame) const
+{
+    ChannelStatus    status = m_channelState->status.load();
+    SamplePlayerMode mode   = state->mode.load();
+
+	if (status == ChannelStatus::PLAY && mode == SamplePlayerMode::SINGLE_PRESS)
+		kill(localFrame);
+    /*
+    else
+    if (mode == SamplePlayerMode::SINGLE_PRESS && ch->quantizing)
+        // If quantizing, stop a SINGLE_PRESS immediately.
+        ch->quantizing = false;*/
 }
 
 
@@ -130,7 +209,7 @@ void SamplePlayer::render(AudioBuffer& out) const
 
 void SamplePlayer::onBar(Frame localFrame) const
 {
-    ChannelStatus    s = m_channel->state->status.load();
+    ChannelStatus    s = m_channelState->status.load();
     SamplePlayerMode m = state->mode.load();
 
     if (s == ChannelStatus::PLAY && m == SamplePlayerMode::LOOP_REPEAT)
@@ -146,7 +225,7 @@ void SamplePlayer::onBar(Frame localFrame) const
 
 void SamplePlayer::onFirstBeat(Frame localFrame) const
 {
-    ChannelStatus s = m_channel->state->status.load();
+    ChannelStatus s = m_channelState->status.load();
 
     if (s == ChannelStatus::PLAY && isAnyLoopMode())
 		rewind(localFrame); 
@@ -168,7 +247,7 @@ void SamplePlayer::rewind(Frame localFrame) const
 
 	state->quantizing = false; 
 
-	if (m_channel->isPlaying()) { 
+	if (m_channelState->isPlaying()) { 
 		state->rewinding = true;
 		state->offset    = localFrame;
 	}
@@ -182,12 +261,15 @@ void SamplePlayer::rewind(Frame localFrame) const
 
 void SamplePlayer::kill(Frame localFrame) const
 {
+    m_channelState->status.store(ChannelStatus::OFF);
+    state->tracker.store(state->begin.load());
+    state->quantizing = false;
+
     /*  Clear data in range [localFrame, (buffer.size)) if the kill event occurs
     in the middle of the buffer. */
 
     if (localFrame != 0)
-        state->buffer.clear(localFrame);
-    rewind(localFrame);
+        m_channelState->buffer.clear(localFrame);
 }
 
 
@@ -203,13 +285,13 @@ void SamplePlayer::loadWave(const Wave* w)
 
     if (w != nullptr) {
         state->end.store(w->getSize() - 1);
-        m_channel->state->status.store(ChannelStatus::OFF);
-        m_channel->state->name = w->getBasename(/*ext=*/false);
+        m_channelState->status.store(ChannelStatus::OFF);
+        m_channelState->name = w->getBasename(/*ext=*/false);
     }
     else {
         state->end.store(0);
-        m_channel->state->status.store(ChannelStatus::EMPTY);
-        m_channel->state->name = "";
+        m_channelState->status.store(ChannelStatus::EMPTY);
+        m_channelState->name = "";
     }
 }
 
@@ -250,7 +332,7 @@ bool SamplePlayer::hasWave() const { return m_waveReader.wave != nullptr; }
 /* -------------------------------------------------------------------------- */
 
 
-void SamplePlayer::setChannel(const Channel_NEW* c) { m_channel = c; }
+void SamplePlayer::setChannelState(ChannelState* c) { m_channelState = c; }
 
 
 /* -------------------------------------------------------------------------- */

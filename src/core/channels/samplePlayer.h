@@ -40,8 +40,7 @@
 namespace giada {
 namespace m
 {
-class Channel_NEW;
-class Wave;
+class  Wave;
 struct SamplePlayerState;
 
 
@@ -52,20 +51,20 @@ class SamplePlayer final
 {
 public:
 
-    SamplePlayer(const Channel_NEW*);
+    SamplePlayer(ChannelState*);
     SamplePlayer(const SamplePlayer&);
     SamplePlayer& operator=(const SamplePlayer&) = delete;
     SamplePlayer& operator=(SamplePlayer&&);
     ~SamplePlayer() = default;
 
-    void parse(const std::vector<mixer::Event>& e) const;
+    void parse(const mixer::Event& e) const;
     void render(AudioBuffer& out) const;
     
     bool isAnyLoopMode() const;
     bool hasWave() const;
     ID getWaveId() const;
 
-    void setChannel(const Channel_NEW* c);
+    void setChannelState(ChannelState* c);
     void loadWave(const Wave* w);
 
     /* state
@@ -78,6 +77,8 @@ private:
     bool isOnLastFrame() const;
     bool shouldLoop() const;
 
+    void onPress(Frame localFrame) const;
+    void onRelease(Frame localFrame) const;
     void onBar(Frame localFrame) const;
     void onFirstBeat(Frame localFrame) const;
     void rewind(Frame localFrame) const;
@@ -88,7 +89,7 @@ private:
 
     WaveReader m_waveReader;
 
-    const Channel_NEW* m_channel;
+    ChannelState* m_channelState;
 };
 }} // giada::m::
 

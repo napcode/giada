@@ -33,6 +33,7 @@
 #include "core/recorder.h"
 #include "core/recManager.h"
 #include "core/const.h"
+#include "glue/channel.h"
 #include "channelStatus.h"
 
 
@@ -54,38 +55,47 @@ void geChannelStatus::draw()
 	fl_rect(x(), y(), w(), h(), G_COLOR_GREY_4);              // reset border
 	fl_rectf(x()+1, y()+1, w()-2, h()-2, G_COLOR_GREY_2);     // reset background
 
-#if 0
-	
-	if (ch.playStatus == ChannelStatus::WAIT    || 
-	    ch.playStatus == ChannelStatus::ENDING  ||
+	ChannelStatus cs  = m_data.status->load();
+	Pixel         pos = 0;
+
+	if (cs == ChannelStatus::WAIT    || 
+	    cs == ChannelStatus::ENDING/* TODO  ||
 	    ch.recStatus == ChannelStatus::WAIT || 
-	    ch.recStatus == ChannelStatus::ENDING)
+	    ch.recStatus == ChannelStatus::ENDING*/)
 	{
 		fl_rect(x(), y(), w(), h(), G_COLOR_LIGHT_1);
 	}
 	else
-	if (ch.playStatus == ChannelStatus::PLAY)
+	if (cs == ChannelStatus::PLAY) {
+		/* Equation for the progress bar: 
+		((chanTracker - chanStart) * w()) / (chanEnd - chanStart). */
+		Frame tracker = m_data.sample->tracker->load();
+		Frame begin   = m_data.sample->begin->load();
+		Frame end     = m_data.sample->end->load();
+		pos = (tracker * (w() - 1)) / ((end - begin));
 		fl_rect(x(), y(), w(), h(), G_COLOR_LIGHT_1);
+	}
 	else
 		fl_rectf(x()+1, y()+1, w()-2, h()-2, G_COLOR_GREY_2);  // status empty
 
-
-	if (m::recManager::isRecordingInput() && ch.armed)
+	if (m::recManager::isRecordingInput()/* TODO && ch.armed*/)
 		fl_rectf(x()+1, y()+1, w()-2, h()-2, G_COLOR_RED);     // take in progress
 	else
 	if (m::recManager::isRecordingAction())
 		fl_rectf(x()+1, y()+1, w()-2, h()-2, G_COLOR_BLUE);    // action recording
 
+	if (pos != 0)
+		fl_rectf(x()+1, y()+1, pos, h()-2, G_COLOR_LIGHT_1);
+
 	/* Equation for the progress bar: 
 	((chanTracker - chanStart) * w()) / (chanEnd - chanStart). */
-
+/*
 	int pos = ch.getPosition();
 	if (pos == -1)
 		pos = 0;
 	else
 		pos = (pos * (w()-1)) / ((ch.getEnd() - ch.getBegin()));
-	fl_rectf(x()+1, y()+1, pos, h()-2, G_COLOR_LIGHT_1);
-#endif
+	fl_rectf(x()+1, y()+1, pos, h()-2, G_COLOR_LIGHT_1);*/
 }
 
 }} // giada::v::

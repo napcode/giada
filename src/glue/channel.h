@@ -48,10 +48,13 @@ namespace channel
 
 struct SampleData
 {
-    ID                  waveId;
-    SamplePlayerMode    mode;
-    float               pitch;
+    ID               waveId;
+    SamplePlayerMode mode;
+    float            pitch;
+
     std::atomic<Frame>* tracker {nullptr};
+    std::atomic<Frame>* begin {nullptr};
+    std::atomic<Frame>* end {nullptr};
 };
 
 struct MidiData
@@ -61,13 +64,14 @@ struct MidiData
 
 struct Data
 {
-    ID               id;
-    ChannelType      type;
-    Pixel            height;
-    std::string      name;
-    ChannelStatus    status;
-    float            volume;
-    float            pan;
+    ID          id;
+    ChannelType type;
+    Pixel       height;
+    std::string name;
+    float       volume;
+    float       pan;
+    
+    std::atomic<ChannelStatus>* status {nullptr};
 
     std::optional<SampleData> sample;
     std::optional<MidiData>   midi;

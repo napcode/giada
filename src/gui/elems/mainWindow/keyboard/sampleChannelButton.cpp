@@ -51,7 +51,7 @@ namespace v
 geSampleChannelButton::geSampleChannelButton(int x, int y, int w, int h, const c::channel::Data& d)
 : geChannelButton(x, y, w, h, d)
 {
-	switch (m_data.status) {
+	switch (m_data.status->load()) {
 		case ChannelStatus::MISSING:
 		case ChannelStatus::WRONG:
 			label("* file not found! *");
