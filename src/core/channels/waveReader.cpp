@@ -38,27 +38,20 @@ namespace giada {
 namespace m 
 {
 WaveReader::WaveReader()
-: wave    (nullptr),
-  srcState(src_new(SRC_LINEAR, G_MAX_IO_CHANS, nullptr))
+: wave      (nullptr),
+  m_srcState(nullptr)
 {
-	if (srcState == nullptr) {
-		u::log::print("[WaveReader] unable to allocate memory for SRC_STATE!\n");
-		throw std::bad_alloc();
-	}
+	allocateSrc();
 }
-
 
 /* -------------------------------------------------------------------------- */
 
 
 WaveReader::WaveReader(const WaveReader& o)
-: wave    (o.wave),
-  srcState(src_new(SRC_LINEAR, G_MAX_IO_CHANS, nullptr))
+: wave      (o.wave),
+  m_srcState(nullptr)
 {
-	if (srcState == nullptr) {
-		u::log::print("[WaveReader] unable to allocate memory for SRC_STATE!\n");
-		throw std::bad_alloc();
-	}
+	allocateSrc();
 }
 
 
@@ -66,12 +59,10 @@ WaveReader::WaveReader(const WaveReader& o)
 
 
 WaveReader::WaveReader(WaveReader&& o)
-: wave    (o.wave),
-  srcState(o.srcState)
+: wave      (o.wave),
+  m_srcState(nullptr)
 {
-	assert(false);
-	// TODO!
-	o.srcState = nullptr;
+	moveSrc(&o.m_srcState);
 }
 
 
@@ -80,23 +71,16 @@ WaveReader::WaveReader(WaveReader&& o)
 
 WaveReader& WaveReader::operator=(const WaveReader& o)
 {
-	if(this == &o) return *this;
-	srcState = src_new(SRC_LINEAR, G_MAX_IO_CHANS, nullptr);
-	if (srcState == nullptr) {
-		u::log::print("[WaveReader] unable to allocate memory for SRC_STATE!\n");
-		throw std::bad_alloc();
-	}
+	if (this == &o) return *this;
+	allocateSrc();
 	return *this;
 }
 
 
 WaveReader& WaveReader::operator=(WaveReader&& o)
 {
-	if(this == &o) return *this;
-	if (srcState != nullptr)
-		src_delete(srcState);
-	srcState   = o.srcState;
-	o.srcState = nullptr;
+	if (this == &o) return *this;
+	moveSrc(&o.m_srcState);
 	return *this;
 }
 
@@ -106,8 +90,8 @@ WaveReader& WaveReader::operator=(WaveReader&& o)
 
 WaveReader::~WaveReader()
 {
-	if (srcState != nullptr)
-		src_delete(srcState);    
+	if (m_srcState != nullptr)
+		src_delete(m_srcState);    
 }
 
 
@@ -139,7 +123,7 @@ Frame WaveReader::fillResampled(AudioBuffer& dest, Frame start, Frame offset, fl
 	srcData.end_of_input  = false;
 	srcData.src_ratio     = 1 / pitch;
 
-	src_process(srcState, &srcData);
+	src_process(m_srcState, &srcData);
 
 	return srcData.input_frames_used; // Returns used frames
 }
@@ -157,5 +141,30 @@ Frame WaveReader::fillCopy(AudioBuffer& dest, Frame start, Frame offset) const
 	dest.copyData(wave->getFrame(start), used, offset);
 
 	return used;
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+void WaveReader::allocateSrc()
+{
+	m_srcState = src_new(SRC_LINEAR, G_MAX_IO_CHANS, nullptr);
+	if (m_srcState == nullptr) {
+		u::log::print("[WaveReader] unable to allocate memory for SRC_STATE!\n");
+		throw std::bad_alloc();
+	}
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+void WaveReader::moveSrc(SRC_STATE** other)
+{
+	if (m_srcState != nullptr)
+		src_delete(m_srcState);
+	m_srcState = *other;
+	*other = nullptr;
 }
 }} // giada::m::

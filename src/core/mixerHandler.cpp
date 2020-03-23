@@ -319,31 +319,28 @@ void freeAllChannels()
 
 void deleteChannel(ID channelId)
 {
-	bool            hasWave = false;
 	ID              waveId;
 #ifdef WITH_VST
 	std::vector<ID> pluginIds;
 #endif
 
-	model::onGet(model::channels, channelId, [&](Channel& c)
+	model::onGet(model::channels_NEW, channelId, [&](const Channel_NEW& c)
 	{
 #ifdef WITH_VST
-		pluginIds = c.pluginIds;
+		// TODO
+		//pluginIds = c.pluginIds;
 #endif
-		if (c.type != ChannelType::SAMPLE)
-			return;
-		SampleChannel& sc = static_cast<SampleChannel&>(c);
-		hasWave   = sc.hasWave;
-		waveId    = sc.waveId;
+		waveId = c.samplePlayer ? c.samplePlayer->getWaveId() : 0;
 	});
 	
-	model::channels.pop(model::getIndex(model::channels, channelId));
+	model::channels_NEW.pop(model::getIndex(model::channels_NEW, channelId));
 
-	if (hasWave)
+	if (waveId != 0)
 		model::waves.pop(model::getIndex(model::waves, waveId)); 
 
 #ifdef WITH_VST
-	pluginHost::freePlugins(pluginIds);
+	// TODO
+	//pluginHost::freePlugins(pluginIds);
 #endif
 }
 

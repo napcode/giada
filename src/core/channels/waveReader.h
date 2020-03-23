@@ -60,10 +60,13 @@ private:
 	Frame fillResampled(AudioBuffer& out, Frame start, Frame offset, float pitch) const;
 	Frame fillCopy     (AudioBuffer& out, Frame start, Frame offset) const;
 
+	void allocateSrc();
+	void moveSrc(SRC_STATE** o);
+
 	/* srcState
 	Struct from libsamplerate. */
 
-	SRC_STATE* srcState;
+	SRC_STATE* m_srcState;
 };
 }} // giada::m::
 
