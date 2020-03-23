@@ -77,6 +77,8 @@ struct ChannelState final
     std::atomic<ChannelStatus> status;
     std::atomic<float>         volume;
     std::atomic<float>         pan;
+    std::atomic<bool>          mute;
+    std::atomic<bool>          solo;
 
 	/* buffer
 	Working buffer for internal processing. */

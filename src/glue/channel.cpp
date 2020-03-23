@@ -108,31 +108,47 @@ void onRefreshSampleEditor_(bool gui, std::function<void(v::gdSampleEditor*)> f)
 /* -------------------------------------------------------------------------- */
 
 
+SampleData::SampleData(const m::SamplePlayer& s)
+: waveId (s.getWaveId()),
+  mode   (s.state->mode.load()),
+  pitch  (s.state->pitch.load()),
+  tracker(&s.state->tracker),
+  begin  (&s.state->begin),
+  end    (&s.state->end)
+{
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+Data::Data(const m::Channel_NEW& c)
+: id    (c.id),
+  type  (c.getType()),
+  height(c.state->height),
+  name  (c.state->name),
+  volume(c.state->volume),
+  pan   (c.state->pan),
+  mute  (&c.state->mute),
+  solo  (&c.state->solo),
+  status(&c.state->status)
+{
+	if (c.getType() == ChannelType::SAMPLE)
+		sample = std::make_optional<SampleData>(*c.samplePlayer);
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+
 Data getData(ID channelId)
 {
 	Data d;
 	m::model::onGet(m::model::channels_NEW, channelId, [&](const m::Channel_NEW& c) 
 	{ 
-		d = {
-			c.id,
-			c.getType(),
-			c.state->height,
-			c.state->name,
-			c.state->volume,
-			c.state->pan,
-			&c.state->status,
-		};
-
-		if (c.getType() == ChannelType::SAMPLE) {
-			d.sample = {
-				c.samplePlayer->getWaveId(),
-				c.samplePlayer->state->mode.load(),
-				c.samplePlayer->state->pitch.load(),
-				&c.samplePlayer->state->tracker,
-				&c.samplePlayer->state->begin,
-				&c.samplePlayer->state->end
-			};
-		}
+		d = Data(c);
 	});
 	return d;
 }

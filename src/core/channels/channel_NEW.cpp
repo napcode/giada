@@ -99,7 +99,8 @@ void Channel_NEW::render(AudioBuffer& out, const AudioBuffer& in) const
     
     /* ... */
 
-    mergeOutBuffer(out);
+    if (state->mute.load() == false)
+        mergeOutBuffer(out);
 }
 
 

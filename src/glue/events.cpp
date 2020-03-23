@@ -166,7 +166,10 @@ void setChannelPitch(ID channelId, float v, bool gui, bool editor)
 
 void toggleMuteChannel(ID channelId)
 {
-	m::model::onSwap(m::model::channels, channelId, [&](m::Channel& ch) { ch.setMute(!ch.mute); });
+	m::model::onGet(m::model::channels_NEW, channelId, [&](m::Channel_NEW& ch) 
+	{ 
+		ch.state->mute.store(!ch.state->mute.load());
+	});
 }
 
 

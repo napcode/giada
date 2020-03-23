@@ -65,6 +65,8 @@ ChannelState::ChannelState(ID id, Frame bufferSize)
   status(ChannelStatus::OFF),
   volume(G_DEFAULT_VOL),
   pan   (G_DEFAULT_PAN),
+  mute  (false),
+  solo  (false),
   buffer(bufferSize, G_MAX_IO_CHANS),
   height(G_GUI_UNIT)
 {
@@ -77,6 +79,8 @@ ChannelState::ChannelState(const ChannelState& o)
   status(o.status.load()),
   volume(o.volume.load()),
   pan   (o.pan.load()),
+  mute  (o.mute.load()),
+  solo  (o.solo.load()),
   buffer(o.buffer),
   name  (o.name),
   height(o.height)

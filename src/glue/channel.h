@@ -39,7 +39,8 @@
 namespace giada {
 namespace m
 {
-class Channel;
+class Channel_NEW;
+class SamplePlayer;
 }
 namespace c {
 namespace channel 
@@ -48,13 +49,15 @@ namespace channel
 
 struct SampleData
 {
+    SampleData(const m::SamplePlayer&);
+
     ID               waveId;
     SamplePlayerMode mode;
     float            pitch;
 
-    std::atomic<Frame>* tracker {nullptr};
-    std::atomic<Frame>* begin {nullptr};
-    std::atomic<Frame>* end {nullptr};
+    std::atomic<Frame>* tracker;
+    std::atomic<Frame>* begin;
+    std::atomic<Frame>* end;
 };
 
 struct MidiData
@@ -64,14 +67,19 @@ struct MidiData
 
 struct Data
 {
+    Data() {};
+    Data(const m::Channel_NEW&);
+
     ID          id;
     ChannelType type;
     Pixel       height;
     std::string name;
     float       volume;
     float       pan;
-    
-    std::atomic<ChannelStatus>* status {nullptr};
+
+    std::atomic<bool>*          mute;
+    std::atomic<bool>*          solo;
+    std::atomic<ChannelStatus>* status;
 
     std::optional<SampleData> sample;
     std::optional<MidiData>   midi;

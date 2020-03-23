@@ -104,8 +104,8 @@ void geChannel::refresh()
 	//if (c.recStatus == ChannelStatus::WAIT || c.playStatus == ChannelStatus::WAIT)
 	//	blink();
 	//playButton->setStatus(c.isPlaying());
-	//mute->setStatus(c.mute);
-	//solo->setStatus(c.solo);
+	mute->setStatus(m_data.mute->load());
+	solo->setStatus(m_data.solo->load());
 }
 
 
