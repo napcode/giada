@@ -66,9 +66,9 @@ namespace mh
 {
 namespace
 {
-std::unique_ptr<Channel> createChannel_(ChannelType type, ID columnId, ID channelId=0)
+std::unique_ptr<Channel_NEW> createChannel_(ChannelType type, ID columnId, ID channelId=0)
 {
-	std::unique_ptr<Channel> ch = channelManager::create(type, 
+	std::unique_ptr<Channel_NEW> ch = channelManager::create(type, 
 		kernelAudio::getRealBufSize(), conf::conf.inputMonitorDefaultOn, columnId);
 
 	if (type == ChannelType::MASTER) {
@@ -76,7 +76,7 @@ std::unique_ptr<Channel> createChannel_(ChannelType type, ID columnId, ID channe
 		ch->id = channelId;
 	}
 	
-	return ch;	
+	return ch;
 }
 
 
@@ -157,11 +157,11 @@ void init()
 {
 	mixer::init(clock::getFramesInLoop(), kernelAudio::getRealBufSize());
 	
-	model::channels.push(createChannel_(ChannelType::MASTER, /*column=*/0, 
+	model::channels_NEW.push(createChannel_(ChannelType::MASTER, /*column=*/0, 
 		mixer::MASTER_OUT_CHANNEL_ID));
-	model::channels.push(createChannel_(ChannelType::MASTER, /*column=*/0, 
+	model::channels_NEW.push(createChannel_(ChannelType::MASTER, /*column=*/0, 
 		mixer::MASTER_IN_CHANNEL_ID));
-	model::channels.push(createChannel_(ChannelType::PREVIEW, /*column=*/0, 
+	model::channels_NEW.push(createChannel_(ChannelType::PREVIEW, /*column=*/0, 
 		mixer::PREVIEW_CHANNEL_ID));
 }
 
@@ -202,8 +202,7 @@ bool uniqueSamplePath(ID channelToSkip, const std::string& path)
 
 void addChannel(ChannelType type, ID columnId)
 {
-	model::channels_NEW.push(std::move(channelManager::create_NEW(type, 
-		kernelAudio::getRealBufSize(), conf::conf.inputMonitorDefaultOn, columnId)));
+	model::channels_NEW.push(std::move(createChannel_(type, columnId)));
 }
 
 
@@ -240,6 +239,8 @@ int addAndLoadChannel(ID columnId, const std::string& fname)
 
 void addAndLoadChannel(ID columnId, std::unique_ptr<Wave>&& w)
 {
+	assert(false);
+#if 0
 	std::unique_ptr<Channel> ch = createChannel_(ChannelType::SAMPLE, 
 		columnId);
 
@@ -248,6 +249,7 @@ void addAndLoadChannel(ID columnId, std::unique_ptr<Wave>&& w)
 	/* Then add new channel to Channel list. */
 
 	model::channels.push(std::move(ch));
+#endif
 }
 
 
@@ -466,15 +468,15 @@ void setInToOut(bool v)
 
 float getInVol()
 {
-	model::ChannelsLock l(model::channels); 
-	return model::get(model::channels, mixer::MASTER_IN_CHANNEL_ID).volume;
+	model::ChannelsLock_NEW l(model::channels_NEW); 
+	return model::get(model::channels_NEW, mixer::MASTER_IN_CHANNEL_ID).state->volume.load();
 }
 
 
 float getOutVol()
 {
-	model::ChannelsLock l(model::channels); 
-	return model::get(model::channels, mixer::MASTER_OUT_CHANNEL_ID).volume;
+	model::ChannelsLock_NEW l(model::channels_NEW); 
+	return model::get(model::channels_NEW, mixer::MASTER_OUT_CHANNEL_ID).state->volume.load();
 }
 
 

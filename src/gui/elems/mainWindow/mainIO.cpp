@@ -202,19 +202,21 @@ void geMainIO::refresh()
 
 void geMainIO::rebuild()
 {
-	m::model::onGet(m::model::channels, m::mixer::MASTER_OUT_CHANNEL_ID, [&](m::Channel& c)
+	m::model::onGet(m::model::channels_NEW, m::mixer::MASTER_OUT_CHANNEL_ID, [&](const m::Channel_NEW& c)
 	{
-		outVol->value(c.volume);
+		outVol->value(c.state->volume.load());
 #ifdef WITH_VST
-		masterFxOut->setStatus(c.pluginIds.size() > 0);
+		// TODO 
+		//masterFxOut->setStatus(c.pluginIds.size() > 0);
 #endif
 	});
 
-	m::model::onGet(m::model::channels, m::mixer::MASTER_IN_CHANNEL_ID, [&](m::Channel& c)
+	m::model::onGet(m::model::channels_NEW, m::mixer::MASTER_IN_CHANNEL_ID, [&](const m::Channel_NEW& c)
 	{
-		inVol->value(c.volume);
+		inVol->value(c.state->volume.load());
 #ifdef WITH_VST
-		masterFxIn->setStatus(c.pluginIds.size() > 0);
+		// TODO 
+		//masterFxIn->setStatus(c.pluginIds.size() > 0);
 #endif
 	});
 }

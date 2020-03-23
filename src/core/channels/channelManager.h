@@ -55,9 +55,7 @@ void init();
 /* create (1)
 Creates a new Channel from scratch. */
 
-std::unique_ptr<Channel> create(ChannelType type, int bufferSize,
-	bool inputMonitorOn, ID columnId);
-std::unique_ptr<Channel_NEW> create_NEW(ChannelType type, int bufferSize, 
+std::unique_ptr<Channel_NEW> create(ChannelType type, int bufferSize, 
 	bool inputMonitorOn, ID columnId);
 
 /* create (2)

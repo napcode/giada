@@ -70,7 +70,7 @@ void init()
 
 
 /* -------------------------------------------------------------------------- */
-
+/*
 
 std::unique_ptr<Channel> create(ChannelType type, int bufferSize,
 	bool inputMonitorOn, ID columnId)
@@ -92,9 +92,9 @@ std::unique_ptr<Channel> create(ChannelType type, int bufferSize,
 	assert(ch != nullptr);
 	return ch;
 }
+*/
 
-
-std::unique_ptr<Channel_NEW> create_NEW(ChannelType type, int bufferSize, 
+std::unique_ptr<Channel_NEW> create(ChannelType type, int bufferSize, 
 	bool inputMonitorOn, ID columnId)
 {
 	return std::make_unique<Channel_NEW>(type, channelId_.get(), columnId, 

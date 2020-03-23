@@ -79,8 +79,8 @@ private:
 
     bool isActive() const;
 
-    ID m_columnId;
     ChannelType m_type;
+    ID m_columnId;
 };
 }} // giada::m::
 

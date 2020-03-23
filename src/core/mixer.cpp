@@ -120,7 +120,9 @@ std::atomic<bool> active_(false);
 
 /* eventBuffer_
 Buffer of events sent to channels for event parsing. This is filled with Events
-coming from the two event queues. */
+coming from the two event queues.
+TODO - a vector might grow and then allocate memory. Use a new data structure
+with fixed size! */
 
 std::vector<Event> eventBuffer_;
 
@@ -265,39 +267,19 @@ void parseEvents_(Frame f)
 /* -------------------------------------------------------------------------- */
 
 
-void render_NEW(AudioBuffer& out, const AudioBuffer& in, AudioBuffer& inToOut)
+void render_(AudioBuffer& out, const AudioBuffer& in, AudioBuffer& inToOut)
 {
 	model::ChannelsLock_NEW lock(model::channels_NEW);
 
 	for (const Channel_NEW* c : model::channels_NEW)
-		c->render(out, in);
-}
-
-
-void render_(AudioBuffer& out, const AudioBuffer& in, AudioBuffer& inToOut)
-{
-	bool running = clock::isRunning();
-
-	model::ChannelsLock lock(model::channels);
-
-	/* TODO - channel->render alters things in Channel (i.e. it's mutable).
-	Refactoring needed ASAP. */
-
-	for (const Channel* ch : model::channels) {
-		if (ch == nullptr ||
-			ch->id == mixer::MASTER_OUT_CHANNEL_ID ||
-			ch->id == mixer::MASTER_IN_CHANNEL_ID)
-			continue;
-		const_cast<Channel*>(ch)->render(out, in, inToOut, isChannelAudible(ch), running);
-	}
-
-	assert(model::channels.size() >= 3); // Preview channel included
+		if (c->getType() != ChannelType::MASTER)
+			c->render(out, in);
 
 	/* Master channels are processed at the end, when the buffers have already 
 	been filled. */
 	
-	model::get(model::channels, mixer::MASTER_OUT_CHANNEL_ID).render(out, in, inToOut, true, true);
-	model::get(model::channels, mixer::MASTER_IN_CHANNEL_ID).render(out, in, inToOut, true, true);
+	model::get(model::channels_NEW, mixer::MASTER_OUT_CHANNEL_ID).render(out, in);
+	model::get(model::channels_NEW, mixer::MASTER_IN_CHANNEL_ID).render(out, in);
 }
 
 
@@ -307,15 +289,12 @@ void render_(AudioBuffer& out, const AudioBuffer& in, AudioBuffer& inToOut)
 void processSequencer_(AudioBuffer& out, const AudioBuffer& in)
 {
 	for (int j=0; j<out.countFrames(); j++) {
-		if (clock::isRunning()) {
-			parseEvents_(j);
+		if (clock::isRunning())
 			doQuantize_(j);
-		}
 		clock::sendMIDIsync();
 		clock::incrCurrentFrame();
 		renderMetronome_(out, j);
 	}
-	lineInRec_(in);
 }
 
 
@@ -355,15 +334,14 @@ output volume. */
 
 void finalizeOutput_(AudioBuffer& outBuf)
 {
-	model::MixerLock lock(model::mixer);
-	
-	//printf("%f\n", mh::getOutVol());
+	bool  inToOut = mh::getInToOut();
+	float outVol  = mh::getOutVol();
 
 	for (int i=0; i<outBuf.countFrames(); i++)
 		for (int j=0; j<outBuf.countChannels(); j++) {
-			if (model::mixer.get()->inToOut) // Merge vChanInToOut_, if enabled
-				outBuf[i][j] += vChanInToOut_[i][j];
-			outBuf[i][j] *= mh::getOutVol(); 
+			if (inToOut)
+				outBuf[i][j] += vChanInToOut_[i][j]; // Merge vChanInToOut_, if enabled
+			outBuf[i][j] *= outVol; 
 		}
 }
 }; // {anonymous}
@@ -480,12 +458,14 @@ int masterPlay(void* outBuf, void* inBuf, unsigned bufferSize,
 //out[0][0] = 3.0f;
 
 	parseEvents_();
-	if (clock::isActive()) 
+	if (clock::isActive()) {
 		processSequencer_(out, in);
-	render_NEW(out, in, vChanInToOut_);
-	//render_(out, in, vChanInToOut_);
+		lineInRec_(in);
+	}
+	render_(out, in, vChanInToOut_);
 
-	/* Post processing. */
+	/* Post processing. TODO - all this stuff can be optimized into a single
+	loop inside finalizeOutput_ */
 
 	finalizeOutput_(out);
 	limitOutput_(out);

@@ -35,9 +35,9 @@ namespace m
 {
 Channel_NEW::Channel_NEW(ChannelType type, ID id, ID columnId, Frame bufferSize)
 : id        (id),
-  m_columnId(columnId),
+  state     (std::make_unique<ChannelState>(id, bufferSize)),
   m_type    (type),
-  state     (std::make_unique<ChannelState>(id, bufferSize))
+  m_columnId(columnId)
 {
 	if (type == ChannelType::SAMPLE)
 		samplePlayer = std::make_optional<SamplePlayer>(state.get());
@@ -51,10 +51,10 @@ Channel_NEW::Channel_NEW(ChannelType type, ID id, ID columnId, Frame bufferSize)
 
 Channel_NEW::Channel_NEW(const Channel_NEW& o)
 : id          (o.id),
-  m_columnId  (o.m_columnId),
-  m_type      (o.m_type),
   state       (std::make_unique<ChannelState>(*o.state)),
-  samplePlayer(o.samplePlayer)
+  samplePlayer(o.samplePlayer),
+  m_type      (o.m_type),
+  m_columnId  (o.m_columnId)
 {
     samplePlayer->setChannelState(state.get());
 
@@ -166,9 +166,7 @@ ChannelType Channel_NEW::getType() const { return m_type; };
 
 bool Channel_NEW::isInternal() const
 {
-    return id == mixer::MASTER_OUT_CHANNEL_ID ||
-	       id == mixer::MASTER_IN_CHANNEL_ID  ||
-	       id == mixer::PREVIEW_CHANNEL_ID;
+    return m_type == ChannelType::MASTER || m_type == ChannelType::PREVIEW;
 }
 
 
@@ -177,6 +175,8 @@ bool Channel_NEW::isInternal() const
 
 bool Channel_NEW::isActive() const
 {
+    if (isInternal())
+        return true;
     if (samplePlayer && samplePlayer->hasWave()) 
         return true;
     return false;
