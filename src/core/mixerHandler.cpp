@@ -138,7 +138,7 @@ void pushWave_(SampleChannel& ch, std::unique_ptr<Wave>&& w, bool clone)
 }
 
 
-void pushWave_(Channel_NEW& ch, std::unique_ptr<Wave>&& w, bool clone)
+void pushWave_(Channel_NEW& ch, std::unique_ptr<Wave>&& w)
 {
 	assert(ch.samplePlayer);
 
@@ -216,10 +216,19 @@ int loadChannel(ID channelId, const std::string& fname)
 	if (res.status != G_RES_OK) 
 		return res.status;
 
+	ID oldWaveId;
+
 	model::onSwap(model::channels_NEW, channelId, [&](Channel_NEW& c)
 	{
-		pushWave_(c, std::move(res.wave), /*clone=*/false);
+		oldWaveId = c.samplePlayer->getWaveId();
+		pushWave_(c, std::move(res.wave));
 	});
+
+	/* Remove old wave, if any. It is safe to do it now: the channel already
+	points to the new one. */
+	
+	if (oldWaveId != 0)
+		model::waves.pop(model::getIndex(model::waves, oldWaveId));
 
 	return res.status;
 }
