@@ -87,7 +87,7 @@ void Channel_NEW::parse(const std::vector<mixer::Event>& events) const
 /* -------------------------------------------------------------------------- */
 
 
-void Channel_NEW::render(AudioBuffer& out, const AudioBuffer& in) const
+void Channel_NEW::render(AudioBuffer& out, const AudioBuffer& in, bool audible) const
 {
     state->buffer.clear();
 
@@ -99,7 +99,7 @@ void Channel_NEW::render(AudioBuffer& out, const AudioBuffer& in) const
     
     /* ... */
 
-    if (state->mute.load() == false)
+    if (state->mute.load() == false && audible)
         mergeOutBuffer(out);
 }
 

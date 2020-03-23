@@ -273,13 +273,13 @@ void render_(AudioBuffer& out, const AudioBuffer& in, AudioBuffer& inToOut)
 
 	for (const Channel_NEW* c : model::channels_NEW)
 		if (c->getType() != ChannelType::MASTER)
-			c->render(out, in);
+			c->render(out, in, isChannelAudible(*c));
 
 	/* Master channels are processed at the end, when the buffers have already 
 	been filled. */
 	
-	model::get(model::channels_NEW, mixer::MASTER_OUT_CHANNEL_ID).render(out, in);
-	model::get(model::channels_NEW, mixer::MASTER_IN_CHANNEL_ID).render(out, in);
+	model::get(model::channels_NEW, mixer::MASTER_OUT_CHANNEL_ID).render(out, in, true);
+	model::get(model::channels_NEW, mixer::MASTER_IN_CHANNEL_ID).render(out, in, true);
 }
 
 
@@ -500,6 +500,15 @@ bool isChannelAudible(const Channel* ch)
 
 	bool hasSolos = model::mixer.get()->hasSolos;
 	return !hasSolos || (hasSolos && ch->solo);
+}
+
+
+bool isChannelAudible(const Channel_NEW& c)
+{
+	model::MixerLock l(model::mixer);
+
+	bool hasSolos = model::mixer.get()->hasSolos;
+	return !hasSolos || (hasSolos && c.state->solo.load() == true);
 }
 
 bool isMetronomeOn() { return metronome_.running; }

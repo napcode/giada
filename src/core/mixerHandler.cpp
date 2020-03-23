@@ -109,6 +109,13 @@ bool channelHas_(std::function<bool(const Channel*)> f)
 }
 
 
+bool channelHas_(std::function<bool(const Channel_NEW*)> f)
+{
+	model::ChannelsLock_NEW lock(model::channels_NEW);
+	return std::any_of(model::channels_NEW.begin(), model::channels_NEW.end(), f);
+}
+
+
 /* -------------------------------------------------------------------------- */
 
 
@@ -226,7 +233,7 @@ int loadChannel(ID channelId, const std::string& fname)
 
 	/* Remove old wave, if any. It is safe to do it now: the channel already
 	points to the new one. */
-	
+
 	if (oldWaveId != 0)
 		model::waves.pop(model::getIndex(model::waves, oldWaveId));
 
@@ -435,9 +442,9 @@ void toggleSequencer()
 
 void updateSoloCount()
 {
-	model::onSwap(model::mixer, [&](model::Mixer& m)
+	model::onSwap(model::mixer, [](model::Mixer& m)
 	{
-		m.hasSolos = channelHas_([](const Channel* ch) { return ch->solo; });
+		m.hasSolos = channelHas_([](const Channel_NEW* ch) { return ch->state->solo.load() == true; });
 	});
 }
 

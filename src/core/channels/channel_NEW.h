@@ -52,7 +52,7 @@ public:
     ~Channel_NEW()                             = default;
 
     void parse(const std::vector<mixer::Event>& e) const;
-    void render(AudioBuffer& out, const AudioBuffer& in) const;
+    void render(AudioBuffer& out, const AudioBuffer& in, bool audible) const;
 
     bool isInternal() const;
     ID getColumnId() const;

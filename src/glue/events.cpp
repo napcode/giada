@@ -175,7 +175,10 @@ void toggleMuteChannel(ID channelId)
 
 void toggleSoloChannel(ID channelId)
 {
-   	m::model::onSwap(m::model::channels, channelId, [&](m::Channel& ch) { ch.setSolo(!ch.solo); });
+	m::model::onGet(m::model::channels_NEW, channelId, [&](m::Channel_NEW& ch) 
+	{ 
+		ch.state->solo.store(!ch.state->solo.load());
+	});
 	m::mh::updateSoloCount(); 
 }
 

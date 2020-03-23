@@ -44,6 +44,7 @@ namespace m
 {
 struct Action;
 class Channel;
+class Channel_NEW;
 class AudioBuffer;
 
 namespace mixer
@@ -124,6 +125,7 @@ int masterPlay(void* outBuf, void* inBuf, unsigned bufferSize, double streamTime
 	RtAudioStreamStatus status, void* userData);
 
 bool isChannelAudible(const Channel* ch);
+bool isChannelAudible(const Channel_NEW& ch);
 
 /* startInputRec, stopInputRec
 Starts/stops input recording on frame clock::getCurrentFrame(). */
