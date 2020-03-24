@@ -234,6 +234,9 @@ void parseEvents_()
 		eventBuffer_.push_back(e);
 	while (MidiEvents.pop(e))
 		eventBuffer_.push_back(e);
+	
+	/* TODO temporary assert. Waiting for fixed vector. */
+	assert(eventBuffer_.size() <= G_MAX_QUEUE_EVENTS*2);
 
 	model::ChannelsLock_NEW lock(model::channels_NEW);
 

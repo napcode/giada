@@ -224,7 +224,7 @@ geSampleChannel::geSampleChannel(int X, int Y, int W, int H, c::channel::Data d)
 	playButton->when(FL_WHEN_CHANGED);   // On keypress && on keyrelease
 
 	arm->type(FL_TOGGLE_BUTTON);
-	//arm->value(ch.armed);
+	arm->value(m_data.armed);
 	arm->callback(cb_arm, (void*)this);
 
 #ifdef WITH_VST

@@ -67,6 +67,8 @@ sourcesCore =                               \
 	src/core/channels/waveReader.cpp        \
 	src/core/channels/samplePlayer.h        \
 	src/core/channels/samplePlayer.cpp      \
+	src/core/channels/midiReceiver.h        \
+	src/core/channels/midiReceiver.cpp      \
 	src/core/channels/channel.h             \
 	src/core/channels/channel.cpp           \
 	src/core/channels/channel_NEW.h         \

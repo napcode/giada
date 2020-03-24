@@ -76,6 +76,7 @@ struct Data
     std::string name;
     float       volume;
     float       pan;
+    bool        armed;
 
     std::atomic<bool>*          mute;
     std::atomic<bool>*          solo;

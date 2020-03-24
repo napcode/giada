@@ -34,19 +34,59 @@
 #include "core/const.h"
 #include "core/types.h"
 #include "core/audioBuffer.h"
+#include "deps/juce-config.h"
 
 
 namespace giada {
 namespace m
 {
+struct MidiReceiverState final
+{
+    MidiReceiverState();
+    MidiReceiverState(const MidiReceiverState& o);
+
+    bool isAllowed(int channel) const;
+
+	std::atomic<bool> enabled;
+
+    /* velocityAsVol
+    Velocity drives volume (Sample Channels only). */
+
+	std::atomic<bool> velocityAsVol;
+
+    /* channel
+    Which MIDI channel should be filtered out when receiving MIDI messages. 
+    If -1 means 'all'. */
+    
+    std::atomic<int> channel;
+
+    /* MIDI learning fields. */
+
+	std::atomic<uint32_t> keyPress;
+	std::atomic<uint32_t> keyRelease;
+	std::atomic<uint32_t> kill;
+	std::atomic<uint32_t> arm;
+	std::atomic<uint32_t> volume;
+	std::atomic<uint32_t> mute;
+	std::atomic<uint32_t> solo;
+	std::atomic<uint32_t> readActions; // Sample Channels only
+	std::atomic<uint32_t> pitch;       // Sample Channels only
+
+	/* midiBuffer 
+	Contains MIDI events. When ready, events are sent to each plugin in the 
+	channel. This makes sense only for MIDI channels. */
+	
+	juce::MidiBuffer midiBuffer;
+};
+
+
+/* -------------------------------------------------------------------------- */
+
+
 struct SamplePlayerState final
 {
     SamplePlayerState();
     SamplePlayerState(const SamplePlayerState& o);
-    SamplePlayerState(SamplePlayerState&& o)               = default;
-    SamplePlayerState& operator=(const SamplePlayerState&) = default;
-    SamplePlayerState& operator=(SamplePlayerState&&)      = default;
-    ~SamplePlayerState()                                   = default;
 
     std::atomic<Frame>            tracker;
     std::atomic<float>            pitch;
@@ -61,14 +101,13 @@ struct SamplePlayerState final
 };
 
 
+/* -------------------------------------------------------------------------- */
+
+
 struct ChannelState final
 {
     ChannelState(ID id, Frame bufferSize);
     ChannelState(const ChannelState& o);
-    ChannelState(ChannelState&& o)               = default;
-    ChannelState& operator=(const ChannelState&) = default;
-    ChannelState& operator=(ChannelState&&)      = default;
-    ~ChannelState()                              = default;
 
     bool isPlaying() const;
 
@@ -79,6 +118,7 @@ struct ChannelState final
     std::atomic<float>         pan;
     std::atomic<bool>          mute;
     std::atomic<bool>          solo;
+    std::atomic<bool>          armed;
 
 	/* buffer
 	Working buffer for internal processing. */

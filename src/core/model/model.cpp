@@ -65,7 +65,7 @@ Actions::Actions(const Actions& o) : map(o.map)
 
 void debug()
 {
-	ChannelsLock chl(channels);
+	ChannelsLock_NEW chl(channels_NEW);
 	ClockLock    cl(clock);
 	WavesLock    wl(waves);
 	ActionsLock  al(actions);
@@ -78,24 +78,26 @@ void debug()
 	puts("model::channels");
 
 	int i = 0;
-	for (const Channel* c : channels) {
-		printf("    %d) %p - ID=%d name='%s' columnID=%d\n", i++, (void*)c, c->id, c->name.c_str(), c->columnId);
+	for (const Channel_NEW* c : channels_NEW) {
+		printf("\t%d) %p - ID=%d name='%s' columnID=%d\n", i++, (void*)c, c->state->id, c->state->name.c_str(), c->getColumnId());
+/*
 		if (c->hasData())
-			printf("        wave: ID=%d\n", static_cast<const SampleChannel*>(c)->waveId);
+			printf("\t\twave: ID=%d\n", static_cast<const SampleChannel*>(c)->waveId);
 #ifdef WITH_VST
 		if (c->pluginIds.size() > 0) {
-			puts("        plugins:");
+			puts("\t\tplugins:");
 			for (ID id : c->pluginIds)
-				printf("            ID=%d\n", id);
+				printf("\t\t\tID=%d\n", id);
 		}
 #endif
+*/
 	}
 
 	puts("model::waves");
 
 	i = 0;
 	for (const Wave* w : waves) 
-		printf("    %d) %p - ID=%d name='%s'\n", i++, (void*)w, w->id, w->getPath().c_str());
+		printf("\t%d) %p - ID=%d name='%s'\n", i++, (void*)w, w->id, w->getPath().c_str());
 		
 #ifdef WITH_VST
 	puts("model::plugins");
@@ -103,26 +105,26 @@ void debug()
 	i = 0;
 	for (const Plugin* p : plugins) {
 		if (p->valid)
-			printf("    %d) %p - ID=%d name='%s'\n", i++, (void*)p, p->id, p->getName().c_str());
+			printf("\t%d) %p - ID=%d name='%s'\n", i++, (void*)p, p->id, p->getName().c_str());
 		else
-			printf("    %d) %p - ID=%d INVALID\n", i++, (void*)p, p->id); 
+			printf("\t%d) %p - ID=%d INVALID\n", i++, (void*)p, p->id); 
 	}
 #endif
 
 	puts("model::clock");
 
-	printf("    clock.status   = %d\n", static_cast<int>(clock.get()->status));
-	printf("    clock.bars     = %d\n", clock.get()->bars);
-	printf("    clock.beats    = %d\n", clock.get()->beats);
-	printf("    clock.bpm      = %f\n", clock.get()->bpm);
-	printf("    clock.quantize = %d\n", clock.get()->quantize);
+	printf("\tclock.status   = %d\n", static_cast<int>(clock.get()->status));
+	printf("\tclock.bars     = %d\n", clock.get()->bars);
+	printf("\tclock.beats    = %d\n", clock.get()->beats);
+	printf("\tclock.bpm      = %f\n", clock.get()->bpm);
+	printf("\tclock.quantize = %d\n", clock.get()->quantize);
 
 	puts("model::actions");
 
 	for (auto& kv : actions.get()->map) {
-		printf("    frame: %d\n", kv.first);
+		printf("\tframe: %d\n", kv.first);
 		for (const Action& a : kv.second)
-			printf("        (%p) - ID=%d, frame=%d, channel=%d, value=0x%X, prevId=%d, prev=%p, nextId=%d, next=%p\n", 
+			printf("\t\t(%p) - ID=%d, frame=%d, channel=%d, value=0x%X, prevId=%d, prev=%p, nextId=%d, next=%p\n", 
 				(void*) &a, a.id, a.frame, a.channelId, a.event.getRaw(), a.prevId, (void*) a.prev, a.nextId, (void*) a.next);	
 	}
 	

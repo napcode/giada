@@ -127,8 +127,9 @@ Data::Data(const m::Channel_NEW& c)
   type  (c.getType()),
   height(c.state->height),
   name  (c.state->name),
-  volume(c.state->volume),
-  pan   (c.state->pan),
+  volume(c.state->volume.load()),
+  pan   (c.state->pan.load()),
+  armed (c.state->armed.load()),
   mute  (&c.state->mute),
   solo  (&c.state->solo),
   status(&c.state->status)

@@ -35,6 +35,7 @@
 #include "core/mixer.h"
 #include "core/channels/state.h"
 #include "core/channels/samplePlayer.h"
+#include "core/channels/midiReceiver.h"
 
 
 namespace giada {
@@ -64,6 +65,11 @@ public:
     Pointer to mutable Channel state. */
 
     std::unique_ptr<ChannelState> state;
+
+    /* midiReceiver
+    Holds MIDI learnt information, receives MIDI messages for plug-ins. */
+
+    MidiReceiver midiReceiver;
 
     /* (optional) samplePlayer
     For sample rendering. */

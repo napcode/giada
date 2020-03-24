@@ -120,6 +120,48 @@ void processChannels_(const MidiEvent& midiEvent)
 {
 	uint32_t pure = midiEvent.getRawNoVelocity();
 
+	model::ChannelsLock_NEW lock(model::channels_NEW);
+
+	for (const Channel_NEW* c : model::channels_NEW) {
+
+		/* Do nothing on this channel if MIDI in is disabled or filtered out for
+		the current MIDI channel. */
+
+		if (!c->midiReceiver.state->isAllowed(midiEvent.getChannel()))
+			continue;
+
+		if (pure == c->midiReceiver.state->keyPress.load()) {
+			u::log::print("  >>> keyPress, ch=%d (pure=0x%X)\n", c->id, pure);
+			c::events::pressChannel(c->id, midiEvent.getVelocity(), Thread::MIDI);
+		}
+		/* ... */
+		/* ... */
+		/* ... */
+
+
+#ifdef WITH_VST
+		/* Process learned plugins parameters. */
+		//processPlugins_(ch->pluginIds, midiEvent); 
+#endif
+
+		/* Redirect raw MIDI message (pure + velocity) to plug-ins in armed
+		channels. */
+
+		if (c->state->armed.load() == true)
+			c::events::sendMidiToChannel(c->id, midiEvent, Thread::MIDI);
+	}
+
+
+
+
+
+
+
+
+
+
+
+#if 0
 	/* TODO - this is definitely not the best approach but it's necessary as
 	you can't call actions on m::model::channels while locking on a upper
 	level. Let's wait for a better async mechanism... */
@@ -212,6 +254,7 @@ void processChannels_(const MidiEvent& midiEvent)
 	/* Apply all the collected actions. */
 	for (auto& action : actions)
 		action();
+#endif
 }
 
 

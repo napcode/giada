@@ -57,7 +57,7 @@ void toggleMuteChannel       (ID channelId);
 void toggleSoloChannel       (ID channelId);
 void toggleArmChannel        (ID channelId);
 void toggleReadActionsChannel(ID channelId);
-void sendMidiToChannel       (ID channelId, const m::MidiEvent& e); // <--------- TODO
+void sendMidiToChannel       (ID channelId, m::MidiEvent e, Thread t);
 
 /* Main*
 Master I/O, transport and other engine-related events. */

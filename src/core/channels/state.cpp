@@ -31,6 +31,59 @@
 namespace giada {
 namespace m 
 {
+MidiReceiverState::MidiReceiverState()
+: enabled      (true),
+  velocityAsVol(false),
+  channel      (0),
+  keyPress     (0x0),
+  keyRelease   (0x0),
+  kill         (0x0),
+  arm          (0x0),
+  volume       (0x0),
+  mute         (0x0),
+  solo         (0x0),
+  readActions  (0x0),
+  pitch        (0x0)
+{
+
+}
+
+
+MidiReceiverState::MidiReceiverState(const MidiReceiverState& o)
+: enabled      (o.enabled.load()),
+  velocityAsVol(o.velocityAsVol.load()),
+  channel      (o.channel.load()),
+  keyPress     (o.keyPress.load()),
+  keyRelease   (o.keyRelease.load()),
+  kill         (o.kill.load()),
+  arm          (o.arm.load()),
+  volume       (o.volume.load()),
+  mute         (o.mute.load()),
+  solo         (o.solo.load()),
+  readActions  (o.readActions.load()),
+  pitch        (o.pitch.load())
+{
+
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+bool MidiReceiverState::isAllowed(int c) const
+{
+    int channel_  = channel.load();
+    bool enabled_ = enabled.load();
+
+	return enabled_ && (channel_ == -1 || channel_ == c);
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+
 SamplePlayerState::SamplePlayerState()
 : tracker   (0),
   pitch     (G_DEFAULT_PITCH),
@@ -58,6 +111,8 @@ SamplePlayerState::SamplePlayerState(const SamplePlayerState& o)
 
 
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 
 ChannelState::ChannelState(ID id, Frame bufferSize)
@@ -67,6 +122,7 @@ ChannelState::ChannelState(ID id, Frame bufferSize)
   pan   (G_DEFAULT_PAN),
   mute  (false),
   solo  (false),
+  armed (false),
   buffer(bufferSize, G_MAX_IO_CHANS),
   height(G_GUI_UNIT)
 {
@@ -81,6 +137,7 @@ ChannelState::ChannelState(const ChannelState& o)
   pan   (o.pan.load()),
   mute  (o.mute.load()),
   solo  (o.solo.load()),
+  armed (o.armed.load()),
   buffer(o.buffer),
   name  (o.name),
   height(o.height)

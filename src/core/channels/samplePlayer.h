@@ -29,7 +29,6 @@
 #define G_CHANNEL_SAMPLE_PLAYER_H
 
 
-#include <atomic>
 #include "core/types.h"
 #include "core/const.h"
 #include "core/mixer.h"

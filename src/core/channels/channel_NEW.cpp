@@ -75,10 +75,14 @@ void Channel_NEW::parse(const std::vector<mixer::Event>& events) const
             continue;
         if (e.type == mixer::EventType::KILL)
             kill();
+
         // if      (fe.onBar)  onBar(fe.frameLocal);
         // else if (fe.onFirstBeat) onFirstBeat(fe.frameLocal);
+
+        midiReceiver.parse(e);
         if (samplePlayer)
             samplePlayer->parse(e);
+
         printf("event type=%d on channel=%d\n", (int) e.type, id);
     }
 }
@@ -94,6 +98,7 @@ void Channel_NEW::render(AudioBuffer& out, const AudioBuffer& in, bool audible) 
     if (!isActive())
         return;
 
+    midiReceiver.render();
     if (samplePlayer)
         samplePlayer->render(out);
     

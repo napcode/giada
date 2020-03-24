@@ -150,7 +150,9 @@ void setChannelVolume(ID channelId, float v, bool gui, bool editor)
 
 void setChannelPitch(ID channelId, float v, bool gui, bool editor)
 {	
-	/* TODO - this changes the model directly without a swap! */
+	/* TODO */
+	/* TODO */
+	/* TODO */
 	m::model::onGet(m::model::channels, channelId, [&](m::Channel& c)
 	{ 
 		static_cast<m::SampleChannel&>(c).setPitch(v); 
@@ -188,12 +190,19 @@ void toggleSoloChannel(ID channelId)
 
 void toggleArmChannel(ID channelId)
 {
-	m::model::onSwap(m::model::channels, channelId, [&](m::Channel& c) { c.armed = !c.armed; });
+	m::model::onGet(m::model::channels_NEW, channelId, [&](m::Channel_NEW& ch) 
+	{ 
+		ch.state->armed.store(!ch.state->armed.load());
+	});
 }
 
 
 void toggleReadActionsChannel(ID channelId)
 {
+	/* TODO */
+	/* TODO */
+	/* TODO */
+
 	/* When you call startReadingRecs with conf::treatRecsAsLoops, the
 	member value ch->readActions actually is not set to true immediately, because
 	the channel is in wait mode (REC_WAITING). ch->readActions will become true on
@@ -212,6 +221,15 @@ void toggleReadActionsChannel(ID channelId)
 		else
 			ch.startReadingActions(m::conf::conf.treatRecsAsLoops, m::conf::conf.recsStopOnChanHalt);
 	});
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+
+void sendMidiToChannel(ID channelId, m::MidiEvent e, Thread t)
+{
+	pushEvent_({ m::mixer::EventType::MIDI, 0, 0, channelId, e }, t);
 }
 
 
