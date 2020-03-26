@@ -73,8 +73,7 @@ struct MidiReceiverState final
 	std::atomic<uint32_t> pitch;       // Sample Channels only
 
 	/* midiBuffer 
-	Contains MIDI events. When ready, events are sent to each plugin in the 
-	channel. This makes sense only for MIDI channels. */
+	Contains MIDI events to be sent to plug-ins. */
 	
 	juce::MidiBuffer midiBuffer;
 };

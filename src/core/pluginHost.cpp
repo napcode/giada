@@ -31,7 +31,7 @@
 #include "utils/log.h"
 #include "utils/vector.h"
 #include "core/model/model.h"
-#include "core/channels/channel.h"
+#include "core/channels/channel_NEW.h"
 #include "core/const.h"
 #include "core/plugin.h"
 #include "core/pluginManager.h"
@@ -148,7 +148,6 @@ void processStack(AudioBuffer& outBuf, const std::vector<ID>& pluginIds,
 	else {
 		audioBuffer_.clear();
 		processPlugins_(pluginIds, *events);
-
 	}
 	juceToGiadaOutBuf_(outBuf);
 }
@@ -163,7 +162,7 @@ void addPlugin(std::unique_ptr<Plugin> p, ID channelId)
 	
 	model::plugins.push(std::move(p));
 
-	model::onSwap(model::channels, channelId, [&](Channel& c)
+	model::onSwap(model::channels_NEW, channelId, [&](Channel_NEW& c)
 	{
 		c.pluginIds.push_back(pluginId);
 	});
@@ -175,7 +174,7 @@ void addPlugin(std::unique_ptr<Plugin> p, ID channelId)
 
 void swapPlugin(ID pluginId1, ID pluginId2, ID channelId)
 {
-	model::onSwap(model::channels, channelId, [&](Channel& c)
+	model::onSwap(model::channels_NEW, channelId, [&](Channel_NEW& c)
 	{
 		auto a = u::vector::indexOf(c.pluginIds, pluginId1); 
 		auto b = u::vector::indexOf(c.pluginIds, pluginId2); 
@@ -190,7 +189,7 @@ void swapPlugin(ID pluginId1, ID pluginId2, ID channelId)
 
 void freePlugin(ID pluginId, ID channelId)
 {
-	model::onSwap(model::channels, channelId, [&](Channel& c)
+	model::onSwap(model::channels_NEW, channelId, [&](Channel_NEW& c)
 	{
 		u::vector::remove(c.pluginIds, pluginId);
 	});

@@ -61,6 +61,8 @@ public:
 
     ID id;
 
+    std::vector<ID> pluginIds;
+
     /* state
     Pointer to mutable Channel state. */
 

@@ -44,7 +44,7 @@ public:
     MidiReceiver();
 
     void parse(const mixer::Event& e) const;
-    void render() const;
+    void clear() const;
 
     /* state
     Pointer to mutable MidiReceiverState state. */

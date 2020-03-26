@@ -244,7 +244,7 @@ void parseEvents_()
 		c->parse(eventBuffer_); 
 }
 
-
+/*
 void parseEvents_(Frame f)
 {
 	mixer::FrameEvents fe = {
@@ -259,13 +259,13 @@ void parseEvents_(Frame f)
 
 	model::ChannelsLock lock(model::channels);
 
-	/* TODO - channel->parseEvents alters things in Channel (i.e. it's mutable).
-	Refactoring needed ASAP. */
+	 //TODO - channel->parseEvents alters things in Channel (i.e. it's mutable).
+	 //Refactoring needed ASAP. 
 
 	for (Channel* ch : model::channels)
 		ch->parseEvents(fe); 
 }
-
+*/
 
 /* -------------------------------------------------------------------------- */
 

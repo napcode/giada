@@ -34,7 +34,6 @@ namespace m
 MidiReceiver::MidiReceiver()
 : state(std::make_unique<MidiReceiverState>())
 {
-
 }
 
 
@@ -57,7 +56,7 @@ void MidiReceiver::parse(const mixer::Event& e) const
 		flat.getStatus(), 
 		flat.getNote(), 
 		flat.getVelocity());
-        
+
 	state->midiBuffer.addEvent(message, flat.getDelta());
 }
 
@@ -65,9 +64,8 @@ void MidiReceiver::parse(const mixer::Event& e) const
 /* -------------------------------------------------------------------------- */
 
 
-void MidiReceiver::render() const
+void MidiReceiver::clear() const
 {
     state->midiBuffer.clear();
 }
-
 }} // giada::m::

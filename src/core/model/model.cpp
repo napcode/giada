@@ -83,6 +83,7 @@ void debug()
 /*
 		if (c->hasData())
 			printf("\t\twave: ID=%d\n", static_cast<const SampleChannel*>(c)->waveId);
+*/
 #ifdef WITH_VST
 		if (c->pluginIds.size() > 0) {
 			puts("\t\tplugins:");
@@ -90,7 +91,6 @@ void debug()
 				printf("\t\t\tID=%d\n", id);
 		}
 #endif
-*/
 	}
 
 	puts("model::waves");

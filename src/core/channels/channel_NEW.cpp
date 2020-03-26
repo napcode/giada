@@ -27,6 +27,7 @@
 
 #include <cassert>
 #include "core/channels/state.h"
+#include "core/pluginHost.h"
 #include "channel_NEW.h"
 
 
@@ -34,10 +35,10 @@ namespace giada {
 namespace m 
 {
 Channel_NEW::Channel_NEW(ChannelType type, ID id, ID columnId, Frame bufferSize)
-: id        (id),
-  state     (std::make_unique<ChannelState>(id, bufferSize)),
-  m_type    (type),
-  m_columnId(columnId)
+: id        (id)
+, state     (std::make_unique<ChannelState>(id, bufferSize))
+, m_type    (type)
+, m_columnId(columnId)
 {
 	if (type == ChannelType::SAMPLE)
 		samplePlayer = std::make_optional<SamplePlayer>(state.get());
@@ -50,11 +51,12 @@ Channel_NEW::Channel_NEW(ChannelType type, ID id, ID columnId, Frame bufferSize)
 
 
 Channel_NEW::Channel_NEW(const Channel_NEW& o)
-: id          (o.id),
-  state       (std::make_unique<ChannelState>(*o.state)),
-  samplePlayer(o.samplePlayer),
-  m_type      (o.m_type),
-  m_columnId  (o.m_columnId)
+: id          (o.id)
+, pluginIds   (o.pluginIds)
+, state       (std::make_unique<ChannelState>(*o.state))
+, samplePlayer(o.samplePlayer)
+, m_type      (o.m_type)
+, m_columnId  (o.m_columnId)
 {
     samplePlayer->setChannelState(state.get());
 
@@ -67,8 +69,8 @@ Channel_NEW::Channel_NEW(const Channel_NEW& o)
 
 void Channel_NEW::parse(const std::vector<mixer::Event>& events) const
 {
-    if (!isActive())
-        return;
+    //if (!isActive())
+    //    return;
 
     for (const mixer::Event& e : events) {
         if (e.channelId > 0 && e.channelId != id)
@@ -79,8 +81,10 @@ void Channel_NEW::parse(const std::vector<mixer::Event>& events) const
         // if      (fe.onBar)  onBar(fe.frameLocal);
         // else if (fe.onFirstBeat) onFirstBeat(fe.frameLocal);
 
-        midiReceiver.parse(e);
-        if (samplePlayer)
+        if (m_type == ChannelType::MIDI)
+            midiReceiver.parse(e);
+        else
+        if (m_type == ChannelType::SAMPLE)
             samplePlayer->parse(e);
 
         printf("event type=%d on channel=%d\n", (int) e.type, id);
@@ -95,11 +99,10 @@ void Channel_NEW::render(AudioBuffer& out, const AudioBuffer& in, bool audible) 
 {
     state->buffer.clear();
 
-    if (!isActive())
-        return;
+    //if (!isActive())
+    //    return;
 
-    midiReceiver.render();
-    if (samplePlayer)
+    if (m_type == ChannelType::SAMPLE)
         samplePlayer->render(out);
     
     /* ... */
@@ -153,10 +156,16 @@ void Channel_NEW::mergeOutBuffer(AudioBuffer& out) const
 {
     float volume = state->volume.load();
 
+    pluginHost::processStack(state->buffer, pluginIds, 
+        m_type == ChannelType::MIDI ? &midiReceiver.state->midiBuffer : nullptr);
+
 	for (int i = 0; i < out.countFrames(); i++) {
 		for (int j = 0; j < out.countChannels(); j++)
 			out[i][j] += state->buffer[i][j] * volume /*TODO * ch->volume_i * ch->calcPanning(j)*/;	
 	}
+
+    if (m_type == ChannelType::MIDI)
+        midiReceiver.clear();    
 }
 
 
@@ -181,10 +190,13 @@ bool Channel_NEW::isInternal() const
 
 bool Channel_NEW::isActive() const
 {
+    /*
     if (isInternal())
         return true;
-    if (samplePlayer && samplePlayer->hasWave()) 
+    if (m_type == ChannelType::SAMPLE && samplePlayer->hasWave()) 
         return true;
+    if (m_type == ChannelType::MIDI)
+        return true;*/
     return false;
 }
 }} // giada::m::

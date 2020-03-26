@@ -55,9 +55,9 @@ extern giada::v::gdMainWindow* G_MainWin;
 namespace giada {
 namespace v
 {
-gdPluginList::gdPluginList(ID chanID)
-: gdWindow(m::conf::conf.pluginListX, m::conf::conf.pluginListY, 468, 204), 
-  m_channelId(chanID)
+gdPluginList::gdPluginList(const c::channel::Data& d)
+: gdWindow(m::conf::conf.pluginListX, m::conf::conf.pluginListY, 468, 204)
+, m_data  (d)
 {
 	end();
 
@@ -68,13 +68,13 @@ gdPluginList::gdPluginList(ID chanID)
 
 	rebuild();
 
-	if (m_channelId == m::mixer::MASTER_OUT_CHANNEL_ID)
+	if (m_data.id == m::mixer::MASTER_OUT_CHANNEL_ID)
 		label("Master Out Plug-ins");
 	else
-	if (m_channelId == m::mixer::MASTER_IN_CHANNEL_ID)
+	if (m_data.id == m::mixer::MASTER_IN_CHANNEL_ID)
 		label("Master In Plug-ins");
 	else {
-		std::string l = "Channel " + u::string::iToString(m_channelId + 1) + " Plug-ins";
+		std::string l = "Channel " + u::string::iToString(m_data.id + 1) + " Plug-ins";
 		copy_label(l.c_str());
 	}
 
@@ -110,12 +110,8 @@ void gdPluginList::rebuild()
 	list->clear();
 	list->scroll_to(0, 0);
 
-	m::model::ChannelsLock l(m::model::channels);
-
-	const m::Channel& ch = m::model::get(m::model::channels, m_channelId);
-
-	for (ID pluginId : ch.pluginIds)
-		list->addWidget(new gePluginElement(pluginId, m_channelId, 0, 0, 0));
+	for (ID pluginId : m_data.pluginIds)
+		list->addWidget(new gePluginElement(pluginId, m_data.id, 0, 0, 0));
 	
 	addPlugin = list->addWidget(new geButton(0, 0, 0, G_GUI_UNIT, "-- add new plugin --"));
 	
@@ -133,7 +129,7 @@ void gdPluginList::cb_addPlugin()
 	int ww = m::conf::conf.pluginChooserW;
 	int wh = m::conf::conf.pluginChooserH;
 	u::gui::openSubWindow(G_MainWin, new v::gdPluginChooser(wx, wy, ww, wh, 
-		m_channelId), WID_FX_CHOOSER);
+		m_data.id), WID_FX_CHOOSER);
 }
 
 

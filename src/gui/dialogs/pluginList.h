@@ -33,6 +33,7 @@
 
 
 #include "core/pluginHost.h"
+#include "glue/channel.h"
 #include "window.h"
 
 
@@ -48,7 +49,7 @@ class gdPluginList : public gdWindow
 {
 public:
 
-	gdPluginList(ID chanID);
+	gdPluginList(const c::channel::Data& d);
 	~gdPluginList();
 
 	void rebuild() override;
@@ -64,7 +65,7 @@ private:
 	geButton*       addPlugin;
 	geLiquidScroll* list;	
 
-	ID m_channelId;
+	const c::channel::Data& m_data;
 };
 
 }} // giada::v::

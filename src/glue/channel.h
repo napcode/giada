@@ -70,13 +70,14 @@ struct Data
     Data() {};
     Data(const m::Channel_NEW&);
 
-    ID          id;
-    ChannelType type;
-    Pixel       height;
-    std::string name;
-    float       volume;
-    float       pan;
-    bool        armed;
+    ID              id;
+    std::vector<ID> pluginIds;
+    ChannelType     type;
+    Pixel           height;
+    std::string     name;
+    float           volume;
+    float           pan;
+    bool            armed;
 
     std::atomic<bool>*          mute;
     std::atomic<bool>*          solo;

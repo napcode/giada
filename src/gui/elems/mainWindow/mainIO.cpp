@@ -33,6 +33,7 @@
 #include "core/pluginHost.h"
 #include "glue/events.h"
 #include "glue/main.h"
+#include "glue/channel.h"
 #include "utils/gui.h"
 #include "gui/elems/soundMeter.h"
 #include "gui/elems/basics/statusButton.h"
@@ -133,13 +134,13 @@ void geMainIO::cb_inVol()
 
 void geMainIO::cb_masterFxOut()
 {
-	u::gui::openSubWindow(G_MainWin, new v::gdPluginList(m::mixer::MASTER_OUT_CHANNEL_ID), WID_FX_LIST);
+	u::gui::openSubWindow(G_MainWin, new v::gdPluginList(c::channel::getData(m::mixer::MASTER_OUT_CHANNEL_ID)), WID_FX_LIST);
 }
 
 
 void geMainIO::cb_masterFxIn()
 {
-	u::gui::openSubWindow(G_MainWin, new v::gdPluginList(m::mixer::MASTER_IN_CHANNEL_ID), WID_FX_LIST);
+	u::gui::openSubWindow(G_MainWin, new v::gdPluginList(c::channel::getData(m::mixer::MASTER_IN_CHANNEL_ID)), WID_FX_LIST);
 }
 
 

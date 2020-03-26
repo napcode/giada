@@ -156,7 +156,7 @@ geMidiChannel::geMidiChannel(int X, int Y, int W, int H, c::channel::Data d)
 	playButton->when(FL_WHEN_CHANGED);   // On keypress && on keyrelease
 
 	arm->type(FL_TOGGLE_BUTTON);
-	//arm->value(ch.armed);
+	arm->value(m_data.armed);
 	arm->callback(cb_arm, (void*)this);
 
 #ifdef WITH_VST
@@ -203,7 +203,7 @@ void geMidiChannel::cb_openMenu()
 	Fl_Menu_Item rclick_menu[] = {
 		{"Edit actions...", 0, menuCallback, (void*) Menu::EDIT_ACTIONS},
 		{"Clear actions",   0, menuCallback, (void*) Menu::CLEAR_ACTIONS, FL_SUBMENU},
-			{"All",           0, menuCallback, (void*) Menu::CLEAR_ACTIONS_ALL},
+			{"All",         0, menuCallback, (void*) Menu::CLEAR_ACTIONS_ALL},
 			{0},
 		{"Setup keyboard input...", 0, menuCallback, (void*) Menu::SETUP_KEYBOARD_INPUT},
 		{"Setup MIDI input...",     0, menuCallback, (void*) Menu::SETUP_MIDI_INPUT},

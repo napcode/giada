@@ -109,12 +109,12 @@ void onRefreshSampleEditor_(bool gui, std::function<void(v::gdSampleEditor*)> f)
 
 
 SampleData::SampleData(const m::SamplePlayer& s)
-: waveId (s.getWaveId()),
-  mode   (s.state->mode.load()),
-  pitch  (s.state->pitch.load()),
-  tracker(&s.state->tracker),
-  begin  (&s.state->begin),
-  end    (&s.state->end)
+: waveId (s.getWaveId())
+, mode   (s.state->mode.load())
+, pitch  (s.state->pitch.load())
+, tracker(&s.state->tracker)
+, begin  (&s.state->begin)
+, end    (&s.state->end)
 {
 }
 
@@ -123,16 +123,17 @@ SampleData::SampleData(const m::SamplePlayer& s)
 
 
 Data::Data(const m::Channel_NEW& c)
-: id    (c.id),
-  type  (c.getType()),
-  height(c.state->height),
-  name  (c.state->name),
-  volume(c.state->volume.load()),
-  pan   (c.state->pan.load()),
-  armed (c.state->armed.load()),
-  mute  (&c.state->mute),
-  solo  (&c.state->solo),
-  status(&c.state->status)
+: id       (c.id)
+, pluginIds(c.pluginIds)
+, type     (c.getType())
+, height   (c.state->height)
+, name     (c.state->name)
+, volume   (c.state->volume.load())
+, pan      (c.state->pan.load())
+, armed    (c.state->armed.load())
+, mute     (&c.state->mute)
+, solo     (&c.state->solo)
+, status   (&c.state->status)
 {
 	if (c.getType() == ChannelType::SAMPLE)
 		sample = std::make_optional<SampleData>(*c.samplePlayer);
