@@ -61,7 +61,7 @@ std::unique_ptr<Channel_NEW> create(ChannelType type, int bufferSize,
 /* create (2)
 Creates a new Channel given an existing one (i.e. clone). */
 
-std::unique_ptr<Channel> create(const Channel& ch);
+std::unique_ptr<Channel_NEW> create(const Channel_NEW& ch);
 
 /* (de)serializeWave
 Creates a new Channel given the patch raw data and vice versa. */

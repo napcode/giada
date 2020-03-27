@@ -58,7 +58,7 @@ public:
     bool isInternal() const;
     ID getColumnId() const;
     ChannelType getType() const;
-
+    
     ID id;
 
     std::vector<ID> pluginIds;

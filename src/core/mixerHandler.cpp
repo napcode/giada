@@ -147,7 +147,7 @@ void pushWave_(SampleChannel& ch, std::unique_ptr<Wave>&& w, bool clone)
 
 void pushWave_(Channel_NEW& ch, std::unique_ptr<Wave>&& w)
 {
-	assert(ch.samplePlayer);
+	assert(ch.getType() == ChannelType::SAMPLE);
 
 	model::waves.push(std::move(w));
 	ch.samplePlayer->loadWave(model::waves.back());
@@ -274,28 +274,29 @@ void addAndLoadChannel(ID columnId, std::unique_ptr<Wave>&& w)
 
 void cloneChannel(ID channelId)
 {
-	model::ChannelsLock cl(model::channels);
+	model::ChannelsLock_NEW cl(model::channels_NEW);
 	model::WavesLock    wl(model::waves);
 
-	const Channel&           oldChannel = model::get(model::channels, channelId);
-	std::unique_ptr<Channel> newChannel = channelManager::create(oldChannel);
+	const Channel_NEW&           oldChannel = model::get(model::channels_NEW, channelId);
+	std::unique_ptr<Channel_NEW> newChannel = channelManager::create(oldChannel);
 
 	/* Clone plugins, actions and wave first in their own lists. */
 	
 #ifdef WITH_VST
-	pluginHost::clonePlugins(oldChannel, *newChannel.get());
+	newChannel->pluginIds = pluginHost::clonePlugins(oldChannel.pluginIds);
 #endif
 	recorderHandler::cloneActions(channelId, newChannel->id);
 	
-	if (newChannel->hasData()) {
-		SampleChannel* sch  = static_cast<SampleChannel*>(newChannel.get());
-		Wave&          wave = model::get(model::waves, sch->waveId);
-		pushWave_(*sch, waveManager::createFromWave(wave, 0, wave.getSize()), /*clone=*/true);
+	if (newChannel->samplePlayer && 
+	    newChannel->samplePlayer->hasWave()) 
+	{
+		Wave& wave = model::get(model::waves, newChannel->samplePlayer->getWaveId());
+		pushWave_(*newChannel, waveManager::createFromWave(wave, 0, wave.getSize()));
 	}
 
 	/* Then push the new channel in the channels list. */
 
-	model::channels.push(std::move(newChannel));
+	model::channels_NEW.push(std::move(newChannel));
 }
 
 

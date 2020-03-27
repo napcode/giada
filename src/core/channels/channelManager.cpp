@@ -105,24 +105,10 @@ std::unique_ptr<Channel_NEW> create(ChannelType type, int bufferSize,
 /* -------------------------------------------------------------------------- */
 
 
-std::unique_ptr<Channel> create(const Channel& o)
+std::unique_ptr<Channel_NEW> create(const Channel_NEW& o)
 {
-	std::unique_ptr<Channel> ch = nullptr;
-	
-	if (o.type == ChannelType::SAMPLE)
-		ch = std::make_unique<SampleChannel>(static_cast<const SampleChannel&>(o));
-	else
-	if (o.type == ChannelType::MIDI)
-		ch = std::make_unique<MidiChannel>(static_cast<const MidiChannel&>(o));
-	else
-	if (o.type == ChannelType::MASTER)
-		ch = std::make_unique<MasterChannel>(static_cast<const MasterChannel&>(o));
-
-	assert(ch != nullptr);
-
-	if (o.type != ChannelType::MASTER)
-		ch->id = channelId_.get();
-
+	std::unique_ptr<Channel_NEW> ch = std::make_unique<Channel_NEW>(o);
+	ch->id = channelId_.get();
 	return ch;
 }
 
