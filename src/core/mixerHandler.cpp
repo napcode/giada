@@ -326,10 +326,13 @@ void freeChannel(ID channelId)
 
 void freeAllChannels()
 {
+	/* TODO - not so great: all channels will be swapped out regardless their
+	actual content. */
 	for (size_t i = 0; i < model::channels_NEW.size(); i++) {
 		model::onSwap(model::channels_NEW, model::getId(model::channels_NEW, i), [](Channel_NEW& c) 
 		{ 
-			c.samplePlayer->loadWave(nullptr);
+			if (c.samplePlayer)
+				c.samplePlayer->loadWave(nullptr);
 		});
 	}
 	model::waves.clear();
@@ -517,6 +520,9 @@ bool hasActions()
 
 bool hasAudioData()
 {
-	return channelHas_([](const Channel* ch) { return ch->hasData(); });
+	return channelHas_([](const Channel_NEW* ch)
+	{ 
+		return ch->samplePlayer && ch->samplePlayer->hasWave(); 
+	});
 }
 }}}; // giada::m::mh::
