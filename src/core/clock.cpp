@@ -31,6 +31,7 @@
 #include "utils/math.h"
 #include "core/model/model.h"
 #include "core/conf.h"
+#include "core/sequencer.h"
 #include "core/const.h"
 #include "core/kernelAudio.h"
 #include "core/mixerHandler.h"
@@ -398,11 +399,11 @@ void recvJackSync()
 	if (jackState.running != jackStatePrev_.running) {
 		if (jackState.running) {
 			if (!isRunning())
-				mh::startSequencer();
+				sequencer::start();
 		}
 		else {
 			if (isRunning())
-				mh::stopSequencer();
+				sequencer::stop();
 		}
 	}
 	if (jackState.bpm != jackStatePrev_.bpm)
@@ -410,7 +411,7 @@ void recvJackSync()
 			c::main::setBpm(jackState.bpm);
 
 	if (jackState.frame == 0 && jackState.frame != jackStatePrev_.frame)
-		mh::rewindSequencer();
+		sequencer::rewind();
 
 	jackStatePrev_ = jackState;
 }

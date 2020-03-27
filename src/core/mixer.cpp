@@ -45,6 +45,7 @@
 #include "core/const.h"
 #include "core/audioBuffer.h"
 #include "core/action.h"
+#include "core/sequencer.h"
 #include "core/mixer.h"
 
 
@@ -202,7 +203,7 @@ void doQuantize_(unsigned frame)
 	if (rewindWait) {
 		rewindWait = false;
 		clock::rewind();
-		mh::rewindChannels();
+		sequencer::rewindChannels();
 	}
 }
 

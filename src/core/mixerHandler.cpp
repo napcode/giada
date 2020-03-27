@@ -380,68 +380,6 @@ void renameChannel(ID channelId, const std::string& name)
 /* -------------------------------------------------------------------------- */
 
 
-void startSequencer()
-{
-	switch (clock::getStatus()) {
-		case ClockStatus::STOPPED:
-			clock::setStatus(ClockStatus::RUNNING); 
-			break;
-		case ClockStatus::WAITING:
-			clock::setStatus(ClockStatus::RUNNING); 
-			recManager::stopActionRec();
-			break;
-		default: 
-			break;
-	}
-
-#ifdef __linux__
-	kernelAudio::jackStart();
-#endif
-}
-
-
-/* -------------------------------------------------------------------------- */
-
-
-void stopSequencer()
-{
-	clock::setStatus(ClockStatus::STOPPED);
-
-	/* Stop channels with explicit locks. The RAII version would trigger a
-	deadlock if recManager::stopInputRec() is called down below. */
-
-	model::channels.lock();
-	for (Channel* c : model::channels)
-		c->stopBySeq(conf::conf.chansStopOnSeqHalt);
-	model::channels.unlock();
-
-#ifdef __linux__
-	kernelAudio::jackStop();
-#endif
-
-	/* If recordings (both input and action) are active deactivate them, but 
-	store the takes. RecManager takes care of it. */
-
-	if (recManager::isRecordingAction())
-		recManager::stopActionRec();
-	else
-	if (recManager::isRecordingInput())
-		recManager::stopInputRec();
-}
-
-
-/* -------------------------------------------------------------------------- */
-
-
-void toggleSequencer()
-{
-	clock::isRunning() ? stopSequencer() : startSequencer();
-}
-
-
-/* -------------------------------------------------------------------------- */
-
-
 void updateSoloCount()
 {
 	model::onSwap(model::mixer, [](model::Mixer& m)
@@ -501,41 +439,6 @@ float getOutVol()
 bool getInToOut()
 {
 	model::MixerLock lock(model::mixer); return model::mixer.get()->inToOut;
-}
-
-
-/* -------------------------------------------------------------------------- */
-
-
-void rewindSequencer()
-{
-	if (clock::getQuantize() > 0 && clock::isRunning())   // quantize rewind
-		mixer::rewindWait = true;
-	else {
-		clock::rewind();
-		rewindChannels();
-	}
-
-	/* FIXME - potential desync when Quantizer is enabled from this point on.
-	Mixer would wait, while the following calls would be made regardless of its
-	state. */
-
-#ifdef __linux__
-	kernelAudio::jackSetPosition(0);
-#endif
-
-	if (conf::conf.midiSync == MIDI_SYNC_CLOCK_M)
-		kernelMidi::send(MIDI_POSITION_PTR, 0, 0);
-}
-
-
-/* -------------------------------------------------------------------------- */
-
-
-void rewindChannels()
-{
-	for (size_t i = 3; i < model::channels.size(); i++)
-		model::onSwap(model::channels, model::getId(model::channels, i), [&](Channel& c) { c.rewindBySeq();	});
 }
 
 

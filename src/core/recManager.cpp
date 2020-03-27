@@ -33,6 +33,7 @@
 #include "core/kernelAudio.h"
 #include "core/conf.h"
 #include "core/mixer.h"
+#include "core/sequencer.h"
 #include "core/mixerHandler.h"
 #include "core/midiDispatcher.h"
 #include "core/recorder.h"
@@ -72,7 +73,7 @@ bool startActionRec_()
 	if (!kernelAudio::isReady())
 		return false;
 	clock::setStatus(ClockStatus::RUNNING);
-	m::mh::startSequencer();
+	sequencer::start();
 	return true;
 }
 
@@ -85,7 +86,7 @@ bool startInputRec_()
 	if (!kernelAudio::isReady() || !mh::hasRecordableSampleChannels())
 		return false;
 	mixer::startInputRec();
-	mh::startSequencer();
+	sequencer::start();
 	return true;
 }
 } // {anonymous}

@@ -35,6 +35,8 @@ sourcesCore =                               \
 	src/core/pluginManager.cpp              \
 	src/core/mixerHandler.h                 \
 	src/core/mixerHandler.cpp               \
+	src/core/sequencer.h                    \
+	src/core/sequencer.cpp                  \
 	src/core/init.h                         \
 	src/core/init.cpp                       \
 	src/core/plugin.h                       \

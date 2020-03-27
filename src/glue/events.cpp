@@ -33,6 +33,7 @@
 #include "core/mixer.h"
 #include "core/midiEvent.h"
 #include "core/pluginHost.h"
+#include "core/sequencer.h"
 #include "core/mixerHandler.h"
 #include "core/conf.h"
 #include "core/recManager.h"
@@ -287,8 +288,8 @@ void divideBeats()
 /* -------------------------------------------------------------------------- */
 
 
-void toggleSequencer() { m::mh::toggleSequencer(); }
-void rewindSequencer() { m::mh::rewindSequencer(); }
+void toggleSequencer() { m::sequencer::toggle(); }
+void rewindSequencer() { m::sequencer::rewind(); }
 
 
 /* -------------------------------------------------------------------------- */

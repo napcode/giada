@@ -88,12 +88,6 @@ void cloneChannel(ID channelId);
 void renameChannel(ID channelId, const std::string& name);
 void freeAllChannels();
 
-void startSequencer();
-void stopSequencer();
-void toggleSequencer();
-void rewindSequencer();
-void rewindChannels();
-
 void setInToOut(bool v);
 void setInVol(float f);
 void setOutVol(float f);
