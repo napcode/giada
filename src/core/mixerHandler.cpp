@@ -287,8 +287,7 @@ void cloneChannel(ID channelId)
 #endif
 	recorderHandler::cloneActions(channelId, newChannel->id);
 	
-	if (newChannel->samplePlayer && 
-	    newChannel->samplePlayer->hasWave()) 
+	if (newChannel->samplePlayer && newChannel->samplePlayer->hasWave()) 
 	{
 		Wave& wave = model::get(model::waves, newChannel->samplePlayer->getWaveId());
 		pushWave_(*newChannel, waveManager::createFromWave(wave, 0, wave.getSize()));
@@ -327,8 +326,12 @@ void freeChannel(ID channelId)
 
 void freeAllChannels()
 {
-	for (size_t i = 0; i < model::channels.size(); i++)
-		model::onSwap(model::channels, model::getId(model::channels, i), [](Channel& c) { c.empty(); });
+	for (size_t i = 0; i < model::channels_NEW.size(); i++) {
+		model::onSwap(model::channels_NEW, model::getId(model::channels_NEW, i), [](Channel_NEW& c) 
+		{ 
+			c.samplePlayer->loadWave(nullptr);
+		});
+	}
 	model::waves.clear();
 }
 
@@ -346,10 +349,9 @@ void deleteChannel(ID channelId)
 	model::onGet(model::channels_NEW, channelId, [&](const Channel_NEW& c)
 	{
 #ifdef WITH_VST
-		// TODO
-		//pluginIds = c.pluginIds;
+		pluginIds = c.pluginIds;
 #endif
-		waveId = c.samplePlayer ? c.samplePlayer->getWaveId() : 0;
+		waveId    = c.samplePlayer ? c.samplePlayer->getWaveId() : 0;
 	});
 	
 	model::channels_NEW.pop(model::getIndex(model::channels_NEW, channelId));
@@ -358,8 +360,7 @@ void deleteChannel(ID channelId)
 		model::waves.pop(model::getIndex(model::waves, waveId)); 
 
 #ifdef WITH_VST
-	// TODO
-	//pluginHost::freePlugins(pluginIds);
+	pluginHost::freePlugins(pluginIds);
 #endif
 }
 

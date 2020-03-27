@@ -173,7 +173,7 @@ void quantize(int val)
 
 void clearAllSamples()
 {
-	if (!v::gdConfirmWin("Warning", "Clear all samples: are you sure?"))
+	if (!v::gdConfirmWin("Warning", "Free all Sample channels: are you sure?"))
 		return;
 	G_MainWin->delSubWindow(WID_SAMPLE_EDITOR);
 	m::clock::setStatus(ClockStatus::STOPPED);

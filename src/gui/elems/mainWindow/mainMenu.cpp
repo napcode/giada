@@ -156,7 +156,7 @@ void geMainMenu::cb_file()
 void geMainMenu::cb_edit()
 {
 	Fl_Menu_Item menu[] = {
-		{"Clear all samples"},
+		{"Free all Sample channels"},
 		{"Clear all actions"},
 		{"Setup global MIDI input..."},
 		{0}
@@ -177,7 +177,7 @@ void geMainMenu::cb_edit()
 	const Fl_Menu_Item* m = menu->popup(Fl::event_x(), Fl::event_y(), 0, 0, &b);
 	if (!m) return;
 
-	if (strcmp(m->label(), "Clear all samples") == 0) 
+	if (strcmp(m->label(), "Free all Sample channels") == 0) 
 		c::main::clearAllSamples();
 	else
 	if (strcmp(m->label(), "Clear all actions") == 0) 
